@@ -65,8 +65,9 @@ const mockDestinations = {
   }
 };
 
-export default async function DestinationDetailPage({ params }: { params: { id: string } }) {
-  const dest = mockDestinations[params.id as keyof typeof mockDestinations];
+export default async function DestinationDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const dest = mockDestinations[id as keyof typeof mockDestinations];
 
   if (!dest) return notFound();
 

@@ -1,11 +1,10 @@
-
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MapPin, Star, Languages, MessageSquare, ShieldCheck, Zap, Info, Calendar } from 'lucide-react';
+import { MapPin, Star, MessageSquare, ShieldCheck, Zap, Info, Calendar } from 'lucide-react';
 import AIItineraryPanel from '@/components/AIItineraryPanel';
 
 const mockGuides = [
@@ -35,8 +34,9 @@ const mockGuides = [
   }
 ];
 
-export default async function GuideProfilePage({ params }: { params: { id: string } }) {
-  const guide = mockGuides.find(g => g.id === params.id);
+export default async function GuideProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const guide = mockGuides.find(g => g.id === id);
 
   if (!guide) return notFound();
 
