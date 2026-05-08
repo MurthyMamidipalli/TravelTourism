@@ -4,7 +4,7 @@ import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 
 /**
  * Firebase project configuration.
- * These values are public and safe to include in your client-side code.
+ * Using your verified project keys.
  */
 const firebaseConfig = {
   apiKey: "AIzaSyDzb5BIoBdlNlsK9JNPM8OYswvjUzz6dyQ",
