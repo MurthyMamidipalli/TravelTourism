@@ -4,12 +4,8 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 
 /**
- * ATTENTION: You MUST replace the values below with your real project configuration!
- * 
- * 1. Go to https://console.firebase.google.com/
- * 2. Select your project "voyage-compass-ap"
- * 3. Go to Project Settings > Your Apps > Web App
- * 4. Copy the "firebaseConfig" object and paste it below.
+ * Replace these values with your actual Firebase project configuration
+ * from the Firebase Console: Project Settings > Your Apps > Web App.
  */
 const firebaseConfig = {
   apiKey: "REPLACE_WITH_YOUR_ACTUAL_API_KEY",
@@ -24,9 +20,9 @@ export function getFirebaseApp(): FirebaseApp {
   const existingApp = getApps().at(0);
   if (existingApp) return existingApp;
   
-  // Basic validation to help the user identify missing keys
+  // Validation for initial setup
   if (firebaseConfig.apiKey.includes('REPLACE_WITH')) {
-    console.error("Firebase Error: You haven't added your API Key in src/firebase/config.ts yet.");
+    console.warn("Firebase Configuration: Placeholder values detected. Please update src/firebase/config.ts with your actual API key from the Firebase Console.");
   }
   
   return initializeApp(firebaseConfig);

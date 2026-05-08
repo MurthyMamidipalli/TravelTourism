@@ -27,11 +27,13 @@ export default function GuideReviews({ guideId }: GuideReviewsProps) {
   const { data: reviews, loading } = useCollection(reviewsQuery);
 
   if (loading) {
-    return <div className="animate-pulse space-y-4">
-      {[1, 2, 3].map(i => (
-        <div key={i} className="h-24 bg-secondary/50 rounded-xl" />
-      ))}
-    </div>;
+    return (
+      <div className="animate-pulse space-y-4">
+        {[1, 2, 3].map(i => (
+          <div key={i} className="h-24 bg-secondary/50 rounded-xl" />
+        ))}
+      </div>
+    );
   }
 
   return (
