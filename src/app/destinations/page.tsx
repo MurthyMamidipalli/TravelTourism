@@ -1,4 +1,6 @@
+'use client';
 
+import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,6 +19,13 @@ const allDestinations = [
 ];
 
 export default function DestinationsPage() {
+  const [searchTerm, setSearchTerm] = useState('');
+
+  const filteredDestinations = allDestinations.filter((dest) =>
+    dest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    dest.country.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <div className="container mx-auto px-4 py-12 space-y-8">
       <div className="text-center space-y-4 max-w-2xl mx-auto">
@@ -27,12 +36,14 @@ export default function DestinationsPage() {
           <Input 
             placeholder="Search for a city or country..." 
             className="pl-10 h-12 bg-white rounded-full shadow-sm"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {allDestinations.map((dest) => (
+        {filteredDestinations.map((dest) => (
           <Link key={dest.id} href={`/destinations/${dest.id}`}>
             <Card className="h-full group hover:shadow-md transition-shadow border-none overflow-hidden bg-white">
               <div className="relative h-48">
@@ -54,6 +65,12 @@ export default function DestinationsPage() {
           </Link>
         ))}
       </div>
+
+      {filteredDestinations.length === 0 && (
+        <div className="text-center py-20">
+          <p className="text-muted-foreground text-lg">No destinations found matching &quot;{searchTerm}&quot;</p>
+        </div>
+      )}
     </div>
   );
 }
