@@ -1,0 +1,63 @@
+
+{
+  "entities": {
+    "Country": {
+      "title": "Country",
+      "description": "A country in the world tourism directory.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Name of the country" },
+        "code": { "type": "string", "description": "ISO country code" },
+        "description": { "type": "string", "description": "Brief overview of the country" },
+        "imageUrl": { "type": "string", "description": "Hero image for the country" },
+        "region": { "type": "string", "description": "Geographical region" }
+      },
+      "required": ["name", "code"]
+    },
+    "City": {
+      "title": "City",
+      "description": "A major city within a country.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "countryId": { "type": "string", "description": "Reference to the parent country" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "population": { "type": "string" }
+      },
+      "required": ["name", "countryId"]
+    },
+    "Attraction": {
+      "title": "Attraction",
+      "description": "A tourist attraction or landmark in a city.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "cityId": { "type": "string" },
+        "description": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "rating": { "type": "number" },
+        "category": { "type": "string", "enum": ["Monument", "Nature", "Museum", "Park", "Historical"] },
+        "googleMapsUrl": { "type": "string" }
+      },
+      "required": ["name", "cityId"]
+    }
+  },
+  "auth": {
+    "providers": ["google.com"]
+  },
+  "firestore": {
+    "/countries/{countryId}": {
+      "schema": "Country",
+      "description": "Global countries collection"
+    },
+    "/countries/{countryId}/cities/{cityId}": {
+      "schema": "City",
+      "description": "Cities within a country"
+    },
+    "/countries/{countryId}/cities/{cityId}/attractions/{attractionId}": {
+      "schema": "Attraction",
+      "description": "Attractions within a city"
+    }
+  }
+}
