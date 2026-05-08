@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -149,8 +148,14 @@ export default function Navbar() {
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
-                    <Link href="/guides/register" className="cursor-pointer">
+                    <Link href="/profile" className="cursor-pointer">
                       <UserIcon className="mr-2 h-4 w-4" />
+                      <span>My Profile</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/guides/register" className="cursor-pointer">
+                      <Utensils className="mr-2 h-4 w-4" />
                       <span>Become a Guide</span>
                     </Link>
                   </DropdownMenuItem>
@@ -219,6 +224,11 @@ export default function Navbar() {
                 <Link href="/dashboard" onClick={() => setIsOpen(false)}>
                   <Button variant="ghost" className="w-full justify-start rounded-2xl h-12">
                     <Compass className="mr-2 h-4 w-4" /> Dashboard
+                  </Button>
+                </Link>
+                <Link href="/profile" onClick={() => setIsOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start rounded-2xl h-12">
+                    <UserIcon className="mr-2 h-4 w-4" /> My Profile
                   </Button>
                 </Link>
                 <Button variant="outline" className="w-full rounded-2xl h-12 text-destructive" onClick={handleSignOut}>
