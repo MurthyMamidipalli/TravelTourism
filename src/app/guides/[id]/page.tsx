@@ -1,7 +1,7 @@
 
 'use client';
 
-import { use } from 'react';
+import { use, useMemo } from 'react';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,11 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
   const { id } = use(params);
   const firestore = useFirestore();
 
-  const guideRef = id ? doc(firestore, 'guides', id) : null;
+  const guideRef = useMemo(() => {
+    if (!firestore || !id) return null;
+    return doc(firestore, 'guides', id);
+  }, [firestore, id]);
+
   const { data: guide, loading } = useDoc(guideRef);
 
   if (loading) {
@@ -47,7 +51,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
             <div className="relative h-80">
               <Image 
                 src={guide.imageUrl || `https://picsum.photos/seed/${guide.id}/400/400`} 
-                alt={guide.fullName} 
+                alt={guide.fullName || 'Guide'} 
                 fill 
                 className="object-cover" 
               />
@@ -65,13 +69,13 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
               
               <div className="space-y-2">
                 <p className="text-muted-foreground flex items-center gap-2 text-sm">
-                  <MapPin className="w-4 h-4 text-accent" /> {guide.location}
+                  <MapPin className="w-4 h-4 text-accent" /> {guide.location || 'Location not specified'}
                 </p>
                 <p className="text-muted-foreground flex items-center gap-2 text-sm">
-                  <Mail className="w-4 h-4 text-accent" /> {guide.email}
+                  <Mail className="w-4 h-4 text-accent" /> {guide.email || 'Email hidden'}
                 </p>
                 <p className="text-muted-foreground flex items-center gap-2 text-sm">
-                  <Phone className="w-4 h-4 text-accent" /> {guide.mobileNumber || 'Not provided'}
+                  <Phone className="w-4 h-4 text-accent" /> {guide.mobileNumber || 'Contact hidden'}
                 </p>
               </div>
 
@@ -81,7 +85,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
                 <span className="text-muted-foreground">({guide.reviewCount || 0} reviews)</span>
               </div>
               <div className="flex flex-wrap gap-2 pt-2">
-                {guide.languages?.split(',').map(l => (
+                {guide.languages?.split(',').map((l: string) => (
                   <Badge key={l} variant="secondary" className="text-[10px]">{l.trim()}</Badge>
                 ))}
               </div>
@@ -98,11 +102,11 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="space-y-1">
                 <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Age</p>
-                <p className="font-bold">{guide.age} Years</p>
+                <p className="font-bold">{guide.age || 'N/A'} Years</p>
               </div>
               <div className="space-y-1">
                 <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Gender</p>
-                <p className="font-bold">{guide.gender}</p>
+                <p className="font-bold">{guide.gender || 'Not specified'}</p>
               </div>
             </div>
           </Card>
@@ -128,7 +132,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
             </TabsList>
             
             <TabsContent value="itinerary" className="mt-0">
-              <AIItineraryPanel location={guide.location} />
+              <AIItineraryPanel location={guide.location || 'Andhra Pradesh'} />
             </TabsContent>
 
             <TabsContent value="verification" className="mt-0 space-y-6">
@@ -146,7 +150,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
                       <Fingerprint className="w-8 h-8 text-primary" />
                       <div>
                         <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Aadhar Number</p>
-                        <p className="text-lg font-bold">XXXX-XXXX-{guide.aadharNumber?.slice(-4)}</p>
+                        <p className="text-lg font-bold">XXXX-XXXX-{guide.aadharNumber?.slice(-4) || 'XXXX'}</p>
                       </div>
                     </div>
                     <div className="relative aspect-video rounded-2xl overflow-hidden border-2 border-dashed border-muted-foreground/30">
@@ -169,7 +173,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
                       <CreditCard className="w-8 h-8 text-primary" />
                       <div>
                         <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">PAN Number</p>
-                        <p className="text-lg font-bold">XXXXX{guide.panNumber?.slice(-4)}</p>
+                        <p className="text-lg font-bold">XXXXX{guide.panNumber?.slice(-4) || 'XXXXX'}</p>
                       </div>
                     </div>
                     <div className="relative aspect-video rounded-2xl overflow-hidden border-2 border-dashed border-muted-foreground/30">
@@ -229,16 +233,16 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-6">
               <h3 className="font-headline font-semibold mb-4 flex items-center gap-2">
-                <UserIcon className="w-5 h-5 text-accent" /> About Me
+                <Info className="w-5 h-5 text-accent" /> About Me
               </h3>
-              <p className="text-muted-foreground leading-relaxed">{guide.bio}</p>
+              <p className="text-muted-foreground leading-relaxed">{guide.bio || 'This guide hasn\'t added a bio yet.'}</p>
             </Card>
 
             <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-6">
               <h3 className="font-headline font-semibold mb-4 flex items-center gap-2">
                 <Briefcase className="w-5 h-5 text-accent" /> Guiding Experience
               </h3>
-              <p className="text-muted-foreground leading-relaxed">{guide.experience}</p>
+              <p className="text-muted-foreground leading-relaxed">{guide.experience || 'Experience details not shared.'}</p>
             </Card>
           </div>
         </div>
