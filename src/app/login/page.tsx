@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -37,6 +36,23 @@ export default function LoginPage() {
     },
   });
 
+  const getFriendlyErrorMessage = (error: any) => {
+    switch (error.code) {
+      case 'auth/operation-not-allowed':
+        return 'This sign-in method is not enabled in your Firebase Console.';
+      case 'auth/configuration-not-found':
+        return 'Firebase configuration mismatch. Please check your API keys and project settings.';
+      case 'auth/invalid-api-key':
+        return 'The API key provided is invalid. Please update src/firebase/config.ts.';
+      case 'auth/user-not-found':
+      case 'auth/wrong-password':
+      case 'auth/invalid-credential':
+        return 'Invalid email or password.';
+      default:
+        return error.message || 'An unexpected error occurred.';
+    }
+  };
+
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     setIsLoading(true);
     try {
@@ -47,9 +63,7 @@ export default function LoginPage() {
       toast({
         variant: 'destructive',
         title: 'Login Failed',
-        description: error.code === 'auth/operation-not-allowed' 
-          ? 'Email/Password sign-in is not enabled in your Firebase Console.' 
-          : error.message,
+        description: getFriendlyErrorMessage(error),
       });
     } finally {
       setIsLoading(false);
@@ -66,7 +80,7 @@ export default function LoginPage() {
       toast({
         variant: 'destructive',
         title: 'Google Login Failed',
-        description: error.message,
+        description: getFriendlyErrorMessage(error),
       });
     }
   };
@@ -81,9 +95,7 @@ export default function LoginPage() {
       toast({
         variant: 'destructive',
         title: 'Guest Login Failed',
-        description: error.code === 'auth/operation-not-allowed'
-          ? 'Anonymous sign-in is not enabled in your Firebase Console.'
-          : error.message,
+        description: getFriendlyErrorMessage(error),
       });
     } finally {
       setIsGuestLoading(false);

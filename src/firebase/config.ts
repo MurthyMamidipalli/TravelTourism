@@ -1,10 +1,10 @@
-
 'use client';
 
 import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 
 /**
- * Firebase project configuration retrieved from the Firebase Console.
+ * Firebase project configuration.
+ * Ensure these values match your project settings in the Firebase Console.
  */
 const firebaseConfig = {
   apiKey: "AIzaSyDzb5BIoBdlNlsK9JNPM8OYswvjUzz6dyQ",
