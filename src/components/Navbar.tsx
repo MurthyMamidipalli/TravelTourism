@@ -1,4 +1,3 @@
-
 'use client';
 
 import Link from 'next/link';
@@ -8,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUser, useAuth } from '@/firebase';
 import { signOut } from 'firebase/auth';
+import { useRouter } from 'next/navigation';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +21,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 export default function Navbar() {
   const { user } = useUser();
   const auth = useAuth();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isDark, setIsDark] = useState(false);
@@ -47,8 +48,14 @@ export default function Navbar() {
     }
   }, [isDark, mounted]);
 
-  const handleSignOut = () => {
-    signOut(auth);
+  const handleSignOut = async () => {
+    try {
+      await signOut(auth);
+      setIsOpen(false);
+      router.push('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+    }
   };
 
   const navItems = [
@@ -134,6 +141,12 @@ export default function Navbar() {
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem asChild>
+                    <Link href="/dashboard" className="cursor-pointer">
+                      <Compass className="mr-2 h-4 w-4" />
+                      <span>Dashboard</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
                     <Link href="/guides/register" className="cursor-pointer">
                       <UserIcon className="mr-2 h-4 w-4" />
                       <span>Become a Guide</span>
@@ -201,6 +214,11 @@ export default function Navbar() {
                     <span className="text-xs text-muted-foreground">{user.email}</span>
                   </div>
                 </div>
+                <Link href="/dashboard" onClick={() => setIsOpen(false)}>
+                  <Button variant="ghost" className="w-full justify-start rounded-2xl h-12">
+                    <Compass className="mr-2 h-4 w-4" /> Dashboard
+                  </Button>
+                </Link>
                 <Button variant="outline" className="w-full rounded-2xl h-12 text-destructive" onClick={handleSignOut}>
                   Log Out
                 </Button>
