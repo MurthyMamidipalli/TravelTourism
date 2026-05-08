@@ -27,7 +27,13 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
 
   const experienceList = useMemo(() => {
     if (!guide?.experience) return [];
-    return guide.experience.split(/[\n,]+/).map((item: string) => item.trim()).filter(Boolean);
+    return guide.experience
+      .split('\n')
+      .map((line: string) => {
+        const [place, count] = line.split('-').map(s => s.trim());
+        return { place, count };
+      })
+      .filter(item => item.place);
   }, [guide?.experience]);
 
   if (loading) {
@@ -244,16 +250,23 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
             </Card>
 
             <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-6">
-              <h3 className="font-headline font-semibold mb-4 flex items-center gap-2">
+              <h3 className="font-headline font-semibold mb-6 flex items-center gap-2">
                 <Briefcase className="w-5 h-5 text-accent" /> Places Explored & Guided
               </h3>
               {experienceList.length > 0 ? (
-                <div className="flex flex-wrap gap-2">
-                  {experienceList.map((exp: string, idx: number) => (
-                    <Badge key={idx} variant="outline" className="py-2 px-3 border-accent/30 bg-accent/5 text-sm font-medium">
-                      {exp}
-                    </Badge>
-                  ))}
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-2">
+                    <span>Location</span>
+                    <span className="text-right">Frequency</span>
+                  </div>
+                  <div className="space-y-2">
+                    {experienceList.map((item, idx) => (
+                      <div key={idx} className="grid grid-cols-2 py-3 border-b border-secondary/50 last:border-0 hover:bg-secondary/10 transition-colors px-2 rounded-lg">
+                        <span className="font-medium text-foreground">{item.place}</span>
+                        <span className="text-right font-bold text-primary">{item.count || 'Guided'}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               ) : (
                 <p className="text-muted-foreground leading-relaxed italic">Experience details not shared.</p>

@@ -361,12 +361,12 @@ export default function GuideRegistrationPage() {
                       </FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Place Name - X times (e.g., Tirumala - 10 times, Araku Valley - 5 times)" 
+                          placeholder="Place Name - X times (One per line)&#10;Tirumala Temple - 10 times&#10;Araku Valley - 5 times" 
                           className="min-h-[120px]"
                           {...field} 
                         />
                       </FormControl>
-                      <FormDescription>List the places you have explored or shown to tourists and how many times you've done so.</FormDescription>
+                      <FormDescription>List the places you have explored or shown to tourists. Use the 'Place Name - Frequency' format on separate lines for better visibility.</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
