@@ -4,8 +4,10 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 
 /**
- * Replace these values with your actual Firebase project configuration
- * from the Firebase Console: Project Settings > Your Apps > Web App.
+ * ATTENTION: You MUST replace these placeholder values with your real Firebase config.
+ * 1. Go to Firebase Console > Project Settings.
+ * 2. Scroll to 'Your apps' > Web App.
+ * 3. Copy the firebaseConfig object and paste it below.
  */
 const firebaseConfig = {
   apiKey: "REPLACE_WITH_YOUR_ACTUAL_API_KEY",
@@ -17,10 +19,9 @@ const firebaseConfig = {
 };
 
 export function getFirebaseApp(): FirebaseApp {
-  const existingApp = getApps().at(0);
-  if (existingApp) return existingApp;
+  const apps = getApps();
+  if (apps.length > 0) return apps[0];
   
-  // Validation for initial setup
   if (firebaseConfig.apiKey.includes('REPLACE_WITH')) {
     console.warn("Firebase Configuration: Placeholder values detected. Please update src/firebase/config.ts with your actual API key from the Firebase Console.");
   }

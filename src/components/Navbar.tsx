@@ -31,7 +31,6 @@ export default function Navbar() {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     
-    // Theme preference check - only on client
     const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
     setIsDark(isDarkMode);
 
@@ -57,6 +56,26 @@ export default function Navbar() {
     { name: 'Locations', href: '/locations', icon: Globe },
     { name: 'Search', href: '/search', icon: Search },
   ];
+
+  if (!mounted) {
+    return (
+      <nav className="glass-nav py-5">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-12">
+            <div className="flex items-center gap-2">
+              <div className="bg-primary text-primary-foreground p-2 rounded-xl">
+                <Compass className="w-6 h-6" />
+              </div>
+              <span className="font-headline font-bold text-2xl tracking-tighter">
+                Voyage<span className="text-primary">Compass</span>
+              </span>
+            </div>
+            <div className="w-10 h-10" />
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <nav className={`glass-nav transition-all duration-300 ${scrolled ? 'py-3 shadow-sm' : 'py-5'}`}>
@@ -85,19 +104,14 @@ export default function Navbar() {
             ))}
             <div className="h-6 w-px bg-border mx-2" />
             
-            {/* Conditional render of theme toggle to prevent hydration mismatch */}
-            <div className="w-10 h-10 flex items-center justify-center">
-              {mounted && (
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => setIsDark(!isDark)}
-                  className="rounded-full"
-                >
-                  {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                </Button>
-              )}
-            </div>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsDark(!isDark)}
+              className="rounded-full"
+            >
+              {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+            </Button>
 
             {user ? (
               <DropdownMenu>
