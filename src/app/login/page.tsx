@@ -47,7 +47,9 @@ export default function LoginPage() {
       toast({
         variant: 'destructive',
         title: 'Login Failed',
-        description: error.message || 'Invalid email or password.',
+        description: error.code === 'auth/operation-not-allowed' 
+          ? 'Email/Password sign-in is not enabled in your Firebase Console.' 
+          : error.message,
       });
     } finally {
       setIsLoading(false);
@@ -79,7 +81,9 @@ export default function LoginPage() {
       toast({
         variant: 'destructive',
         title: 'Guest Login Failed',
-        description: error.message,
+        description: error.code === 'auth/operation-not-allowed'
+          ? 'Anonymous sign-in is not enabled in your Firebase Console.'
+          : error.message,
       });
     } finally {
       setIsGuestLoading(false);
@@ -90,7 +94,7 @@ export default function LoginPage() {
     <div className="container mx-auto px-4 py-20 flex justify-center items-center min-h-[80vh]">
       <Card className="w-full max-w-md border-none shadow-2xl rounded-3xl overflow-hidden">
         <CardHeader className="space-y-1 text-center bg-primary/5 py-8">
-          <CardTitle className="text-3xl font-bold tracking-tight">Welcome Back</CardTitle>
+          <CardTitle className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">Welcome Back</CardTitle>
           <CardDescription>Enter your credentials to access your account</CardDescription>
         </CardHeader>
         <CardContent className="p-8 pt-10">
