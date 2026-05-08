@@ -39,22 +39,16 @@ export default function LoginPage() {
   });
 
   const getFriendlyErrorMessage = (error: any) => {
-    console.error('Auth Error Details:', error.code, error.message);
     switch (error.code) {
       case 'auth/operation-not-allowed':
         return {
-          title: 'Provider Not Enabled',
-          message: 'The sign-in method you tried (Google, Email, or Guest) is not enabled in your Firebase Console. Go to Authentication > Sign-in method and enable it.'
+          title: 'Provider Disabled',
+          message: 'This login method is not enabled. Please check Authentication > Sign-in method in Firebase Console.'
         };
       case 'auth/unauthorized-domain':
         return {
-          title: 'Domain Not Authorized',
-          message: 'This domain is not in your authorized list. Go to Authentication > Settings > Authorized domains and add the current URL domain.'
-        };
-      case 'auth/popup-closed-by-user':
-        return {
-          title: 'Login Cancelled',
-          message: 'The login popup was closed before completion.'
+          title: 'Unauthorized Domain',
+          message: 'This domain is not authorized. Add it in Firebase Console > Authentication > Settings.'
         };
       case 'auth/user-not-found':
       case 'auth/wrong-password':
@@ -65,7 +59,7 @@ export default function LoginPage() {
         };
       default:
         return {
-          title: 'Authentication Issue',
+          title: 'Authentication Error',
           message: error.message || 'An unexpected error occurred.'
         };
     }
@@ -81,11 +75,7 @@ export default function LoginPage() {
     } catch (error: any) {
       const err = getFriendlyErrorMessage(error);
       setAuthError(err);
-      toast({
-        variant: 'destructive',
-        title: err.title,
-        description: err.message,
-      });
+      toast({ variant: 'destructive', title: err.title, description: err.message });
     } finally {
       setIsLoading(false);
     }
@@ -110,7 +100,7 @@ export default function LoginPage() {
     setAuthError(null);
     try {
       await signInAnonymously(auth);
-      toast({ title: 'Welcome Guest!', description: 'You are now logged in as a guest.' });
+      toast({ title: 'Welcome Guest!', description: 'Logged in as guest.' });
       router.push('/dashboard');
     } catch (error: any) {
       const err = getFriendlyErrorMessage(error);
@@ -123,30 +113,22 @@ export default function LoginPage() {
 
   return (
     <div className="container mx-auto px-4 py-20 flex justify-center items-center min-h-[80vh]">
-      <Card className="w-full max-w-md border-none shadow-2xl rounded-3xl overflow-hidden">
-        <CardHeader className="space-y-1 text-center bg-primary/5 py-8">
-          <CardTitle className="text-3xl font-bold tracking-tight">Welcome Back</CardTitle>
-          <CardDescription>Access your Voyage Compass account</CardDescription>
+      <Card className="w-full max-w-md border-none shadow-2xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
+        <CardHeader className="text-center bg-primary/5 py-10">
+          <CardTitle className="text-3xl font-black tracking-tight">Voyage Compass</CardTitle>
+          <CardDescription>Explore the heart of Andhra Pradesh</CardDescription>
         </CardHeader>
         <CardContent className="p-8 pt-10 space-y-6">
           {authError && (
-            <Alert variant="destructive" className="rounded-2xl border-destructive/20 bg-destructive/5">
+            <Alert variant="destructive" className="rounded-2xl bg-destructive/5 border-destructive/20">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle className="font-bold">{authError.title}</AlertTitle>
-              <AlertDescription className="text-sm">
-                {authError.message}
-                {authError.title === 'Domain Not Authorized' && (
-                  <div className="mt-2 p-2 bg-white/10 rounded flex items-center gap-2 text-xs">
-                    <Globe className="w-3 h-3" />
-                    <span>Copy this domain and add it to Firebase Console</span>
-                  </div>
-                )}
-              </AlertDescription>
+              <AlertTitle>{authError.title}</AlertTitle>
+              <AlertDescription>{authError.message}</AlertDescription>
             </Alert>
           )}
 
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
                 control={form.control}
                 name="email"
@@ -156,7 +138,7 @@ export default function LoginPage() {
                     <FormControl>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="name@example.com" className="pl-10 h-11" {...field} />
+                        <Input placeholder="name@example.com" className="pl-10 h-12 rounded-xl" {...field} />
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -175,7 +157,7 @@ export default function LoginPage() {
                         <Input
                           type={showPassword ? 'text' : 'password'}
                           placeholder="••••••••"
-                          className="pl-10 h-11"
+                          className="pl-10 h-12 rounded-xl"
                           {...field}
                         />
                         <button
@@ -191,7 +173,7 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full h-12 text-lg rounded-xl" disabled={isLoading || isGuestLoading}>
+              <Button type="submit" className="w-full h-12 text-lg rounded-xl font-bold mt-2" disabled={isLoading}>
                 {isLoading ? 'Signing in...' : 'Sign In'}
                 <LogIn className="ml-2 h-4 w-4" />
               </Button>
@@ -203,23 +185,22 @@ export default function LoginPage() {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground font-medium">Alternative Options</span>
+              <span className="bg-white dark:bg-zinc-950 px-2 text-muted-foreground font-medium">Or continue with</span>
             </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline" className="h-12 rounded-xl" onClick={handleGoogleLogin} disabled={isLoading || isGuestLoading}>
+            <Button variant="outline" className="h-12 rounded-xl border-zinc-200 dark:border-zinc-800" onClick={handleGoogleLogin}>
               Google
             </Button>
-            <Button variant="secondary" className="h-12 rounded-xl" onClick={handleGuestLogin} disabled={isLoading || isGuestLoading}>
-              <UserRound className="mr-2 h-4 w-4" />
-              {isGuestLoading ? '...' : 'Guest'}
+            <Button variant="secondary" className="h-12 rounded-xl" onClick={handleGuestLogin} disabled={isGuestLoading}>
+              {isGuestLoading ? '...' : <><UserRound className="mr-2 h-4 w-4" /> Guest</>}
             </Button>
           </div>
         </CardContent>
-        <CardFooter className="flex flex-wrap justify-center p-8 bg-secondary/10 border-t">
+        <CardFooter className="flex justify-center p-8 bg-secondary/10 border-t">
           <p className="text-sm text-muted-foreground">
-            No account? <Link href="/signup" className="text-primary font-bold hover:underline">Join here</Link>
+            New here? <Link href="/signup" className="text-primary font-bold hover:underline">Create Account</Link>
           </p>
         </CardFooter>
       </Card>
