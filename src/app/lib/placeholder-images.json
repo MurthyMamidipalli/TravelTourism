@@ -1,3 +1,4 @@
+
 {
   "placeholderImages": [
     { "id": "tirumala-temple", "description": "Tirumala Temple, Tirupati", "imageUrl": "https://picsum.photos/seed/tirumala/1200/800", "imageHint": "Tirumala Temple" },
@@ -31,6 +32,31 @@
     { "id": "amaravati", "description": "Amaravati Stupa", "imageUrl": "https://picsum.photos/seed/amaravati/1200/800", "imageHint": "Amaravati" },
     { "id": "nagarjuna-sagar", "description": "Nagarjuna Sagar Dam", "imageUrl": "https://picsum.photos/seed/nagarjuna/1200/800", "imageHint": "Nagarjuna Sagar" },
     { "id": "srisailam", "description": "Srisailam Temple", "imageUrl": "https://picsum.photos/seed/srisailam/1200/800", "imageHint": "Srisailam" },
-    { "id": "srisailam-dam", "description": "Srisailam Dam", "imageUrl": "https://picsum.photos/seed/srisailamdam/1200/800", "imageHint": "Srisailam Dam" }
+    { "id": "srisailam-dam", "description": "Srisailam Dam", "imageUrl": "https://picsum.photos/seed/srisailamdam/1200/800", "imageHint": "Srisailam Dam" },
+    { "id": "rest-1", "description": "Paradise Biryani", "imageUrl": "https://picsum.photos/seed/paradise/800/600", "imageHint": "Biryani Food" },
+    { "id": "rest-2", "description": "Dharani Restaurant", "imageUrl": "https://picsum.photos/seed/dharani/800/600", "imageHint": "South Meal" },
+    { "id": "rest-3", "description": "Sri Sairam Parlour", "imageUrl": "https://picsum.photos/seed/sairam/800/600", "imageHint": "Indian Dosa" },
+    { "id": "rest-4", "description": "Spicy Venue", "imageUrl": "https://picsum.photos/seed/spicy/800/600", "imageHint": "Andhra Food" },
+    { "id": "rest-5", "description": "R&G Restaurant", "imageUrl": "https://picsum.photos/seed/rgrest/800/600", "imageHint": "Seafood Platter" },
+    { "id": "rest-6", "description": "Kritunga", "imageUrl": "https://picsum.photos/seed/kritunga/800/600", "imageHint": "Spicy Food" },
+    { "id": "rest-7", "description": "Ulavacharu", "imageUrl": "https://picsum.photos/seed/ulava/800/600", "imageHint": "Traditional Plate" },
+    { "id": "rest-8", "description": "Hotel Sarovar", "imageUrl": "https://picsum.photos/seed/sarovar/800/600", "imageHint": "Veg Meal" },
+    { "id": "rest-9", "description": "Aha Emi Ruchi", "imageUrl": "https://picsum.photos/seed/aha/800/600", "imageHint": "Family Dining" },
+    { "id": "rest-10", "description": "Mourya Inn", "imageUrl": "https://picsum.photos/seed/mourya/800/600", "imageHint": "Hotel Interior" },
+    { "id": "rest-11", "description": "Mekong Restaurant", "imageUrl": "https://picsum.photos/seed/mekong/800/600", "imageHint": "Asian Food" },
+    { "id": "rest-12", "description": "Food Ex", "imageUrl": "https://picsum.photos/seed/foodex/800/600", "imageHint": "Fast Food" },
+    { "id": "rest-13", "description": "Abhiruchi Hotel", "imageUrl": "https://picsum.photos/seed/abhiruchi/800/600", "imageHint": "Andhra Meal" },
+    { "id": "rest-14", "description": "Hotel Daspalla", "imageUrl": "https://picsum.photos/seed/daspalla/800/600", "imageHint": "Luxury Dinner" },
+    { "id": "rest-15", "description": "Barbeque Nation", "imageUrl": "https://picsum.photos/seed/bbq/800/600", "imageHint": "Buffet Food" },
+    { "id": "rest-16", "description": "The Square", "imageUrl": "https://picsum.photos/seed/square/800/600", "imageHint": "Fine Dining" },
+    { "id": "rest-17", "description": "Hotel Mayura", "imageUrl": "https://picsum.photos/seed/mayura/800/600", "imageHint": "Veg Food" },
+    { "id": "rest-18", "description": "Sai Priya Beach", "imageUrl": "https://picsum.photos/seed/saipriya/800/600", "imageHint": "Beach Resort" },
+    { "id": "rest-19", "description": "Ajantha Restaurant", "imageUrl": "https://picsum.photos/seed/ajantha/800/600", "imageHint": "Indian Meals" },
+    { "id": "rest-20", "description": "Rayalaseema Ruchulu", "imageUrl": "https://picsum.photos/seed/rayalaseema/800/600", "imageHint": "Traditional Food" },
+    { "id": "rest-21", "description": "Minerva Coffee Shop", "imageUrl": "https://picsum.photos/seed/minerva/800/600", "imageHint": "Coffee Snacks" },
+    { "id": "rest-22", "description": "Green Park", "imageUrl": "https://picsum.photos/seed/greenpark/800/600", "imageHint": "Luxury Room" },
+    { "id": "rest-23", "description": "KFC", "imageUrl": "https://picsum.photos/seed/kfc/800/600", "imageHint": "Fried Chicken" },
+    { "id": "rest-24", "description": "Domino's Pizza", "imageUrl": "https://picsum.photos/seed/dominos/800/600", "imageHint": "Pizza Food" },
+    { "id": "rest-25", "description": "Sweet Magic", "imageUrl": "https://picsum.photos/seed/sweet/800/600", "imageHint": "Indian Sweets" }
   ]
 }
