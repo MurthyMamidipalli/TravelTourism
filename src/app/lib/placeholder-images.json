@@ -2,136 +2,94 @@
 {
   "placeholderImages": [
     {
-      "id": "paris",
-      "description": "Eiffel Tower in Paris",
-      "imageUrl": "https://picsum.photos/seed/paris/1200/800",
-      "imageHint": "Paris Eiffel Tower"
+      "id": "taj-mahal",
+      "description": "Taj Mahal in Agra, India",
+      "imageUrl": "https://picsum.photos/seed/tajmahal/1200/800",
+      "imageHint": "Taj Mahal"
     },
     {
-      "id": "tokyo",
-      "description": "City lights of Tokyo",
-      "imageUrl": "https://picsum.photos/seed/tokyo/1200/800",
-      "imageHint": "Tokyo city skyline"
+      "id": "eiffel-tower",
+      "description": "Eiffel Tower in Paris, France",
+      "imageUrl": "https://picsum.photos/seed/eiffel/1200/800",
+      "imageHint": "Eiffel Tower"
     },
     {
-      "id": "amalapuram",
-      "description": "Serene backwaters of Amalapuram",
-      "imageUrl": "https://picsum.photos/seed/amalapuram/1200/800",
-      "imageHint": "Andhra Pradesh backwaters"
-    },
-    {
-      "id": "bali",
-      "description": "Tropical beach in Bali",
-      "imageUrl": "https://picsum.photos/seed/bali/1200/800",
-      "imageHint": "Bali beach sunset"
-    },
-    {
-      "id": "london",
-      "description": "Big Ben in London",
-      "imageUrl": "https://picsum.photos/seed/london/1200/800",
-      "imageHint": "London Big Ben"
-    },
-    {
-      "id": "santorini",
-      "description": "Sunsets in Santorini",
-      "imageUrl": "https://picsum.photos/seed/santorini/1200/800",
-      "imageHint": "Santorini sunset"
-    },
-    {
-      "id": "machu",
-      "description": "Machu Picchu citadel",
+      "id": "machu-picchu",
+      "description": "Machu Picchu citadel in Peru",
       "imageUrl": "https://picsum.photos/seed/machu/1200/800",
       "imageHint": "Machu Picchu"
     },
     {
-      "id": "dubai",
-      "description": "Burj Khalifa Dubai",
-      "imageUrl": "https://picsum.photos/seed/dubai/1200/800",
-      "imageHint": "Dubai skyline"
+      "id": "great-wall",
+      "description": "Great Wall of China",
+      "imageUrl": "https://picsum.photos/seed/greatwall/1200/800",
+      "imageHint": "Great Wall China"
     },
     {
-      "id": "rome",
-      "description": "The Colosseum in Rome",
-      "imageUrl": "https://picsum.photos/seed/rome/1200/800",
+      "id": "santorini",
+      "description": "Sunsets in Santorini, Greece",
+      "imageUrl": "https://picsum.photos/seed/santorini/1200/800",
+      "imageHint": "Santorini sunset"
+    },
+    {
+      "id": "colosseum",
+      "description": "The Colosseum in Rome, Italy",
+      "imageUrl": "https://picsum.photos/seed/colosseum/1200/800",
       "imageHint": "Rome Colosseum"
     },
     {
-      "id": "new-york",
-      "description": "New York City Skyline",
-      "imageUrl": "https://picsum.photos/seed/ny/1200/800",
-      "imageHint": "New York City"
+      "id": "serengeti",
+      "description": "Serengeti National Park, Tanzania",
+      "imageUrl": "https://picsum.photos/seed/serengeti/1200/800",
+      "imageHint": "Serengeti Safari"
     },
     {
-      "id": "sydney",
-      "description": "Sydney Opera House",
-      "imageUrl": "https://picsum.photos/seed/sydney/1200/800",
-      "imageHint": "Sydney Opera House"
-    },
-    {
-      "id": "cairo",
-      "description": "Pyramids of Giza",
-      "imageUrl": "https://picsum.photos/seed/cairo/1200/800",
-      "imageHint": "Cairo Pyramids"
-    },
-    {
-      "id": "kyoto",
-      "description": "Traditional temple in Kyoto",
-      "imageUrl": "https://picsum.photos/seed/kyoto/1200/800",
-      "imageHint": "Kyoto Temple"
-    },
-    {
-      "id": "rio",
-      "description": "Christ the Redeemer in Rio",
-      "imageUrl": "https://picsum.photos/seed/rio/1200/800",
-      "imageHint": "Rio Christ Redeemer"
-    },
-    {
-      "id": "cape-town",
-      "description": "Table Mountain in Cape Town",
-      "imageUrl": "https://picsum.photos/seed/capetown/1200/800",
-      "imageHint": "Cape Town Mountain"
-    },
-    {
-      "id": "venice",
-      "description": "Grand Canal in Venice",
-      "imageUrl": "https://picsum.photos/seed/venice/1200/800",
-      "imageHint": "Venice Canal"
-    },
-    {
-      "id": "agra",
-      "description": "Taj Mahal in Agra",
-      "imageUrl": "https://picsum.photos/seed/agra/1200/800",
-      "imageHint": "Taj Mahal"
+      "id": "angkor-wat",
+      "description": "Angkor Wat Temple, Cambodia",
+      "imageUrl": "https://picsum.photos/seed/angkor/1200/800",
+      "imageHint": "Angkor Wat"
     },
     {
       "id": "petra",
-      "description": "The Treasury in Petra",
+      "description": "The Treasury in Petra, Jordan",
       "imageUrl": "https://picsum.photos/seed/petra/1200/800",
       "imageHint": "Petra Jordan"
     },
     {
-      "id": "grand-canyon",
-      "description": "Grand Canyon vista",
-      "imageUrl": "https://picsum.photos/seed/grandcanyon/1200/800",
-      "imageHint": "Grand Canyon"
+      "id": "niagara-falls",
+      "description": "Niagara Falls, Canada/USA",
+      "imageUrl": "https://picsum.photos/seed/niagara/1200/800",
+      "imageHint": "Niagara Falls"
     },
     {
-      "id": "barcelona",
-      "description": "Sagrada Familia in Barcelona",
-      "imageUrl": "https://picsum.photos/seed/barcelona/1200/800",
-      "imageHint": "Barcelona Sagrada"
+      "id": "bali",
+      "description": "Tropical beach in Bali, Indonesia",
+      "imageUrl": "https://picsum.photos/seed/bali/1200/800",
+      "imageHint": "Bali beach"
     },
     {
-      "id": "guide-1",
-      "description": "Friendly local tour guide",
-      "imageUrl": "https://picsum.photos/seed/guide1/400/400",
-      "imageHint": "Professional man smiling"
+      "id": "kyoto",
+      "description": "Traditional temple in Kyoto, Japan",
+      "imageUrl": "https://picsum.photos/seed/kyoto/1200/800",
+      "imageHint": "Kyoto Temple"
     },
     {
-      "id": "guide-2",
-      "description": "Experienced tour leader",
-      "imageUrl": "https://picsum.photos/seed/guide2/400/400",
-      "imageHint": "Professional woman smiling"
+      "id": "nyc",
+      "description": "New York City Skyline, USA",
+      "imageUrl": "https://picsum.photos/seed/nyc/1200/800",
+      "imageHint": "New York City"
+    },
+    {
+      "id": "patagonia",
+      "description": "Patagonia mountains, Argentina/Chile",
+      "imageUrl": "https://picsum.photos/seed/patagonia/1200/800",
+      "imageHint": "Patagonia Landscape"
+    },
+    {
+      "id": "maldives",
+      "description": "Overwater bungalows in Maldives",
+      "imageUrl": "https://picsum.photos/seed/maldives/1200/800",
+      "imageHint": "Maldives Resort"
     }
   ]
 }

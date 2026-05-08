@@ -9,26 +9,21 @@ import { Input } from '@/components/ui/input';
 import { Search, MapPin } from 'lucide-react';
 
 const allDestinations = [
-  { id: 'paris', name: 'Paris', country: 'France', description: 'The City of Light, world-renowned for art and romance.', img: 'https://picsum.photos/seed/paris/600/400' },
-  { id: 'tokyo', name: 'Tokyo', country: 'Japan', description: 'A neon-lit metropolis blending tradition and future.', img: 'https://picsum.photos/seed/tokyo/600/400' },
-  { id: 'bali', name: 'Bali', country: 'Indonesia', description: 'Tropical paradise with lush jungles and sacred temples.', img: 'https://picsum.photos/seed/bali/600/400' },
-  { id: 'amalapuram', name: 'Amalapuram', country: 'India', description: 'A serene coastal town in Andhra Pradesh known for lush greenery.', img: 'https://picsum.photos/seed/amalapuram/600/400' },
-  { id: 'agra', name: 'Agra', country: 'India', description: 'Home to the magnificent Taj Mahal, a symbol of eternal love.', img: 'https://picsum.photos/seed/agra/600/400' },
-  { id: 'rome', name: 'Rome', country: 'Italy', description: 'The Eternal City, home to ancient ruins and divine food.', img: 'https://picsum.photos/seed/rome/600/400' },
-  { id: 'venice', name: 'Venice', country: 'Italy', description: 'A unique city of canals, gondolas, and stunning architecture.', img: 'https://picsum.photos/seed/venice/600/400' },
-  { id: 'new-york', name: 'New York', country: 'USA', description: 'The Big Apple, a melting pot of culture and ambition.', img: 'https://picsum.photos/seed/ny/600/400' },
-  { id: 'grand-canyon', name: 'Grand Canyon', country: 'USA', description: 'A massive, colorful gorge carved by the Colorado River.', img: 'https://picsum.photos/seed/grandcanyon/600/400' },
-  { id: 'sydney', name: 'Sydney', country: 'Australia', description: 'Harbor city famous for the Opera House and golden beaches.', img: 'https://picsum.photos/seed/sydney/600/400' },
-  { id: 'cairo', name: 'Cairo', country: 'Egypt', description: 'Guardian of the Pyramids and the timeless Nile River.', img: 'https://picsum.photos/seed/cairo/600/400' },
-  { id: 'london', name: 'London', country: 'UK', description: 'Historical capital with iconic landmarks and royal heritage.', img: 'https://picsum.photos/seed/london/600/400' },
-  { id: 'santorini', name: 'Santorini', country: 'Greece', description: 'Stunning volcanic island known for white-washed buildings.', img: 'https://picsum.photos/seed/santorini/600/400' },
-  { id: 'kyoto', name: 'Kyoto', country: 'Japan', description: 'Cultural heart of Japan with zen gardens and temples.', img: 'https://picsum.photos/seed/kyoto/600/400' },
-  { id: 'rio', name: 'Rio de Janeiro', country: 'Brazil', description: 'Vibrant city famous for Carnival and beaches.', img: 'https://picsum.photos/seed/rio/600/400' },
-  { id: 'dubai', name: 'Dubai', country: 'UAE', description: 'Luxury hub with ultramodern architecture.', img: 'https://picsum.photos/seed/dubai/600/400' },
-  { id: 'machu-picchu', name: 'Machu Picchu', country: 'Peru', description: 'Ancient Incan citadel high in the Andes.', img: 'https://picsum.photos/seed/machu/600/400' },
-  { id: 'cape-town', name: 'Cape Town', country: 'South Africa', description: 'Spectacular coastal city at the foot of Table Mountain.', img: 'https://picsum.photos/seed/capetown/600/400' },
-  { id: 'petra', name: 'Petra', country: 'Jordan', description: 'Ancient rock-cut city and Wonder of the World.', img: 'https://picsum.photos/seed/petra/600/400' },
-  { id: 'barcelona', name: 'Barcelona', country: 'Spain', description: 'Vibrant coastal city famous for unique architecture.', img: 'https://picsum.photos/seed/barcelona/600/400' },
+  { id: 'taj-mahal', name: 'Taj Mahal', country: 'India', category: 'Heritage/Monument', img: 'https://picsum.photos/seed/tajmahal/600/400' },
+  { id: 'eiffel-tower', name: 'Eiffel Tower', country: 'France', category: 'Landmark', img: 'https://picsum.photos/seed/eiffel/600/400' },
+  { id: 'machu-picchu', name: 'Machu Picchu', country: 'Peru', category: 'Ruins/Adventure', img: 'https://picsum.photos/seed/machu/600/400' },
+  { id: 'great-wall', name: 'Great Wall of China', country: 'China', category: 'Heritage', img: 'https://picsum.photos/seed/greatwall/600/400' },
+  { id: 'santorini', name: 'Santorini', country: 'Greece', category: 'Beach/Romance', img: 'https://picsum.photos/seed/santorini/600/400' },
+  { id: 'colosseum', name: 'Colosseum', country: 'Italy', category: 'History/Monument', img: 'https://picsum.photos/seed/colosseum/600/400' },
+  { id: 'serengeti', name: 'Safari - Serengeti', country: 'Tanzania', category: 'Wildlife/Nature', img: 'https://picsum.photos/seed/serengeti/600/400' },
+  { id: 'angkor-wat', name: 'Angkor Wat', country: 'Cambodia', category: 'Temple/Heritage', img: 'https://picsum.photos/seed/angkor/600/400' },
+  { id: 'petra', name: 'Petra', country: 'Jordan', category: 'Ruins/Desert', img: 'https://picsum.photos/seed/petra/600/400' },
+  { id: 'niagara-falls', name: 'Niagara Falls', country: 'Canada/USA', category: 'Nature', img: 'https://picsum.photos/seed/niagara/600/400' },
+  { id: 'bali', name: 'Bali', country: 'Indonesia', category: 'Beach/Culture', img: 'https://picsum.photos/seed/bali/600/400' },
+  { id: 'kyoto', name: 'Kyoto', country: 'Japan', category: 'Culture/Temple', img: 'https://picsum.photos/seed/kyoto/600/400' },
+  { id: 'nyc', name: 'New York City', country: 'USA', category: 'Urban/Arts', img: 'https://picsum.photos/seed/nyc/600/400' },
+  { id: 'patagonia', name: 'Patagonia', country: 'Argentina/Chile', category: 'Adventure/Nature', img: 'https://picsum.photos/seed/patagonia/600/400' },
+  { id: 'maldives', name: 'Maldives', country: 'Maldives', category: 'Beach/Luxury', img: 'https://picsum.photos/seed/maldives/600/400' },
 ];
 
 export default function DestinationsPage() {
@@ -43,7 +38,7 @@ export default function DestinationsPage() {
     <div className="container mx-auto px-4 py-12 space-y-8">
       <div className="text-center space-y-4 max-w-2xl mx-auto">
         <h1 className="font-headline text-4xl font-bold text-primary">Explore World Destinations</h1>
-        <p className="text-muted-foreground">From bustling cities to hidden coastal gems, find your next adventure.</p>
+        <p className="text-muted-foreground">The world's 15 most breathtaking tourist destinations, curated just for you.</p>
         <div className="relative mt-6">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input 
@@ -72,7 +67,7 @@ export default function DestinationsPage() {
                   <MapPin className="w-3 h-3" /> {dest.country}
                 </div>
                 <h3 className="font-headline text-xl font-bold mb-2">{dest.name}</h3>
-                <p className="text-sm text-muted-foreground line-clamp-2">{dest.description}</p>
+                <p className="text-sm text-muted-foreground line-clamp-2">{dest.category}</p>
               </CardContent>
             </Card>
           </Link>

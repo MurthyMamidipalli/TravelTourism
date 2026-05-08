@@ -5,149 +5,69 @@ import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Users, Info, ArrowLeft, Camera, Compass } from 'lucide-react';
+import { MapPin, Users, Info, ArrowLeft, Camera, Compass, Globe, Calendar, DollarSign } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const mockDestinations: Record<string, any> = {
-  'paris': { 
-    name: 'Paris', 
-    country: 'France', 
-    description: 'Paris, the capital of France, is a major European city and a global center for art, fashion, gastronomy, and culture.',
-    tags: ['Romance', 'Art', 'Cuisine'],
-    stats: { visitors: '30M+', rank: '#1 World Wide' }
+  'taj-mahal': { 
+    name: 'Taj Mahal', country: 'India', category: 'Heritage/Monument', season: 'Oct-Mar', budget: '$150', language: 'Hindi', currency: 'INR',
+    description: 'Ivory marble mausoleum, Shah Jahan\'s love story, Yamuna riverfront. One of the Seven Wonders of the World.'
   },
-  'tokyo': { 
-    name: 'Tokyo', 
-    country: 'Japan', 
-    description: "Tokyo, Japan's busy capital, mixes the ultramodern and the traditional, from neon-lit skyscrapers to historic temples.",
-    tags: ['Culture', 'Futuristic', 'Food'],
-    stats: { visitors: '15M+', rank: '#5 World Wide' }
+  'eiffel-tower': { 
+    name: 'Eiffel Tower', country: 'France', category: 'Landmark', season: 'Apr-Jun', budget: '$250', language: 'French', currency: 'EUR',
+    description: 'Iron lattice icon, Seine cruise, Champ de Mars picnic. The ultimate symbol of Paris.'
   },
-  'bali': {
-    name: 'Bali',
-    country: 'Indonesia',
-    description: 'Bali is an Indonesian island known for its forested volcanic mountains, iconic rice paddies, beaches and coral reefs.',
-    tags: ['Tropical', 'Spiritual', 'Relaxation'],
-    stats: { visitors: '6M+', rank: '#1 Island' }
+  'machu-picchu': { 
+    name: 'Machu Picchu', country: 'Peru', category: 'Ruins/Adventure', season: 'May-Sep', budget: '$300', language: 'Spanish', currency: 'PEN',
+    description: 'Inca citadel, Sun Gate sunrise, Huayna Picchu hike. A mystical archaeological wonder high in the Andes.'
   },
-  'amalapuram': { 
-    name: 'Amalapuram', 
-    country: 'India', 
-    description: "Amalapuram is the heart of the Konaseema region, known for its lush green fields, serene backwaters, and traditional temples.",
-    tags: ['Nature', 'Backwaters', 'Greenery'],
-    stats: { visitors: '1M+', rank: 'Coastal Gem' }
+  'great-wall': { 
+    name: 'Great Wall of China', country: 'China', category: 'Heritage', season: 'Apr-Oct', budget: '$200', language: 'Mandarin', currency: 'CNY',
+    description: 'Mutianyu section, watchtowers, cable car ride. Stretching across miles of breathtaking terrain.'
   },
-  'agra': { 
-    name: 'Agra', 
-    country: 'India', 
-    description: "Home to the Taj Mahal, Agra is a city on the banks of the Yamuna river in the Indian state of Uttar Pradesh.",
-    tags: ['Wonders', 'History', 'Mughal'],
-    stats: { visitors: '8M+', rank: '#1 Landmark India' }
+  'santorini': { 
+    name: 'Santorini', country: 'Greece', category: 'Beach/Romance', season: 'Jun-Sep', budget: '$700', language: 'Greek', currency: 'EUR',
+    description: 'Caldera sunset, white-blue architecture, wine tasting. The most romantic island in the Aegean.'
   },
-  'rome': {
-    name: 'Rome',
-    country: 'Italy',
-    description: 'Rome, the capital city of Italy, is a sprawling, cosmopolitan city with nearly 3,000 years of globally influential art, architecture and culture.',
-    tags: ['History', 'Art', 'Cuisine'],
-    stats: { visitors: '10M+', rank: '#2 Europe' }
+  'colosseum': { 
+    name: 'Colosseum', country: 'Italy', category: 'History/Monument', season: 'Apr-Jun', budget: '$180', language: 'Italian', currency: 'EUR',
+    description: 'Gladiator arena, Roman Forum, Palatine Hill. Witness the grandeur of Ancient Rome.'
   },
-  'venice': {
-    name: 'Venice',
-    country: 'Italy',
-    description: 'Venice, the capital of northern Italy’s Veneto region, is built on more than 100 small islands in a lagoon in the Adriatic Sea.',
-    tags: ['Canals', 'Romance', 'Glass'],
-    stats: { visitors: '20M+', rank: 'Most Unique' }
+  'serengeti': { 
+    name: 'Safari - Serengeti', country: 'Tanzania', category: 'Wildlife/Nature', season: 'Jun-Oct', budget: '$2500', language: 'Swahili', currency: 'TZS',
+    description: 'Big Five game drives, wildebeest migration, hot-air balloon. A quintessential African wildlife experience.'
   },
-  'london': {
-    name: 'London',
-    country: 'UK',
-    description: 'London, the capital of England and the United Kingdom, is a 21st-century city with history stretching back to Roman times.',
-    tags: ['History', 'Royal', 'Diversity'],
-    stats: { visitors: '20M+', rank: '#3 World Wide' }
+  'angkor-wat': { 
+    name: 'Angkor Wat', country: 'Cambodia', category: 'Temple/Heritage', season: 'Nov-Mar', budget: '$120', language: 'Khmer', currency: 'KHR',
+    description: 'Khmer empire temples, sunrise reflection, Bayon faces. The world\'s largest religious monument.'
   },
-  'santorini': {
-    name: 'Santorini',
-    country: 'Greece',
-    description: 'Santorini is one of the Cyclades islands in the Aegean Sea. It was devastated by a volcanic eruption in the 16th century BC.',
-    tags: ['Views', 'Luxury', 'Romance'],
-    stats: { visitors: '2M+', rank: '#1 Greek Island' }
+  'petra': { 
+    name: 'Petra', country: 'Jordan', category: 'Ruins/Desert', season: 'Mar-May', budget: '$150', language: 'Arabic', currency: 'JOD',
+    description: 'Treasury rock-cut facade, Siq canyon, Monastery hike. A legendary city carved into rose-red cliffs.'
   },
-  'machu-picchu': {
-    name: 'Machu Picchu',
-    country: 'Peru',
-    description: 'Machu Picchu is an Incan citadel set high in the Andes Mountains in Peru, above the Urubamba River valley.',
-    tags: ['Ancient', 'Adventure', 'Mountains'],
-    stats: { visitors: '1.5M+', rank: 'Wonder of World' }
+  'niagara-falls': { 
+    name: 'Niagara Falls', country: 'Canada/USA', category: 'Nature', season: 'Jun-Aug', budget: '$200', language: 'English', currency: 'CAD/USD',
+    description: 'Horseshoe Falls, Maid of the Mist boat, light show. A thunderous natural display of power.'
   },
-  'dubai': {
-    name: 'Dubai',
-    country: 'UAE',
-    description: 'Dubai is a city and emirate in the United Arab Emirates luxury shopping, ultramodern architecture and a lively nightlife scene.',
-    tags: ['Modern', 'Luxury', 'Desert'],
-    stats: { visitors: '16M+', rank: '#4 World Wide' }
+  'bali': { 
+    name: 'Bali', country: 'Indonesia', category: 'Beach/Culture', season: 'Apr-Oct', budget: '$600', language: 'Balinese', currency: 'IDR',
+    description: 'Ubud rice terraces, temple ceremonies, surf beaches. An island paradise blending spirituality and nature.'
   },
-  'new-york': {
-    name: 'New York',
-    country: 'USA',
-    description: 'New York City comprises 5 boroughs sitting where the Hudson River meets the Atlantic Ocean. At its core is Manhattan.',
-    tags: ['Urban', 'Shopping', 'Energy'],
-    stats: { visitors: '60M+', rank: '#1 US' }
+  'kyoto': { 
+    name: 'Kyoto', country: 'Japan', category: 'Culture/Temple', season: 'Mar-Apr, Nov', budget: '$800', language: 'Japanese', currency: 'JPY',
+    description: 'Fushimi Inari, geisha district Gion, bamboo grove. The historic and cultural soul of Japan.'
   },
-  'grand-canyon': {
-    name: 'Grand Canyon',
-    country: 'USA',
-    description: 'The Grand Canyon in Arizona is a natural formation distinguished by layered bands of red rock, revealing millions of years of geological history.',
-    tags: ['Nature', 'Hiking', 'Canyon'],
-    stats: { visitors: '5M+', rank: 'Natural Wonder' }
+  'nyc': { 
+    name: 'New York City', country: 'USA', category: 'Urban/Arts', season: 'Sep-Nov', budget: '$1200', language: 'English', currency: 'USD',
+    description: 'Times Square, Central Park, Statue of Liberty, Broadway. The city that never sleeps.'
   },
-  'sydney': {
-    name: 'Sydney',
-    country: 'Australia',
-    description: 'Sydney, capital of New South Wales and one of Australia\'s largest cities, is best known for its harbourfront Sydney Opera House.',
-    tags: ['Coastal', 'Surfing', 'Harbour'],
-    stats: { visitors: '4M+', rank: '#1 AU' }
+  'patagonia': { 
+    name: 'Patagonia', country: 'Argentina/Chile', category: 'Adventure/Nature', season: 'Nov-Mar', budget: '$1800', language: 'Spanish', currency: 'ARS/CLP',
+    description: 'Torres del Paine, Perito Moreno glacier, trekking. Pristine wilderness at the end of the world.'
   },
-  'cairo': {
-    name: 'Cairo',
-    country: 'Egypt',
-    description: 'Cairo is Egypt’s sprawling capital, set on the Nile River. At its heart is Tahrir Square and the vast Egyptian Museum.',
-    tags: ['Antiquity', 'History', 'Nile'],
-    stats: { visitors: '9M+', rank: '#1 Africa' }
-  },
-  'kyoto': {
-    name: 'Kyoto',
-    country: 'Japan',
-    description: 'Kyoto, once the capital of Japan, is a city on the island of Honshu. It\'s famous for its numerous classical Buddhist temples.',
-    tags: ['Zen', 'Gardens', 'History'],
-    stats: { visitors: '10M+', rank: 'Cultural Heart' }
-  },
-  'rio': {
-    name: 'Rio de Janeiro',
-    country: 'Brazil',
-    description: 'Rio de Janeiro is a huge seaside city in Brazil, famed for its Copacabana and Ipanema beaches.',
-    tags: ['Festival', 'Beaches', 'Vibrant'],
-    stats: { visitors: '2M+', rank: '#1 South America' }
-  },
-  'cape-town': {
-    name: 'Cape Town',
-    country: 'South Africa',
-    description: 'Cape Town is a port city on South Africa’s southwest coast, on a peninsula beneath the imposing Table Mountain.',
-    tags: ['Scenic', 'Coastal', 'Adventure'],
-    stats: { visitors: '1.5M+', rank: '#1 SA' }
-  },
-  'petra': {
-    name: 'Petra',
-    country: 'Jordan',
-    description: 'Petra is a famous archaeological site in Jordan\'s southwestern desert. Dating to around 300 B.C., it was the capital of the Nabataean Kingdom.',
-    tags: ['Desert', 'Ancient', 'History'],
-    stats: { visitors: '1M+', rank: 'Archaeological Gem' }
-  },
-  'barcelona': {
-    name: 'Barcelona',
-    country: 'Spain',
-    description: 'Barcelona, the cosmopolitan capital of Spain’s Catalonia region, is known for its art and architecture.',
-    tags: ['Culture', 'Gaudi', 'Beach'],
-    stats: { visitors: '12M+', rank: '#1 Spain' }
+  'maldives': { 
+    name: 'Maldives', country: 'Maldives', category: 'Beach/Luxury', season: 'Nov-Apr', budget: '$2000', language: 'Dhivehi', currency: 'MVR',
+    description: 'Overwater bungalows, coral reefs, bioluminescent beach. The ultimate tropical luxury escape.'
   }
 };
 
@@ -157,9 +77,7 @@ export default async function DestinationDetailPage({ params }: { params: Promis
 
   if (!dest) return notFound();
 
-  const foundImg = PlaceHolderImages.find(img => img.id === id || (id === 'machu-picchu' && img.id === 'machu'));
-  const fallbackImg = PlaceHolderImages.length > 0 ? PlaceHolderImages[0] : { imageUrl: 'https://picsum.photos/seed/default/1200/800', imageHint: 'Travel scenery' };
-  const imgData = foundImg || fallbackImg;
+  const imgData = PlaceHolderImages.find(img => img.id === id) || { imageUrl: 'https://picsum.photos/seed/default/1200/800', imageHint: 'Travel scenery' };
 
   return (
     <div className="flex flex-col">
@@ -173,9 +91,8 @@ export default async function DestinationDetailPage({ params }: { params: Promis
              </Link>
              <h1 className="text-white text-6xl md:text-8xl font-headline font-bold drop-shadow-2xl">{dest.name}</h1>
              <div className="flex justify-center gap-2">
-                {dest.tags.map((tag: string) => (
-                  <Badge key={tag} className="bg-accent text-white border-none px-4 py-1">{tag}</Badge>
-                ))}
+                <Badge className="bg-accent text-white border-none px-4 py-1">{dest.category}</Badge>
+                <Badge variant="outline" className="bg-white/20 text-white border-none px-4 py-1">{dest.country}</Badge>
              </div>
           </div>
         </div>
@@ -192,21 +109,26 @@ export default async function DestinationDetailPage({ params }: { params: Promis
                 {dest.description}
               </p>
               
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-6 pt-8 mt-8 border-t">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-6 pt-8 mt-8 border-t">
                 <div className="text-center p-4 bg-secondary/30 rounded-2xl">
-                   <Users className="w-8 h-8 text-accent mx-auto mb-2" />
-                   <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Annual Visitors</p>
-                   <p className="text-xl font-bold">{dest.stats.visitors}</p>
+                   <Calendar className="w-8 h-8 text-accent mx-auto mb-2" />
+                   <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Best Time</p>
+                   <p className="text-sm font-bold">{dest.season}</p>
+                </div>
+                <div className="text-center p-4 bg-secondary/30 rounded-2xl">
+                   <DollarSign className="w-8 h-8 text-accent mx-auto mb-2" />
+                   <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Avg Budget</p>
+                   <p className="text-sm font-bold">{dest.budget}</p>
+                </div>
+                <div className="text-center p-4 bg-secondary/30 rounded-2xl">
+                   <Globe className="w-8 h-8 text-accent mx-auto mb-2" />
+                   <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Language</p>
+                   <p className="text-sm font-bold">{dest.language}</p>
                 </div>
                 <div className="text-center p-4 bg-secondary/30 rounded-2xl">
                    <Compass className="w-8 h-8 text-accent mx-auto mb-2" />
-                   <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Travel Rank</p>
-                   <p className="text-xl font-bold">{dest.stats.rank}</p>
-                </div>
-                <div className="text-center p-4 bg-secondary/30 rounded-2xl hidden sm:block">
-                   <Camera className="w-8 h-8 text-accent mx-auto mb-2" />
-                   <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Photo Spots</p>
-                   <p className="text-xl font-bold">500+</p>
+                   <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Currency</p>
+                   <p className="text-sm font-bold">{dest.currency}</p>
                 </div>
               </div>
             </Card>
@@ -217,7 +139,7 @@ export default async function DestinationDetailPage({ params }: { params: Promis
                   {[1, 2, 3, 4].map(i => (
                     <div key={i} className="bg-white p-6 rounded-2xl shadow-sm border hover:shadow-md transition-shadow cursor-pointer">
                        <h4 className="font-bold text-primary mb-1">Authentic Tour {i}</h4>
-                       <p className="text-sm text-muted-foreground">Discover the hidden alleyways and local culture with an expert guide.</p>
+                       <p className="text-sm text-muted-foreground">Discover the hidden gems of {dest.name} with an expert local guide.</p>
                     </div>
                   ))}
                </div>
@@ -226,12 +148,12 @@ export default async function DestinationDetailPage({ params }: { params: Promis
 
           <div className="space-y-6">
             <Card className="border-none shadow-xl bg-primary text-white p-8 rounded-3xl sticky top-24">
-              <h3 className="font-headline text-2xl font-bold mb-4">Local Guides in {dest.name}</h3>
-              <p className="text-white/80 mb-6">Connect with certified experts who live and breathe this city.</p>
+              <h3 className="font-headline text-2xl font-bold mb-4">Local Guides</h3>
+              <p className="text-white/80 mb-6">Connect with certified experts who live and breathe {dest.name}.</p>
               <div className="space-y-4">
                 {[
-                  { name: 'Suresh Kumar', rating: 4.9, img: 'https://picsum.photos/seed/g1/100/100' },
-                  { name: 'Anita Rao', rating: 4.8, img: 'https://picsum.photos/seed/g2/100/100' }
+                  { name: 'Local Expert 1', rating: 4.9, img: 'https://picsum.photos/seed/g1/100/100' },
+                  { name: 'Local Expert 2', rating: 4.8, img: 'https://picsum.photos/seed/g2/100/100' }
                 ].map((guide, i) => (
                   <div key={i} className="flex items-center gap-4 p-3 bg-white/10 rounded-2xl">
                     <div className="relative w-12 h-12 rounded-full overflow-hidden flex-shrink-0">
@@ -246,7 +168,7 @@ export default async function DestinationDetailPage({ params }: { params: Promis
                   </div>
                 ))}
               </div>
-              <Link href={`/guides?search=${dest.name}`} className="block mt-8">
+              <Link href={`/guides?search=${dest.country}`} className="block mt-8">
                 <Button className="w-full bg-accent hover:bg-accent/90 text-white rounded-xl h-12 shadow-lg shadow-accent/20">
                   Find More Guides
                 </Button>
