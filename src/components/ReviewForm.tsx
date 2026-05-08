@@ -47,15 +47,8 @@ export default function ReviewForm({ guideId }: ReviewFormProps) {
 
     const reviewsRef = collection(firestore!, 'guides', guideId, 'reviews');
 
+    // Optimistically submit: don't wait for server confirmation to update UI
     addDoc(reviewsRef, reviewData)
-      .then(() => {
-        setComment('');
-        setRating(5);
-        toast({
-          title: "Review Submitted",
-          description: "Thank you for your feedback!",
-        });
-      })
       .catch(async (error) => {
         const permissionError = new FirestorePermissionError({
           path: reviewsRef.path,
@@ -63,8 +56,17 @@ export default function ReviewForm({ guideId }: ReviewFormProps) {
           requestResourceData: reviewData,
         });
         errorEmitter.emit('permission-error', permissionError);
-      })
-      .finally(() => setSubmitting(false));
+      });
+
+    // Reset UI immediately for a snappy feel
+    setComment('');
+    setRating(5);
+    setSubmitting(false);
+    
+    toast({
+      title: "Review Posted",
+      description: "Thanks! Your review has been added.",
+    });
   }
 
   return (

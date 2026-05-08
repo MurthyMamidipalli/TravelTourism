@@ -40,23 +40,6 @@ export default function GuideRegistrationPage() {
   const { user } = useUser();
   const [submitting, setSubmitting] = useState(false);
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      fullName: '',
-      email: '',
-      mobileNumber: '',
-      age: 25,
-      gender: 'Male',
-      location: '',
-      languages: '',
-      aadharNumber: '',
-      panNumber: '',
-      bio: '',
-      experience: '',
-    },
-  });
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!user) {
       toast({
@@ -79,14 +62,8 @@ export default function GuideRegistrationPage() {
       imageUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/400/400`,
     };
 
+    // Initiate write immediately without awaiting server response for speed
     addDoc(guidesRef, guideData)
-      .then(() => {
-        toast({
-          title: "Registration Successful!",
-          description: "You are now a certified local guide. Your profile is live!",
-        });
-        router.push('/guides');
-      })
       .catch(async (error) => {
         const permissionError = new FirestorePermissionError({
           path: guidesRef.path,
@@ -94,8 +71,16 @@ export default function GuideRegistrationPage() {
           requestResourceData: guideData,
         });
         errorEmitter.emit('permission-error', permissionError);
-      })
-      .finally(() => setSubmitting(false));
+      });
+
+    // Instant feedback to the user
+    toast({
+      title: "Success!",
+      description: "Registration complete. Redirecting you to the experts list...",
+    });
+    
+    // Immediate navigation using local state
+    router.push('/guides');
   }
 
   return (
