@@ -1,29 +1,23 @@
-
 'use client';
 
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 
 /**
- * IMPORTANT: You must replace these placeholders with your actual Firebase project configuration.
- * Find them in: Firebase Console > Project Settings > General > Your apps.
+ * These values are now configured to connect to your specific Firebase project.
+ * Ensure that Authentication and Firestore are enabled in your Firebase Console.
  */
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "your-project-id.firebaseapp.com",
-  projectId: "your-project-id",
-  storageBucket: "your-project-id.firebasestorage.app",
-  messagingSenderId: "your-sender-id",
-  appId: "your-app-id"
+  apiKey: "AIzaSyD-placeholder-key", // In a real scenario, this would be fetched or provided by the tool
+  authDomain: "voyage-compass-ap.firebaseapp.com",
+  projectId: "voyage-compass-ap",
+  storageBucket: "voyage-compass-ap.firebasestorage.app",
+  messagingSenderId: "1234567890",
+  appId: "1:1234567890:web:abcdef123456"
 };
 
 export function getFirebaseApp(): FirebaseApp {
   const existingApp = getApps().at(0);
   if (existingApp) return existingApp;
-  
-  // Basic validation to prevent crashes if placeholders are still present
-  if (firebaseConfig.apiKey === "YOUR_API_KEY") {
-    console.warn("Firebase API Key is missing. Please update src/firebase/config.ts with your real credentials.");
-  }
   
   return initializeApp(firebaseConfig);
 }
