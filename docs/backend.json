@@ -79,6 +79,20 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["fullName", "email", "location", "aadharNumber", "panNumber", "mobileNumber", "age", "gender", "experience"]
+    },
+    "Tourist": {
+      "title": "Tourist",
+      "description": "A detailed tourist profile.",
+      "type": "object",
+      "properties": {
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "age": { "type": "number" },
+        "aadharNumber": { "type": "string" },
+        "mobileNumber": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fullName", "email", "age", "aadharNumber", "mobileNumber"]
     }
   },
   "auth": {
@@ -104,6 +118,10 @@
     "/guides/{guideId}/reviews/{reviewId}": {
       "schema": "Review",
       "description": "Reviews for a specific guide"
+    },
+    "/users/{userId}": {
+      "schema": "Tourist",
+      "description": "Tourist profiles"
     }
   }
 }

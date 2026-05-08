@@ -1,15 +1,28 @@
+
 'use client';
 
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useDoc } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Compass, MapPin, Star, History, Calendar, Settings } from 'lucide-react';
+import { Compass, MapPin, Star, History, Calendar, Settings, User, Phone, Fingerprint } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { doc } from 'firebase/firestore';
+import { useMemo } from 'react';
 
 export default function DashboardPage() {
-  const { user, loading } = useUser();
+  const { user, loading: authLoading } = useUser();
+  const firestore = useFirestore();
+
+  const userDocRef = useMemo(() => {
+    if (!firestore || !user?.uid) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [firestore, user?.uid]);
+
+  const { data: profile, loading: profileLoading } = useDoc(userDocRef);
+
+  const loading = authLoading || profileLoading;
 
   if (loading) {
     return (
@@ -49,6 +62,69 @@ export default function DashboardPage() {
         </div>
       </header>
 
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Tourist Profile Details */}
+        <Card className="premium-card bg-primary/5 border-primary/20 lg:col-span-2">
+          <CardHeader>
+            <div className="flex items-center gap-2">
+              <User className="w-6 h-6 text-primary" />
+              <CardTitle>Verified Profile</CardTitle>
+            </div>
+            <CardDescription>Your secure travel identity</CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <User className="w-5 h-5 text-muted-foreground" />
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Full Name</p>
+                  <p className="font-bold">{profile?.fullName || user?.displayName || 'N/A'}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Calendar className="w-5 h-5 text-muted-foreground" />
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Age</p>
+                  <p className="font-bold">{profile?.age ? `${profile.age} Years` : 'N/A'}</p>
+                </div>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3">
+                <Phone className="w-5 h-5 text-muted-foreground" />
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Mobile Number</p>
+                  <p className="font-bold">{profile?.mobileNumber || 'N/A'}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Fingerprint className="w-5 h-5 text-muted-foreground" />
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Aadhar Verification</p>
+                  <p className="font-bold">
+                    {profile?.aadharNumber 
+                      ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` 
+                      : 'Not Verified'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Saved Places Placeholder */}
+        <Card className="premium-card">
+          <CardHeader>
+            <Star className="w-8 h-8 text-primary mb-2" />
+            <CardTitle>Saved Places</CardTitle>
+            <CardDescription>Your favorite destinations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground italic">Save attractions to see them here.</p>
+          </CardContent>
+        </Card>
+      </div>
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         <Card className="premium-card bg-accent/5 border-accent/20">
           <CardHeader>
@@ -63,23 +139,24 @@ export default function DashboardPage() {
 
         <Card className="premium-card">
           <CardHeader>
-            <Star className="w-8 h-8 text-primary mb-2" />
-            <CardTitle>Saved Places</CardTitle>
-            <CardDescription>Your favorite destinations</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground italic">Save attractions to see them here.</p>
-          </CardContent>
-        </Card>
-
-        <Card className="premium-card">
-          <CardHeader>
             <History className="w-8 h-8 text-muted-foreground mb-2" />
             <CardTitle>Recent Activity</CardTitle>
             <CardDescription>Review your past travels</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground italic">Your journey history will appear here.</p>
+          </CardContent>
+        </Card>
+
+        <Card className="premium-card bg-secondary/50">
+          <CardHeader>
+            <Compass className="w-8 h-8 text-primary mb-2" />
+            <CardTitle>Quick Links</CardTitle>
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2">
+            <Link href="/locations" className="text-sm font-bold text-primary hover:underline">Districts of AP</Link>
+            <Link href="/restaurants" className="text-sm font-bold text-primary hover:underline">Culinary Delights</Link>
+            <Link href="/guides" className="text-sm font-bold text-primary hover:underline">Find Guides</Link>
           </CardContent>
         </Card>
       </div>
