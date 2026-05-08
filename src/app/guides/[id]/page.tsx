@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use } from 'react';
@@ -6,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MapPin, Star, MessageSquare, ShieldCheck, Zap, Info, Calendar, MessageCircle, Fingerprint, CreditCard, FileText, Loader2 } from 'lucide-react';
+import { MapPin, Star, MessageSquare, ShieldCheck, Zap, Info, Calendar, MessageCircle, Fingerprint, CreditCard, FileText, Loader2, Phone, Mail, User as UserIcon } from 'lucide-react';
 import AIItineraryPanel from '@/components/AIItineraryPanel';
 import GuideReviews from '@/components/GuideReviews';
 import ReviewForm from '@/components/ReviewForm';
@@ -61,9 +62,19 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
                 <h1 className="font-headline text-2xl font-bold">{guide.fullName}</h1>
                 <ShieldCheck className="text-accent w-6 h-6" />
               </div>
-              <p className="text-muted-foreground flex items-center gap-1 text-sm">
-                <MapPin className="w-4 h-4 text-accent" /> {guide.location}
-              </p>
+              
+              <div className="space-y-2">
+                <p className="text-muted-foreground flex items-center gap-2 text-sm">
+                  <MapPin className="w-4 h-4 text-accent" /> {guide.location}
+                </p>
+                <p className="text-muted-foreground flex items-center gap-2 text-sm">
+                  <Mail className="w-4 h-4 text-accent" /> {guide.email}
+                </p>
+                <p className="text-muted-foreground flex items-center gap-2 text-sm">
+                  <Phone className="w-4 h-4 text-accent" /> {guide.mobileNumber || 'Not provided'}
+                </p>
+              </div>
+
               <div className="flex items-center gap-2">
                 <Star className="w-5 h-5 fill-accent text-accent" />
                 <span className="font-bold">{guide.rating || 'New'}</span>
@@ -71,7 +82,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
               </div>
               <div className="flex flex-wrap gap-2 pt-2">
                 {guide.languages?.split(',').map(l => (
-                  <Badge key={l} variant="secondary">{l.trim()}</Badge>
+                  <Badge key={l} variant="secondary" className="text-[10px]">{l.trim()}</Badge>
                 ))}
               </div>
               <Button className="w-full bg-primary h-12 rounded-xl text-lg mt-4 shadow-lg shadow-primary/20">
@@ -80,14 +91,23 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
             </CardContent>
           </Card>
 
-          <ReviewForm guideId={id} />
-
-          <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-6">
-            <h3 className="font-headline font-semibold mb-4 flex items-center gap-2">
-              <Info className="w-5 h-5 text-accent" /> About Me
+          <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-6 space-y-4">
+            <h3 className="font-headline font-semibold flex items-center gap-2">
+              <UserIcon className="w-5 h-5 text-accent" /> Personal Details
             </h3>
-            <p className="text-muted-foreground leading-relaxed">{guide.bio}</p>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Age</p>
+                <p className="font-bold">{guide.age} Years</p>
+              </div>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Gender</p>
+                <p className="font-bold">{guide.gender}</p>
+              </div>
+            </div>
           </Card>
+
+          <ReviewForm guideId={id} />
         </div>
 
         <div className="lg:col-span-2 space-y-8">
@@ -117,7 +137,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
                   <h3 className="font-headline text-2xl font-bold flex items-center gap-2">
                     <ShieldCheck className="w-6 h-6 text-accent" /> Trust & Verification
                   </h3>
-                  <p className="text-muted-foreground">For your safety, we verify all local experts through government-issued IDs.</p>
+                  <p className="text-muted-foreground">Verification details as registered with government authorities.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -171,7 +191,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
                 <div className="bg-accent/5 p-6 rounded-2xl border border-accent/20">
                   <p className="text-sm text-muted-foreground italic flex gap-2">
                     <Info className="w-4 h-4 text-accent flex-shrink-0" />
-                    Sensitive information like full ID numbers are partially masked to protect guide privacy while ensuring tourist safety through back-end verification.
+                    Sensitive information like full ID numbers are partially masked to protect guide privacy while ensuring tourist safety.
                   </p>
                 </div>
               </Card>
@@ -205,6 +225,13 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
               </Card>
             </TabsContent>
           </Tabs>
+
+          <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-6">
+            <h3 className="font-headline font-semibold mb-4 flex items-center gap-2">
+              <Info className="w-5 h-5 text-accent" /> About Me
+            </h3>
+            <p className="text-muted-foreground leading-relaxed">{guide.bio}</p>
+          </Card>
         </div>
       </div>
     </div>

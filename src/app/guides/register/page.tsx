@@ -10,9 +10,10 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, Globe, FileUp, Fingerprint, CreditCard, Info, Loader2 } from 'lucide-react';
+import { ShieldCheck, Globe, FileUp, Fingerprint, CreditCard, Info, Loader2, Phone, User as UserIcon } from 'lucide-react';
 import { useFirestore, useUser } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -21,12 +22,15 @@ import { FirestorePermissionError } from '@/firebase/errors';
 const formSchema = z.object({
   fullName: z.string().min(2, { message: 'Full name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
+  mobileNumber: z.string().regex(/^\d{10}$/, { message: 'Mobile number must be exactly 10 digits.' }),
+  age: z.coerce.number().min(18, { message: 'You must be at least 18 years old.' }).max(100),
+  gender: z.enum(['Male', 'Female', 'Other'], { required_error: 'Please select a gender.' }),
   location: z.string().min(3, { message: 'Please specify your operational city/region.' }),
   languages: z.string().min(2, { message: 'Specify at least one language.' }),
   aadharNumber: z.string().regex(/^\d{12}$/, { message: 'Aadhar number must be exactly 12 digits.' }),
   panNumber: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, { message: 'Invalid PAN card format (e.g., ABCDE1234F).' }),
   bio: z.string().min(50, { message: 'Bio should be at least 50 characters to attract tourists.' }),
-  aadharFile: z.any().optional(), // In a real app, you'd handle file upload to Storage
+  aadharFile: z.any().optional(),
   panFile: z.any().optional(),
 });
 
@@ -42,6 +46,9 @@ export default function GuideRegistrationPage() {
     defaultValues: {
       fullName: '',
       email: '',
+      mobileNumber: '',
+      age: 25,
+      gender: 'Male',
       location: '',
       languages: '',
       aadharNumber: '',
@@ -67,7 +74,7 @@ export default function GuideRegistrationPage() {
       userId: user.uid,
       rating: 0,
       reviewCount: 0,
-      isVerified: true, // Auto-verified for prototype
+      isVerified: true,
       createdAt: serverTimestamp(),
       imageUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/400/400`,
     };
@@ -121,7 +128,7 @@ export default function GuideRegistrationPage() {
               <Info className="w-4 h-4 text-accent" /> Tourist Safety Policy
             </h4>
             <p className="text-xs text-white/70 leading-relaxed">
-              To ensure the highest level of trust, your registered Aadhar and PAN numbers, along with their softcopies, will be visible to tourists on your public profile page. Please ensure you upload clear, legible copies.
+              To ensure the highest level of trust, your registered identity details and document softcopies will be visible to tourists on your profile page.
             </p>
           </div>
         </div>
@@ -153,10 +160,63 @@ export default function GuideRegistrationPage() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email</FormLabel>
+                        <FormLabel>Email Address</FormLabel>
                         <FormControl>
                           <Input placeholder="john@example.com" {...field} />
                         </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="mobileNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                          <Phone className="w-4 h-4" /> Mobile
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="10-digit number" maxLength={10} {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="age"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Age</FormLabel>
+                        <FormControl>
+                          <Input type="number" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="gender"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Gender</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Male">Male</SelectItem>
+                            <SelectItem value="Female">Female</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -202,7 +262,7 @@ export default function GuideRegistrationPage() {
                         render={({ field: { value, onChange, ...fieldProps } }) => (
                           <FormItem>
                             <FormLabel className="flex items-center gap-2">
-                               <FileUp className="w-4 h-4" /> Aadhar Softcopy (Visible to Tourists)
+                               <FileUp className="w-4 h-4" /> Aadhar Softcopy
                             </FormLabel>
                             <FormControl>
                               <Input 
@@ -242,7 +302,7 @@ export default function GuideRegistrationPage() {
                         render={({ field: { value, onChange, ...fieldProps } }) => (
                           <FormItem>
                             <FormLabel className="flex items-center gap-2">
-                               <FileUp className="w-4 h-4" /> PAN Softcopy (Visible to Tourists)
+                               <FileUp className="w-4 h-4" /> PAN Softcopy
                             </FormLabel>
                             <FormControl>
                               <Input 

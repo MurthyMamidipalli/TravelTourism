@@ -62,6 +62,9 @@
       "properties": {
         "fullName": { "type": "string" },
         "email": { "type": "string" },
+        "mobileNumber": { "type": "string" },
+        "age": { "type": "number" },
+        "gender": { "type": "string", "enum": ["Male", "Female", "Other"] },
         "location": { "type": "string" },
         "languages": { "type": "string" },
         "aadharNumber": { "type": "string" },
@@ -74,7 +77,7 @@
         "isVerified": { "type": "boolean" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["fullName", "email", "location", "aadharNumber", "panNumber"]
+      "required": ["fullName", "email", "location", "aadharNumber", "panNumber", "mobileNumber", "age", "gender"]
     }
   },
   "auth": {
