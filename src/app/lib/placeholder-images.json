@@ -1,3 +1,4 @@
+
 {
   "placeholderImages": [
     {
@@ -47,6 +48,48 @@
       "description": "Burj Khalifa Dubai",
       "imageUrl": "https://picsum.photos/seed/dubai/1200/800",
       "imageHint": "Dubai skyline"
+    },
+    {
+      "id": "rome",
+      "description": "The Colosseum in Rome",
+      "imageUrl": "https://picsum.photos/seed/rome/1200/800",
+      "imageHint": "Rome Colosseum"
+    },
+    {
+      "id": "new-york",
+      "description": "New York City Skyline",
+      "imageUrl": "https://picsum.photos/seed/ny/1200/800",
+      "imageHint": "New York City"
+    },
+    {
+      "id": "sydney",
+      "description": "Sydney Opera House",
+      "imageUrl": "https://picsum.photos/seed/sydney/1200/800",
+      "imageHint": "Sydney Opera House"
+    },
+    {
+      "id": "cairo",
+      "description": "Pyramids of Giza",
+      "imageUrl": "https://picsum.photos/seed/cairo/1200/800",
+      "imageHint": "Cairo Pyramids"
+    },
+    {
+      "id": "kyoto",
+      "description": "Traditional temple in Kyoto",
+      "imageUrl": "https://picsum.photos/seed/kyoto/1200/800",
+      "imageHint": "Kyoto Temple"
+    },
+    {
+      "id": "rio",
+      "description": "Christ the Redeemer in Rio",
+      "imageUrl": "https://picsum.photos/seed/rio/1200/800",
+      "imageHint": "Rio Christ Redeemer"
+    },
+    {
+      "id": "cape-town",
+      "description": "Table Mountain in Cape Town",
+      "imageUrl": "https://picsum.photos/seed/capetown/1200/800",
+      "imageHint": "Cape Town Mountain"
     },
     {
       "id": "guide-1",

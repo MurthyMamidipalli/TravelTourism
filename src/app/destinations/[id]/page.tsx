@@ -1,3 +1,4 @@
+
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -5,76 +6,128 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Users, Info, ArrowLeft, Camera, Compass } from 'lucide-react';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
-const mockDestinations = {
+const mockDestinations: Record<string, any> = {
   'paris': { 
     name: 'Paris', 
     country: 'France', 
-    description: 'Paris, the capital of France, is a major European city and a global center for art, fashion, gastronomy, and culture. Its 19th-century cityscape is crisscrossed by wide boulevards and the River Seine.',
-    img: 'https://picsum.photos/seed/paris/1200/600',
+    description: 'Paris, the capital of France, is a major European city and a global center for art, fashion, gastronomy, and culture.',
     tags: ['Romance', 'Art', 'Cuisine'],
     stats: { visitors: '30M+', rank: '#1 World Wide' }
   },
   'tokyo': { 
     name: 'Tokyo', 
     country: 'Japan', 
-    description: "Tokyo, Japan's busy capital, mixes the ultramodern and the traditional, from neon-lit skyscrapers to historic temples. The opulent Meiji Shinto Shrine is known for its towering gate and surrounding woods.",
-    img: 'https://picsum.photos/seed/tokyo/1200/600',
+    description: "Tokyo, Japan's busy capital, mixes the ultramodern and the traditional, from neon-lit skyscrapers to historic temples.",
     tags: ['Culture', 'Futuristic', 'Food'],
     stats: { visitors: '15M+', rank: '#5 World Wide' }
+  },
+  'bali': {
+    name: 'Bali',
+    country: 'Indonesia',
+    description: 'Bali is an Indonesian island known for its forested volcanic mountains, iconic rice paddies, beaches and coral reefs.',
+    tags: ['Tropical', 'Spiritual', 'Relaxation'],
+    stats: { visitors: '6M+', rank: '#1 Island' }
   },
   'amalapuram': { 
     name: 'Amalapuram', 
     country: 'India', 
-    description: "Amalapuram is a town in the East Godavari district of Andhra Pradesh, India. It is known for its lush green fields, serene backwaters, and traditional temples. It is the heart of the Konaseema region.",
-    img: 'https://picsum.photos/seed/amalapuram/1200/600',
+    description: "Amalapuram is the heart of the Konaseema region, known for its lush green fields, serene backwaters, and traditional temples.",
     tags: ['Nature', 'Backwaters', 'Greenery'],
     stats: { visitors: '1M+', rank: 'Coastal Gem' }
+  },
+  'rome': {
+    name: 'Rome',
+    country: 'Italy',
+    description: 'Rome, the capital city of Italy, is a sprawling, cosmopolitan city with nearly 3,000 years of globally influential art, architecture and culture.',
+    tags: ['History', 'Art', 'Cuisine'],
+    stats: { visitors: '10M+', rank: '#2 Europe' }
   },
   'london': {
     name: 'London',
     country: 'UK',
-    description: 'London, the capital of England and the United Kingdom, is a 21st-century city with history stretching back to Roman times. At its center stand the imposing Houses of Parliament, the iconic Big Ben clock tower and Westminster Abbey.',
-    img: 'https://picsum.photos/seed/london/1200/600',
+    description: 'London, the capital of England and the United Kingdom, is a 21st-century city with history stretching back to Roman times.',
     tags: ['History', 'Royal', 'Diversity'],
     stats: { visitors: '20M+', rank: '#3 World Wide' }
   },
   'santorini': {
     name: 'Santorini',
     country: 'Greece',
-    description: 'Santorini is one of the Cyclades islands in the Aegean Sea. It was devastated by a volcanic eruption in the 16th century BC, forever shaping its rugged landscape. The whitewashed, cubiform houses of its 2 principal towns, Fira and Oia, cling to cliffs above an underwater caldera.',
-    img: 'https://picsum.photos/seed/santorini/1200/600',
+    description: 'Santorini is one of the Cyclades islands in the Aegean Sea. It was devastated by a volcanic eruption in the 16th century BC.',
     tags: ['Views', 'Luxury', 'Romance'],
     stats: { visitors: '2M+', rank: '#1 Greek Island' }
   },
   'machu-picchu': {
     name: 'Machu Picchu',
     country: 'Peru',
-    description: 'Machu Picchu is an Incan citadel set high in the Andes Mountains in Peru, above the Urubamba River valley. Built in the 15th century and later abandoned, it’s renowned for its sophisticated dry-stone walls that fuse huge blocks without the use of mortar.',
-    img: 'https://picsum.photos/seed/machu/1200/600',
+    description: 'Machu Picchu is an Incan citadel set high in the Andes Mountains in Peru, above the Urubamba River valley.',
     tags: ['Ancient', 'Adventure', 'Mountains'],
     stats: { visitors: '1.5M+', rank: 'Wonder of World' }
   },
   'dubai': {
     name: 'Dubai',
     country: 'UAE',
-    description: 'Dubai is a city and emirate in the United Arab Emirates luxury shopping, ultramodern architecture and a lively nightlife scene. Burj Khalifa, an 830m-tall tower, dominates the skyscraper-filled skyline.',
-    img: 'https://picsum.photos/seed/dubai/1200/600',
+    description: 'Dubai is a city and emirate in the United Arab Emirates luxury shopping, ultramodern architecture and a lively nightlife scene.',
     tags: ['Modern', 'Luxury', 'Desert'],
     stats: { visitors: '16M+', rank: '#4 World Wide' }
+  },
+  'new-york': {
+    name: 'New York',
+    country: 'USA',
+    description: 'New York City comprises 5 boroughs sitting where the Hudson River meets the Atlantic Ocean. At its core is Manhattan.',
+    tags: ['Urban', 'Shopping', 'Energy'],
+    stats: { visitors: '60M+', rank: '#1 US' }
+  },
+  'sydney': {
+    name: 'Sydney',
+    country: 'Australia',
+    description: 'Sydney, capital of New South Wales and one of Australia\'s largest cities, is best known for its harbourfront Sydney Opera House.',
+    tags: ['Coastal', 'Surfing', 'Harbour'],
+    stats: { visitors: '4M+', rank: '#1 AU' }
+  },
+  'cairo': {
+    name: 'Cairo',
+    country: 'Egypt',
+    description: 'Cairo is Egypt’s sprawling capital, set on the Nile River. At its heart is Tahrir Square and the vast Egyptian Museum.',
+    tags: ['Antiquity', 'History', 'Nile'],
+    stats: { visitors: '9M+', rank: '#1 Africa' }
+  },
+  'kyoto': {
+    name: 'Kyoto',
+    country: 'Japan',
+    description: 'Kyoto, once the capital of Japan, is a city on the island of Honshu. It\'s famous for its numerous classical Buddhist temples.',
+    tags: ['Zen', 'Gardens', 'History'],
+    stats: { visitors: '10M+', rank: 'Cultural Heart' }
+  },
+  'rio': {
+    name: 'Rio de Janeiro',
+    country: 'Brazil',
+    description: 'Rio de Janeiro is a huge seaside city in Brazil, famed for its Copacabana and Ipanema beaches.',
+    tags: ['Festival', 'Beaches', 'Vibrant'],
+    stats: { visitors: '2M+', rank: '#1 South America' }
+  },
+  'cape-town': {
+    name: 'Cape Town',
+    country: 'South Africa',
+    description: 'Cape Town is a port city on South Africa’s southwest coast, on a peninsula beneath the imposing Table Mountain.',
+    tags: ['Scenic', 'Coastal', 'Adventure'],
+    stats: { visitors: '1.5M+', rank: '#1 SA' }
   }
 };
 
 export default async function DestinationDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const dest = mockDestinations[id as keyof typeof mockDestinations];
+  const dest = mockDestinations[id];
 
   if (!dest) return notFound();
+
+  const imgData = PlaceHolderImages.find(img => img.id === id || (id === 'machu-picchu' && img.id === 'machu')) || PlaceHolderImages[0];
 
   return (
     <div className="flex flex-col">
       <div className="relative h-[60vh] overflow-hidden">
-        <Image src={dest.img} alt={dest.name} fill className="object-cover" priority />
+        <Image src={imgData.imageUrl} alt={dest.name} fill className="object-cover" priority />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-black/20" />
         <div className="absolute inset-0 flex items-center justify-center text-center p-4">
           <div className="space-y-4">
@@ -83,7 +136,7 @@ export default async function DestinationDetailPage({ params }: { params: Promis
              </Link>
              <h1 className="text-white text-6xl md:text-8xl font-headline font-bold drop-shadow-2xl">{dest.name}</h1>
              <div className="flex justify-center gap-2">
-                {dest.tags.map(tag => (
+                {dest.tags.map((tag: string) => (
                   <Badge key={tag} className="bg-accent text-white border-none px-4 py-1">{tag}</Badge>
                 ))}
              </div>

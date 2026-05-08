@@ -1,19 +1,27 @@
+
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { MapPin, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const destinations = [
-  { id: 'paris', name: 'Eiffel Tower', city: 'Paris', country: 'France', type: 'Monument', img: 'https://picsum.photos/seed/paris/600/400' },
-  { id: 'tokyo', name: 'Shibuya Crossing', city: 'Tokyo', country: 'Japan', type: 'Urban', img: 'https://picsum.photos/seed/tokyo/600/400' },
-  { id: 'amalapuram', name: 'Konaseema Backwaters', city: 'Amalapuram', country: 'India', type: 'Nature', img: 'https://picsum.photos/seed/amalapuram/600/400' },
-  { id: 'rome', name: 'The Colosseum', city: 'Rome', country: 'Italy', type: 'History', img: 'https://picsum.photos/seed/rome/600/400' },
-  { id: 'bali', name: 'Uluwatu Temple', city: 'Bali', country: 'Indonesia', type: 'Spiritual', img: 'https://picsum.photos/seed/bali/600/400' },
-  { id: 'london', name: 'Big Ben', city: 'London', country: 'UK', type: 'History', img: 'https://picsum.photos/seed/london/600/400' },
-  { id: 'santorini', name: 'Oia Cliffs', city: 'Santorini', country: 'Greece', type: 'Views', img: 'https://picsum.photos/seed/santorini/600/400' },
-  { id: 'machu-picchu', name: 'Incan Citadel', city: 'Machu Picchu', country: 'Peru', type: 'Archaeology', img: 'https://picsum.photos/seed/machu/600/400' },
-  { id: 'dubai', name: 'Burj Khalifa', city: 'Dubai', country: 'UAE', type: 'Modern', img: 'https://picsum.photos/seed/dubai/600/400' },
+  { id: 'paris', name: 'Eiffel Tower', city: 'Paris', country: 'France', type: 'Monument' },
+  { id: 'tokyo', name: 'Shibuya Crossing', city: 'Tokyo', country: 'Japan', type: 'Urban' },
+  { id: 'amalapuram', name: 'Konaseema Backwaters', city: 'Amalapuram', country: 'India', type: 'Nature' },
+  { id: 'rome', name: 'The Colosseum', city: 'Rome', country: 'Italy', type: 'History' },
+  { id: 'bali', name: 'Uluwatu Temple', city: 'Bali', country: 'Indonesia', type: 'Spiritual' },
+  { id: 'london', name: 'Big Ben', city: 'London', country: 'UK', type: 'History' },
+  { id: 'santorini', name: 'Oia Cliffs', city: 'Santorini', country: 'Greece', type: 'Views' },
+  { id: 'machu-picchu', name: 'Incan Citadel', city: 'Machu Picchu', country: 'Peru', type: 'Archaeology' },
+  { id: 'dubai', name: 'Burj Khalifa', city: 'Dubai', country: 'UAE', type: 'Modern' },
+  { id: 'new-york', name: 'Times Square', city: 'New York', country: 'USA', type: 'Urban' },
+  { id: 'sydney', name: 'Opera House', city: 'Sydney', country: 'Australia', type: 'Coastal' },
+  { id: 'cairo', name: 'The Great Pyramids', city: 'Cairo', country: 'Egypt', type: 'History' },
+  { id: 'kyoto', name: 'Fushimi Inari', city: 'Kyoto', country: 'Japan', type: 'Cultural' },
+  { id: 'rio', name: 'Copacabana Beach', city: 'Rio de Janeiro', country: 'Brazil', type: 'Vibrant' },
+  { id: 'cape-town', name: 'Table Mountain', city: 'Cape Town', country: 'South Africa', type: 'Coastal' },
 ];
 
 export default function LocationsPage() {
@@ -27,38 +35,49 @@ export default function LocationsPage() {
             A comprehensive list of the world's most breathtaking tourist spots. Find where you want to go next.
           </p>
         </div>
-        <div className="flex gap-2">
-          <Badge variant="outline" className="cursor-pointer hover:bg-primary hover:text-white transition-colors">Nature</Badge>
-          <Badge variant="outline" className="cursor-pointer hover:bg-primary hover:text-white transition-colors">History</Badge>
-          <Badge variant="outline" className="cursor-pointer hover:bg-primary hover:text-white transition-colors">Urban</Badge>
+        <div className="flex flex-wrap gap-2">
+          {['Nature', 'History', 'Urban', 'Coastal', 'Cultural'].map((type) => (
+            <Badge key={type} variant="outline" className="cursor-pointer hover:bg-primary hover:text-white transition-colors">
+              {type}
+            </Badge>
+          ))}
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {destinations.map((loc) => (
-          <Link key={loc.id} href={`/destinations/${loc.id}`}>
-            <Card className="group overflow-hidden border-none shadow-sm hover:shadow-xl transition-all duration-300 h-full flex flex-col">
-              <div className="relative h-64 overflow-hidden">
-                <Image src={loc.img} alt={loc.name} fill className="object-cover group-hover:scale-110 transition-transform duration-700" />
-                <div className="absolute top-4 left-4">
-                  <Badge className="bg-white/90 text-primary border-none shadow-sm">{loc.type}</Badge>
+        {destinations.map((loc) => {
+          const imgData = PlaceHolderImages.find(img => img.id === loc.id || (loc.id === 'machu-picchu' && img.id === 'machu')) || PlaceHolderImages[0];
+          return (
+            <Link key={loc.id} href={`/destinations/${loc.id}`}>
+              <Card className="group overflow-hidden border-none shadow-sm hover:shadow-xl transition-all duration-300 h-full flex flex-col">
+                <div className="relative h-64 overflow-hidden">
+                  <Image 
+                    src={imgData.imageUrl} 
+                    alt={loc.name} 
+                    fill 
+                    className="object-cover group-hover:scale-110 transition-transform duration-700" 
+                    data-ai-hint={imgData.imageHint}
+                  />
+                  <div className="absolute top-4 left-4">
+                    <Badge className="bg-white/90 text-primary border-none shadow-sm">{loc.type}</Badge>
+                  </div>
                 </div>
-              </div>
-              <CardContent className="p-6 flex-grow flex flex-col justify-between">
-                <div>
-                  <h3 className="font-headline text-2xl font-bold mb-1">{loc.name}</h3>
-                  <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium mb-4">
-                    <MapPin className="w-4 h-4 text-accent" /> {loc.city}, {loc.country}
-                  </p>
-                </div>
-                <div className="pt-4 border-t flex items-center justify-between text-primary font-bold group-hover:text-accent transition-colors">
-                  <span>Explore Place</span>
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+                <CardContent className="p-6 flex-grow flex flex-col justify-between">
+                  <div>
+                    <h3 className="font-headline text-2xl font-bold mb-1">{loc.name}</h3>
+                    <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium mb-4">
+                      <MapPin className="w-4 h-4 text-accent" /> {loc.city}, {loc.country}
+                    </p>
+                  </div>
+                  <div className="pt-4 border-t flex items-center justify-between text-primary font-bold group-hover:text-accent transition-colors">
+                    <span>Explore Place</span>
+                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </CardContent>
+              </Card>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );
