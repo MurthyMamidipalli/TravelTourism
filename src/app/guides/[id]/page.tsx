@@ -21,16 +21,28 @@ const mockGuides = [
     operationalRegion: 'Amalapuram, Andhra Pradesh'
   },
   { 
-    id: '2', 
-    name: 'Sarah Chen', 
-    location: 'Tokyo, Japan', 
-    bio: "Tokyo is a city of contrasts, and I'm here to help you navigate both its neon futuristic side and its serene traditional shrines. Specialty in local street food and hidden bars.",
-    rating: 4.8, 
-    reviews: 89, 
-    languages: ['Japanese', 'English', 'Mandarin'],
-    img: 'https://picsum.photos/seed/guide2/400/400',
-    specialty: 'Food & Nightlife',
-    operationalRegion: 'Tokyo, Japan'
+    id: '4', 
+    name: 'Anjali Devi', 
+    location: 'Amalapuram, Andhra Pradesh', 
+    bio: "Specialist in the ecological wonders of Konaseema. I lead tours through the mangrove forests and scenic boat rides along the Godavari.",
+    rating: 4.7, 
+    reviews: 56, 
+    languages: ['Telugu', 'English'],
+    img: 'https://picsum.photos/seed/guide4/400/400',
+    specialty: 'Nature & Backwaters',
+    operationalRegion: 'Amalapuram, Andhra Pradesh'
+  },
+  { 
+    id: '5', 
+    name: 'Srinivas Rao', 
+    location: 'Tirupati, Andhra Pradesh', 
+    bio: "Experienced spiritual guide in the holy city of Tirupati. Helping devotees experience the divine essence of the 7 hills.",
+    rating: 5.0, 
+    reviews: 210, 
+    languages: ['Telugu', 'English', 'Tamil'],
+    img: 'https://picsum.photos/seed/guide5/400/400',
+    specialty: 'Spiritual Tours',
+    operationalRegion: 'Tirupati, Andhra Pradesh'
   }
 ];
 
@@ -43,9 +55,8 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Basic Info */}
         <div className="space-y-6">
-          <Card className="border-none shadow-sm overflow-hidden bg-white">
+          <Card className="border-none shadow-sm overflow-hidden bg-white dark:bg-zinc-900">
             <div className="relative h-80">
               <Image src={guide.img} alt={guide.name} fill className="object-cover" />
             </div>
@@ -55,7 +66,7 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
                 <ShieldCheck className="text-accent w-6 h-6" />
               </div>
               <p className="text-muted-foreground flex items-center gap-1 text-sm">
-                <MapPin className="w-4 h-4" /> {guide.location}
+                <MapPin className="w-4 h-4 text-accent" /> {guide.location}
               </p>
               <div className="flex items-center gap-2">
                 <Star className="w-5 h-5 fill-accent text-accent" />
@@ -73,7 +84,7 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
             </CardContent>
           </Card>
 
-          <Card className="border-none shadow-sm bg-white p-6">
+          <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-6">
             <h3 className="font-headline font-semibold mb-4 flex items-center gap-2">
               <Info className="w-5 h-5 text-accent" /> About Me
             </h3>
@@ -81,15 +92,14 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
           </Card>
         </div>
 
-        {/* Right Column: Experience and AI Tool */}
         <div className="lg:col-span-2 space-y-8">
           <Tabs defaultValue="itinerary" className="w-full">
             <TabsList className="bg-secondary/30 p-1 rounded-xl mb-6">
-              <TabsTrigger value="itinerary" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-primary flex items-center gap-2">
-                <Zap className="w-4 h-4" /> AI Recommended Itinerary
+              <TabsTrigger value="itinerary" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-primary flex items-center gap-2">
+                <Zap className="w-4 h-4 text-accent" /> AI Recommended Itinerary
               </TabsTrigger>
-              <TabsTrigger value="services" className="rounded-lg data-[state=active]:bg-white data-[state=active]:text-primary flex items-center gap-2">
-                <Calendar className="w-4 h-4" /> Services & Pricing
+              <TabsTrigger value="services" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-primary flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-accent" /> Services & Pricing
               </TabsTrigger>
             </TabsList>
             
@@ -98,13 +108,13 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
             </TabsContent>
 
             <TabsContent value="services">
-              <Card className="border-none shadow-sm bg-white p-8 space-y-6">
+              <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-8 space-y-6">
                 <h3 className="font-headline text-2xl font-bold">Guiding Services</h3>
                 <div className="grid gap-4">
                   {[
-                    { name: 'Full Day Walking Tour', price: '$80', duration: '8 Hours' },
-                    { name: 'Half Day Quick Sightseeing', price: '$50', duration: '4 Hours' },
-                    { name: 'Airport Pick-up & First Day Intro', price: '$40', duration: '3 Hours' }
+                    { name: 'Full Day Heritage Tour', price: '₹3500', duration: '8 Hours' },
+                    { name: 'Half Day Scenic Tour', price: '₹2000', duration: '4 Hours' },
+                    { name: 'Cultural Walk & Food Intro', price: '₹1500', duration: '3 Hours' }
                   ].map((s, i) => (
                     <div key={i} className="flex items-center justify-between p-4 border rounded-xl hover:border-accent hover:bg-accent/5 transition-colors cursor-pointer group">
                       <div>

@@ -13,7 +13,7 @@ import { motion } from 'framer-motion';
 const AP_DISTRICTS = [
   { id: 'tirupati', name: 'Tirupati', region: 'Rayalaseema', image: 'https://picsum.photos/seed/tirupati/800/600', count: 4 },
   { id: 'vizag', name: 'Visakhapatnam', region: 'Coastal AP', image: 'https://picsum.photos/seed/vizag/800/600', count: 6 },
-  { id: 'asr', name: 'ASR District', region: 'Highlands', image: 'https://picsum.photos/seed/asr/800/600', count: 2 },
+  { id: 'asr', name: 'Alluri Sitharama Raju', region: 'Highlands', image: 'https://picsum.photos/seed/asr/800/600', count: 2 },
   { id: 'east-godavari', name: 'East Godavari', region: 'Godavari Basin', image: 'https://picsum.photos/seed/egodavari/800/600', count: 4 },
   { id: 'konaseema', name: 'Konaseema', region: 'Godavari Basin', image: 'https://picsum.photos/seed/konaseema/800/600', count: 2 },
   { id: 'kakinada', name: 'Kakinada', region: 'Coastal AP', image: 'https://picsum.photos/seed/kakinada/800/600', count: 3 },

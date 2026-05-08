@@ -1,13 +1,12 @@
-
 'use client';
 
 import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, MapPin, Star, ShieldCheck } from 'lucide-react';
+import { Search, MapPin, Star, ShieldCheck, Users } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 const mockGuides = [
@@ -22,26 +21,6 @@ const mockGuides = [
     specialty: 'History & Culture'
   },
   { 
-    id: '2', 
-    name: 'Sarah Chen', 
-    location: 'Tokyo, Japan', 
-    rating: 4.8, 
-    reviews: 89, 
-    languages: ['Japanese', 'English', 'Mandarin'],
-    img: 'https://picsum.photos/seed/guide2/400/400',
-    specialty: 'Food & Nightlife'
-  },
-  { 
-    id: '3', 
-    name: 'Marco Rossi', 
-    location: 'Rome, Italy', 
-    rating: 5.0, 
-    reviews: 210, 
-    languages: ['Italian', 'English', 'Spanish'],
-    img: 'https://picsum.photos/seed/guide3/400/400',
-    specialty: 'Architecture'
-  },
-  { 
     id: '4', 
     name: 'Anjali Devi', 
     location: 'Amalapuram, Andhra Pradesh', 
@@ -50,6 +29,26 @@ const mockGuides = [
     languages: ['Telugu', 'English'],
     img: 'https://picsum.photos/seed/guide4/400/400',
     specialty: 'Nature & Backwaters'
+  },
+  { 
+    id: '5', 
+    name: 'Srinivas Rao', 
+    location: 'Tirupati, Andhra Pradesh', 
+    rating: 5.0, 
+    reviews: 210, 
+    languages: ['Telugu', 'English', 'Tamil'],
+    img: 'https://picsum.photos/seed/guide5/400/400',
+    specialty: 'Spiritual Tours'
+  },
+  { 
+    id: '6', 
+    name: 'Lakshmi Narayana', 
+    location: 'Vizag, Andhra Pradesh', 
+    rating: 4.8, 
+    reviews: 95, 
+    languages: ['Telugu', 'English'],
+    img: 'https://picsum.photos/seed/guide6/400/400',
+    specialty: 'Coastal Heritage'
   }
 ];
 
@@ -67,12 +66,12 @@ export default function GuidesPage() {
         <div className="space-y-4 max-w-xl">
           <h1 className="font-headline text-4xl font-bold">Find Local Experts</h1>
           <p className="text-white/80 text-lg">
-            Connect with certified local guides who will show you the authentic side of their home city.
+            Connect with certified local guides who will show you the authentic side of Andhra Pradesh.
           </p>
           <div className="relative group max-w-md">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-accent transition-colors" />
             <Input 
-              placeholder="Search by location (e.g. Amalapuram)..." 
+              placeholder="Search by city (e.g. Tirupati)..." 
               className="pl-12 h-14 bg-white text-foreground rounded-xl shadow-lg border-none focus-visible:ring-accent"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
@@ -88,7 +87,7 @@ export default function GuidesPage() {
         {filteredGuides.length > 0 ? (
           filteredGuides.map((guide) => (
             <Link key={guide.id} href={`/guides/${guide.id}`}>
-              <Card className="overflow-hidden hover:shadow-xl transition-all border-none bg-white">
+              <Card className="overflow-hidden hover:shadow-xl transition-all border-none bg-white dark:bg-zinc-900">
                 <div className="relative h-64 w-full">
                   <Image src={guide.img} alt={guide.name} fill className="object-cover" />
                   <div className="absolute top-4 right-4">
@@ -104,7 +103,7 @@ export default function GuidesPage() {
                       <ShieldCheck className="w-5 h-5 text-accent" />
                     </h3>
                     <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
-                      <MapPin className="w-4 h-4" /> {guide.location}
+                      <MapPin className="w-4 h-4 text-accent" /> {guide.location}
                     </p>
                   </div>
                   
@@ -126,7 +125,7 @@ export default function GuidesPage() {
           <div className="col-span-full py-20 text-center">
             <Users className="w-16 h-16 text-muted mx-auto mb-4" />
             <h3 className="text-xl font-headline font-bold">No guides found in this area yet</h3>
-            <p className="text-muted-foreground">Try searching for another location like "Amalapuram" or "Tokyo".</p>
+            <p className="text-muted-foreground">Try searching for another location like "Amalapuram" or "Tirupati".</p>
           </div>
         )}
       </div>
