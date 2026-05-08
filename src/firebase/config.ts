@@ -4,8 +4,8 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 
 /**
- * IMPORTANT: Replace the placeholder values below with your actual Firebase project configuration.
- * You can find this in your Firebase Console: Project Settings > General > Your apps > Web apps.
+ * IMPORTANT: You must replace these placeholders with your actual Firebase project configuration.
+ * Find them in: Firebase Console > Project Settings > General > Your apps.
  */
 const firebaseConfig = {
   apiKey: "YOUR_API_KEY",
@@ -18,5 +18,12 @@ const firebaseConfig = {
 
 export function getFirebaseApp(): FirebaseApp {
   const existingApp = getApps().at(0);
-  return existingApp || initializeApp(firebaseConfig);
+  if (existingApp) return existingApp;
+  
+  // Basic validation to prevent crashes if placeholders are still present
+  if (firebaseConfig.apiKey === "YOUR_API_KEY") {
+    console.warn("Firebase API Key is missing. Please update src/firebase/config.ts with your real credentials.");
+  }
+  
+  return initializeApp(firebaseConfig);
 }

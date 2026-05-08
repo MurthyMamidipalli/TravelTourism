@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -39,7 +40,6 @@ export default function GuideRegistrationPage() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log('Form Values:', values);
     toast({
       title: "Registration Submitted!",
       description: "Our verification team will review your ID documents and softcopies within 48 hours.",
@@ -53,37 +53,30 @@ export default function GuideRegistrationPage() {
         <div className="md:col-span-2 space-y-8 bg-primary rounded-3xl p-8 text-white">
           <h1 className="font-headline text-3xl font-bold">Become a Local Ambassador</h1>
           <p className="text-white/80 leading-relaxed">
-            Share your passion for Andhra Pradesh, meet travelers from around the world, and earn while showcasing the beauty of your home.
+            Share your passion for Andhra Pradesh and earn while showcasing the beauty of your home.
           </p>
           <div className="space-y-6">
             <div className="flex gap-4">
               <ShieldCheck className="w-10 h-10 text-accent flex-shrink-0" />
               <div>
                 <p className="font-bold">Mandatory Verification</p>
-                <p className="text-sm text-white/70">Verification of Aadhar/PAN numbers and softcopies is mandatory for tourist safety.</p>
+                <p className="text-sm text-white/70">Aadhar/PAN verification is mandatory for tourist safety.</p>
               </div>
             </div>
             <div className="flex gap-4">
               <Globe className="w-10 h-10 text-accent flex-shrink-0" />
               <div>
                 <p className="font-bold">Global Reach</p>
-                <p className="text-sm text-white/70">Access to thousands of international travelers visiting Andhra Pradesh.</p>
-              </div>
-            </div>
-            <div className="flex gap-4">
-              <MapPin className="w-10 h-10 text-accent flex-shrink-0" />
-              <div>
-                <p className="font-bold">Local Pride</p>
-                <p className="text-sm text-white/70">Highlight the hidden gems of your district that only locals know about.</p>
+                <p className="text-sm text-white/70">Access to thousands of international travelers visiting AP.</p>
               </div>
             </div>
           </div>
         </div>
 
-        <Card className="md:col-span-3 border-none shadow-xl rounded-3xl overflow-hidden bg-white">
+        <Card className="md:col-span-3 border-none shadow-xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-900">
           <CardHeader className="bg-secondary/20 border-b p-8">
             <CardTitle className="font-headline text-2xl">Create Your Guide Profile</CardTitle>
-            <CardDescription>Enter your professional details and upload identity documents to register.</CardDescription>
+            <CardDescription>Enter your details and upload identity documents to register.</CardDescription>
           </CardHeader>
           <CardContent className="p-8">
             <Form {...form}>
@@ -96,7 +89,7 @@ export default function GuideRegistrationPage() {
                       <FormItem>
                         <FormLabel>Full Name</FormLabel>
                         <FormControl>
-                          <Input placeholder="John Doe" {...field} className="bg-background" />
+                          <Input placeholder="John Doe" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -107,9 +100,9 @@ export default function GuideRegistrationPage() {
                     name="email"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Email Address</FormLabel>
+                        <FormLabel>Email</FormLabel>
                         <FormControl>
-                          <Input placeholder="john@example.com" {...field} className="bg-background" />
+                          <Input placeholder="john@example.com" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -119,11 +112,10 @@ export default function GuideRegistrationPage() {
 
                 <div className="bg-secondary/10 p-6 rounded-2xl space-y-6 border border-secondary">
                   <p className="text-sm font-bold flex items-center gap-2 text-primary">
-                    <ShieldCheck className="w-4 h-4" /> Identity Verification (Mandatory)
+                    <ShieldCheck className="w-4 h-4" /> Identity Verification
                   </p>
                   
                   <div className="space-y-6">
-                    {/* Aadhar Section */}
                     <div className="space-y-4">
                       <FormField
                         control={form.control}
@@ -131,10 +123,10 @@ export default function GuideRegistrationPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="flex items-center gap-2">
-                               <Fingerprint className="w-4 h-4 text-muted-foreground" /> Aadhar Number
+                               <Fingerprint className="w-4 h-4" /> Aadhar Number
                             </FormLabel>
                             <FormControl>
-                              <Input placeholder="12-digit number" {...field} className="bg-white" />
+                              <Input placeholder="12-digit number" {...field} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -146,7 +138,7 @@ export default function GuideRegistrationPage() {
                         render={({ field: { value, onChange, ...fieldProps } }) => (
                           <FormItem>
                             <FormLabel className="flex items-center gap-2">
-                               <FileUp className="w-4 h-4 text-muted-foreground" /> Upload Aadhar Softcopy
+                               <FileUp className="w-4 h-4" /> Aadhar Softcopy
                             </FormLabel>
                             <FormControl>
                               <Input 
@@ -154,10 +146,8 @@ export default function GuideRegistrationPage() {
                                 accept="image/*,.pdf"
                                 onChange={(e) => onChange(e.target.files)}
                                 {...fieldProps} 
-                                className="bg-white"
                               />
                             </FormControl>
-                            <FormDescription className="text-xs">Attach a clear image or PDF of your Aadhar card.</FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -166,7 +156,6 @@ export default function GuideRegistrationPage() {
 
                     <div className="h-px bg-secondary/50" />
 
-                    {/* PAN Section */}
                     <div className="space-y-4">
                       <FormField
                         control={form.control}
@@ -174,10 +163,10 @@ export default function GuideRegistrationPage() {
                         render={({ field }) => (
                           <FormItem>
                             <FormLabel className="flex items-center gap-2">
-                               <CreditCard className="w-4 h-4 text-muted-foreground" /> PAN Card Number
+                               <CreditCard className="w-4 h-4" /> PAN Card Number
                             </FormLabel>
                             <FormControl>
-                              <Input placeholder="ABCDE1234F" {...field} className="bg-white uppercase" />
+                              <Input placeholder="ABCDE1234F" {...field} className="uppercase" />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -189,7 +178,7 @@ export default function GuideRegistrationPage() {
                         render={({ field: { value, onChange, ...fieldProps } }) => (
                           <FormItem>
                             <FormLabel className="flex items-center gap-2">
-                               <FileUp className="w-4 h-4 text-muted-foreground" /> Upload PAN Softcopy
+                               <FileUp className="w-4 h-4" /> PAN Softcopy
                             </FormLabel>
                             <FormControl>
                               <Input 
@@ -197,10 +186,8 @@ export default function GuideRegistrationPage() {
                                 accept="image/*,.pdf"
                                 onChange={(e) => onChange(e.target.files)}
                                 {...fieldProps} 
-                                className="bg-white"
                               />
                             </FormControl>
-                            <FormDescription className="text-xs">Attach a clear image or PDF of your PAN card.</FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -209,35 +196,6 @@ export default function GuideRegistrationPage() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="location"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Operational Location</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g. Tirupati, AP" {...field} className="bg-background" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="languages"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Languages Spoken</FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g. English, Telugu, Hindi" {...field} className="bg-background" />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-                
                 <FormField
                   control={form.control}
                   name="bio"
@@ -246,8 +204,8 @@ export default function GuideRegistrationPage() {
                       <FormLabel>Profile Bio</FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Tell travelers why they should book with you. Highlight your expertise in Andhra Pradesh tourism." 
-                          className="min-h-[120px] bg-background"
+                          placeholder="Tell travelers why they should book with you." 
+                          className="min-h-[120px]"
                           {...field} 
                         />
                       </FormControl>
@@ -256,7 +214,7 @@ export default function GuideRegistrationPage() {
                   )}
                 />
                 <Button type="submit" className="w-full h-12 text-lg bg-accent text-white hover:bg-accent/90 rounded-xl">
-                  Verify & Register as Guide
+                  Register as Guide
                 </Button>
               </form>
             </Form>
