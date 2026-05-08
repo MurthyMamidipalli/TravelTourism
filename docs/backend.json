@@ -70,6 +70,7 @@
         "aadharNumber": { "type": "string" },
         "panNumber": { "type": "string" },
         "bio": { "type": "string" },
+        "experience": { "type": "string", "description": "Past guiding experiences and expertise" },
         "imageUrl": { "type": "string" },
         "specialty": { "type": "string" },
         "rating": { "type": "number" },
@@ -77,7 +78,7 @@
         "isVerified": { "type": "boolean" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["fullName", "email", "location", "aadharNumber", "panNumber", "mobileNumber", "age", "gender"]
+      "required": ["fullName", "email", "location", "aadharNumber", "panNumber", "mobileNumber", "age", "gender", "experience"]
     }
   },
   "auth": {

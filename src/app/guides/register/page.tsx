@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, Globe, FileUp, Fingerprint, CreditCard, Info, Loader2, Phone, User as UserIcon } from 'lucide-react';
+import { ShieldCheck, Globe, FileUp, Fingerprint, CreditCard, Info, Loader2, Phone, User as UserIcon, Briefcase } from 'lucide-react';
 import { useFirestore, useUser } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -30,6 +30,7 @@ const formSchema = z.object({
   aadharNumber: z.string().regex(/^\d{12}$/, { message: 'Aadhar number must be exactly 12 digits.' }),
   panNumber: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, { message: 'Invalid PAN card format (e.g., ABCDE1234F).' }),
   bio: z.string().min(50, { message: 'Bio should be at least 50 characters to attract tourists.' }),
+  experience: z.string().min(20, { message: 'Please provide at least 20 characters about your experience.' }),
   aadharFile: z.any().optional(),
   panFile: z.any().optional(),
 });
@@ -54,6 +55,7 @@ export default function GuideRegistrationPage() {
       aadharNumber: '',
       panNumber: '',
       bio: '',
+      experience: '',
     },
   });
 
@@ -348,6 +350,27 @@ export default function GuideRegistrationPage() {
                     )}
                   />
                 </div>
+
+                <FormField
+                  control={form.control}
+                  name="experience"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <Briefcase className="w-4 h-4" /> Past Guiding Experiences
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea 
+                          placeholder="List your previous tours, years of experience, or notable clients." 
+                          className="min-h-[100px]"
+                          {...field} 
+                        />
+                      </FormControl>
+                      <FormDescription>Help tourists understand your background and expertise.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
 
                 <FormField
                   control={form.control}

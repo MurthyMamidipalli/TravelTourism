@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MapPin, Star, MessageSquare, ShieldCheck, Zap, Info, Calendar, MessageCircle, Fingerprint, CreditCard, FileText, Loader2, Phone, Mail, User as UserIcon } from 'lucide-react';
+import { MapPin, Star, MessageSquare, ShieldCheck, Zap, Info, Calendar, MessageCircle, Fingerprint, CreditCard, FileText, Loader2, Phone, Mail, User as UserIcon, Briefcase } from 'lucide-react';
 import AIItineraryPanel from '@/components/AIItineraryPanel';
 import GuideReviews from '@/components/GuideReviews';
 import ReviewForm from '@/components/ReviewForm';
@@ -226,12 +226,21 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
             </TabsContent>
           </Tabs>
 
-          <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-6">
-            <h3 className="font-headline font-semibold mb-4 flex items-center gap-2">
-              <Info className="w-5 h-5 text-accent" /> About Me
-            </h3>
-            <p className="text-muted-foreground leading-relaxed">{guide.bio}</p>
-          </Card>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-6">
+              <h3 className="font-headline font-semibold mb-4 flex items-center gap-2">
+                <UserIcon className="w-5 h-5 text-accent" /> About Me
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">{guide.bio}</p>
+            </Card>
+
+            <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-6">
+              <h3 className="font-headline font-semibold mb-4 flex items-center gap-2">
+                <Briefcase className="w-5 h-5 text-accent" /> Guiding Experience
+              </h3>
+              <p className="text-muted-foreground leading-relaxed">{guide.experience}</p>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
