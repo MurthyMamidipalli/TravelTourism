@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -6,7 +5,7 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Search, MapPin, Clock, Utensils, Star } from 'lucide-react';
+import { Search, MapPin, Clock, Utensils } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
@@ -52,7 +51,7 @@ export default function RestaurantsPage() {
   }, [search]);
 
   return (
-    <div className="container mx-auto px-4 py-12 space-y-12">
+    <div className="container mx-auto px-4 py-12 space-y-12 min-h-screen">
       <div className="flex flex-col items-center text-center space-y-6 max-w-3xl mx-auto">
         <div className="space-y-4">
           <Badge className="bg-accent/10 text-accent border-none px-4 py-1 flex items-center gap-1.5 mx-auto w-fit">
@@ -76,7 +75,7 @@ export default function RestaurantsPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence>
           {filtered.map((rest, idx) => {
             const imgData = PlaceHolderImages.find(img => img.id === rest.id) || PlaceHolderImages[0];
             return (
@@ -87,8 +86,8 @@ export default function RestaurantsPage() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
               >
-                <Card className="premium-card overflow-hidden h-full group flex flex-col">
-                  <div className="relative h-56 bg-secondary">
+                <Card className="premium-card overflow-hidden h-full group flex flex-col border-none bg-white dark:bg-zinc-900 shadow-sm">
+                  <div className="relative h-56 bg-secondary aspect-video overflow-hidden">
                     <Image 
                       src={imgData.imageUrl} 
                       alt={rest.name} 

@@ -65,11 +65,14 @@ export default function Navbar() {
     { name: 'Search', href: '/search', icon: Search },
   ];
 
+  // Stable height to prevent content shifting
+  const navClass = `glass-nav transition-all duration-300 h-20 flex items-center ${scrolled ? 'shadow-sm border-b bg-white/90 dark:bg-black/90' : 'bg-white dark:bg-black'}`;
+
   if (!mounted) {
     return (
-      <nav className="glass-nav py-5">
+      <nav className="h-20 bg-white dark:bg-black border-b flex items-center">
         <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-12">
+          <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <div className="bg-primary text-primary-foreground p-2 rounded-xl">
                 <Compass className="w-6 h-6" />
@@ -78,7 +81,6 @@ export default function Navbar() {
                 Voyage<span className="text-primary">Compass</span>
               </span>
             </div>
-            <div className="w-10 h-10" />
           </div>
         </div>
       </nav>
@@ -86,9 +88,9 @@ export default function Navbar() {
   }
 
   return (
-    <nav className={`glass-nav transition-all duration-300 ${scrolled ? 'py-3 shadow-sm' : 'py-5'}`}>
+    <nav className={navClass}>
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-12">
+        <div className="flex items-center justify-between h-full">
           <Link href="/" className="flex items-center gap-2 group">
             <div className="bg-primary text-primary-foreground p-2 rounded-xl group-hover:rotate-12 transition-transform">
               <Compass className="w-6 h-6" />
@@ -196,7 +198,7 @@ export default function Navbar() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t bg-background px-4 py-6 space-y-4 overflow-hidden"
+            className="md:hidden border-t bg-background px-4 py-6 space-y-4 overflow-hidden absolute top-20 left-0 right-0 z-50 shadow-xl"
           >
             {navItems.map((item) => (
               <Link

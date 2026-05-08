@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -57,7 +56,7 @@ export default function DestinationsPage() {
   }, [searchTerm]);
 
   return (
-    <div className="container mx-auto px-4 py-12 space-y-8">
+    <div className="container mx-auto px-4 py-12 space-y-8 min-h-screen">
       <div className="text-center space-y-4 max-w-2xl mx-auto">
         <h1 className="font-headline text-4xl font-bold text-primary">Discover Andhra Pradesh</h1>
         <p className="text-muted-foreground">32 Breathtaking wonders of the heart of South India.</p>
@@ -73,7 +72,7 @@ export default function DestinationsPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence>
           {filteredDestinations.map((dest, idx) => (
             <motion.div
               key={dest.id}
@@ -83,8 +82,8 @@ export default function DestinationsPage() {
               transition={{ duration: 0.2 }}
             >
               <Link href={`/destinations/${dest.id}`}>
-                <Card className="h-full group hover:shadow-md transition-shadow border-none overflow-hidden bg-white dark:bg-zinc-900">
-                  <div className="relative h-48 bg-secondary">
+                <Card className="h-full group hover:shadow-md transition-shadow border-none overflow-hidden bg-white dark:bg-zinc-900 flex flex-col">
+                  <div className="relative h-48 bg-secondary aspect-video overflow-hidden">
                     <Image
                       src={`https://picsum.photos/seed/${dest.id}/600/400`}
                       alt={dest.name}
@@ -97,7 +96,7 @@ export default function DestinationsPage() {
                       <Badge variant="secondary" className="bg-white/90 text-primary font-bold shadow-sm">{dest.category}</Badge>
                     </div>
                   </div>
-                  <CardContent className="p-5">
+                  <CardContent className="p-5 flex-grow">
                     <div className="flex items-center gap-1 text-accent font-semibold text-[10px] uppercase tracking-wider mb-1">
                       <MapPin className="w-3 h-3" /> {dest.district}
                     </div>
