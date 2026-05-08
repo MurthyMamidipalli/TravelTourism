@@ -13,11 +13,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, Globe, Fingerprint, CreditCard, Info, Loader2, Phone, MapPin, Briefcase } from 'lucide-react';
+import { ShieldCheck, Globe, Fingerprint, CreditCard, Info, Loader2, Phone, MapPin, Briefcase, Mail } from 'lucide-react';
 import { useFirestore, useUser } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: 'Full name is required.' }),
@@ -40,6 +41,13 @@ export default function GuideRegistrationPage() {
   const { user } = useUser();
   const [submitting, setSubmitting] = useState(false);
 
+  // OTP Verification States
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [isAadharVerified, setIsAadharVerified] = useState(false);
+  const [otpValue, setOtpValue] = useState('');
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -57,13 +65,58 @@ export default function GuideRegistrationPage() {
     },
   });
 
+  const aadharNumber = form.watch('aadharNumber');
+
+  async function handleSendOtp() {
+    if (aadharNumber.length !== 12) {
+      toast({
+        title: "Invalid Aadhar",
+        description: "Please enter a valid 12-digit Aadhar number first.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsSendingOtp(true);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setIsSendingOtp(false);
+    setIsOtpSent(true);
+    toast({
+      title: "OTP Sent",
+      description: "A 6-digit code has been sent to your Aadhar-linked mobile.",
+    });
+  }
+
+  async function handleVerifyOtp() {
+    if (otpValue.length !== 6) return;
+    
+    setIsVerifyingOtp(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setIsVerifyingOtp(false);
+    
+    if (otpValue === '123456') {
+      setIsAadharVerified(true);
+      toast({
+        title: "Identity Verified",
+        description: "Your Aadhar has been authenticated successfully.",
+      });
+    } else {
+      toast({
+        title: "Error",
+        description: "Invalid OTP. Use 123456 for testing.",
+        variant: "destructive"
+      });
+    }
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!user) {
-      toast({
-        title: "Sign-in Required",
-        description: "Please log in to register as a guide.",
-        variant: "destructive",
-      });
+      toast({ title: "Sign-in Required", description: "Please log in to register.", variant: "destructive" });
+      return;
+    }
+
+    if (!isAadharVerified) {
+      toast({ title: "Verification Required", description: "Please verify your Aadhar via OTP.", variant: "destructive" });
       return;
     }
 
@@ -103,31 +156,31 @@ export default function GuideRegistrationPage() {
         <div className="md:col-span-2 space-y-8 bg-primary rounded-3xl p-8 text-white">
           <h1 className="font-headline text-3xl font-bold text-white">Local Ambassador Registration</h1>
           <p className="text-white/80 leading-relaxed">
-            All fields are mandatory. This information helps us verify your identity and build trust with tourists.
+            All fields are mandatory. Aadhar OTP verification is required to build trust in our Sunrise State community.
           </p>
           <div className="space-y-6">
             <div className="flex gap-4">
               <ShieldCheck className="w-10 h-10 text-accent flex-shrink-0" />
               <div>
-                <p className="font-bold text-lg">Identity Verification</p>
-                <p className="text-sm text-white/70">Aadhar and PAN details are required to confirm your status as a trusted expert.</p>
+                <p className="font-bold text-lg">OTP Authentication</p>
+                <p className="text-sm text-white/70">Securely verify your identity via UIDAI-linked mobile number.</p>
               </div>
             </div>
             <div className="flex gap-4">
               <Globe className="w-10 h-10 text-accent flex-shrink-0" />
               <div>
-                <p className="font-bold text-lg">Places Shown</p>
-                <p className="text-sm text-white/70">List the specific places you have explored or shown to tourists in our Sunrise State.</p>
+                <p className="font-bold text-lg">Detailed Experience</p>
+                <p className="text-sm text-white/70">List your explored places to showcase your expertise.</p>
               </div>
             </div>
           </div>
           
           <div className="bg-white/10 p-6 rounded-2xl mt-8">
             <h4 className="font-bold flex items-center gap-2 mb-2 text-accent">
-              <Info className="w-4 h-4" /> Safety First
+              <Info className="w-4 h-4" /> Why OTP?
             </h4>
             <p className="text-xs text-white/70 leading-relaxed">
-              Verified identity data is visible to tourists to ensure they are booking with a legitimate and safe local guide.
+              Real-time Aadhar verification ensures that every guide on Voyage Compass is a legitimate and trusted individual.
             </p>
           </div>
         </div>
@@ -148,7 +201,7 @@ export default function GuideRegistrationPage() {
                       <FormItem>
                         <FormLabel>Full Name <span className="text-destructive">*</span></FormLabel>
                         <FormControl>
-                          <Input placeholder="Enter your full name" {...field} />
+                          <Input placeholder="Enter your full name" className="rounded-xl h-11" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -161,7 +214,7 @@ export default function GuideRegistrationPage() {
                       <FormItem>
                         <FormLabel>Email Address <span className="text-destructive">*</span></FormLabel>
                         <FormControl>
-                          <Input placeholder="your.email@example.com" {...field} />
+                          <Input placeholder="your.email@example.com" className="rounded-xl h-11" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -179,7 +232,7 @@ export default function GuideRegistrationPage() {
                           <Phone className="w-4 h-4" /> Mobile <span className="text-destructive">*</span>
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="10-digit mobile" maxLength={10} {...field} />
+                          <Input placeholder="10-digit mobile" maxLength={10} className="rounded-xl h-11" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -192,7 +245,7 @@ export default function GuideRegistrationPage() {
                       <FormItem>
                         <FormLabel>Age <span className="text-destructive">*</span></FormLabel>
                         <FormControl>
-                          <Input type="number" {...field} />
+                          <Input type="number" className="rounded-xl h-11" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -206,7 +259,7 @@ export default function GuideRegistrationPage() {
                         <FormLabel>Gender <span className="text-destructive">*</span></FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="rounded-xl h-11">
                               <SelectValue placeholder="Select" />
                             </SelectTrigger>
                           </FormControl>
@@ -222,51 +275,88 @@ export default function GuideRegistrationPage() {
                   />
                 </div>
 
-                <div className="bg-secondary/10 p-6 rounded-2xl space-y-6 border border-secondary">
+                <div className="bg-secondary/10 p-6 rounded-2xl space-y-6 border border-secondary shadow-inner">
                   <p className="text-sm font-bold flex items-center gap-2 text-primary">
-                    <ShieldCheck className="w-4 h-4" /> Verification IDs (Mandatory)
+                    <ShieldCheck className="w-4 h-4" /> Aadhar OTP Verification
                   </p>
                   
-                  <div className="space-y-6">
+                  <div className="space-y-4">
                     <FormField
                       control={form.control}
                       name="aadharNumber"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="flex items-center gap-2">
-                             <Fingerprint className="w-4 h-4" /> Aadhar Number <span className="text-destructive">*</span>
-                          </FormLabel>
-                          <FormControl>
-                            <Input 
-                              placeholder="12-digit numeric ID" 
-                              type="text"
-                              inputMode="numeric"
-                              maxLength={12}
-                              {...field} 
-                            />
-                          </FormControl>
-                          <FormDescription className="text-[10px]">Must be exactly 12 digits.</FormDescription>
+                          <div className="flex gap-2">
+                            <FormControl>
+                              <div className="relative flex-grow">
+                                <Input 
+                                  placeholder="12-digit Aadhar Number" 
+                                  maxLength={12} 
+                                  disabled={isAadharVerified}
+                                  className="h-11 rounded-xl pr-10"
+                                  {...field} 
+                                />
+                                {isAadharVerified && (
+                                  <ShieldCheck className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-accent" />
+                                )}
+                              </div>
+                            </FormControl>
+                            {!isAadharVerified && (
+                              <Button 
+                                type="button" 
+                                variant="outline" 
+                                onClick={handleSendOtp}
+                                disabled={isSendingOtp || aadharNumber.length !== 12 || isOtpSent}
+                                className="rounded-xl h-11"
+                              >
+                                {isSendingOtp ? <Loader2 className="h-4 w-4 animate-spin" /> : (isOtpSent ? 'Sent' : 'Get OTP')}
+                              </Button>
+                            )}
+                          </div>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
 
-                    <FormField
-                      control={form.control}
-                      name="panNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="flex items-center gap-2">
-                             <CreditCard className="w-4 h-4" /> PAN Card Number <span className="text-destructive">*</span>
-                          </FormLabel>
-                          <FormControl>
-                            <Input placeholder="ABCDE1234F" {...field} className="uppercase" maxLength={10} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    {isOtpSent && !isAadharVerified && (
+                      <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
+                        <FormLabel className="text-xs">Enter 6-digit OTP (Test: 123456)</FormLabel>
+                        <div className="flex gap-2">
+                          <Input 
+                            placeholder="XXXXXX" 
+                            maxLength={6} 
+                            className="h-11 rounded-xl text-center font-black tracking-widest"
+                            value={otpValue}
+                            onChange={(e) => setOtpValue(e.target.value)}
+                          />
+                          <Button 
+                            type="button" 
+                            onClick={handleVerifyOtp} 
+                            disabled={isVerifyingOtp || otpValue.length !== 6}
+                            className="rounded-xl h-11 bg-accent text-white"
+                          >
+                            {isVerifyingOtp ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Verify'}
+                          </Button>
+                        </div>
+                      </motion.div>
+                    )}
                   </div>
+
+                  <FormField
+                    control={form.control}
+                    name="panNumber"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="flex items-center gap-2">
+                           <CreditCard className="w-4 h-4" /> PAN Card Number <span className="text-destructive">*</span>
+                        </FormLabel>
+                        <FormControl>
+                          <Input placeholder="ABCDE1234F" {...field} className="uppercase h-11 rounded-xl" maxLength={10} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -279,7 +369,7 @@ export default function GuideRegistrationPage() {
                           <MapPin className="w-4 h-4" /> Operational City <span className="text-destructive">*</span>
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. Tirupati" {...field} />
+                          <Input placeholder="e.g. Tirupati" className="rounded-xl h-11" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -292,7 +382,7 @@ export default function GuideRegistrationPage() {
                       <FormItem>
                         <FormLabel>Languages <span className="text-destructive">*</span></FormLabel>
                         <FormControl>
-                          <Input placeholder="Telugu, English, etc." {...field} />
+                          <Input placeholder="Telugu, English, etc." className="rounded-xl h-11" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -311,7 +401,7 @@ export default function GuideRegistrationPage() {
                       <FormControl>
                         <Textarea 
                           placeholder="Tirumala Temple - 20 times&#10;Araku Valley - 5 times" 
-                          className="min-h-[120px]"
+                          className="min-h-[120px] rounded-xl"
                           {...field} 
                         />
                       </FormControl>
@@ -330,7 +420,7 @@ export default function GuideRegistrationPage() {
                       <FormControl>
                         <Textarea 
                           placeholder="Introduce yourself and your expertise to travelers." 
-                          className="min-h-[120px]"
+                          className="min-h-[120px] rounded-xl"
                           {...field} 
                         />
                       </FormControl>
@@ -338,13 +428,19 @@ export default function GuideRegistrationPage() {
                     </FormItem>
                   )}
                 />
+                
                 <Button 
                   type="submit" 
-                  disabled={submitting}
-                  className="w-full h-12 text-lg bg-accent text-white hover:bg-accent/90 rounded-xl"
+                  disabled={submitting || !isAadharVerified}
+                  className="w-full h-14 text-lg bg-accent text-white hover:bg-accent/90 rounded-2xl shadow-xl shadow-accent/20"
                 >
                   {submitting ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Finalizing Profile...</> : 'Complete Registration'}
                 </Button>
+                {!isAadharVerified && (
+                  <p className="text-xs text-center text-muted-foreground italic">
+                    Aadhar OTP verification is required to enable registration.
+                  </p>
+                )}
               </form>
             </Form>
           </CardContent>

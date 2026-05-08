@@ -15,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, UserPlus, Mail, Lock, User, Fingerprint, Phone, Calendar } from 'lucide-react';
+import { Eye, EyeOff, UserPlus, Mail, Lock, User, Fingerprint, Phone, Calendar, ShieldCheck, Loader2 } from 'lucide-react';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -36,6 +36,13 @@ export default function SignupPage() {
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  
+  // OTP Verification States
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [isOtpSent, setIsOtpSent] = useState(false);
+  const [isAadharVerified, setIsAadharVerified] = useState(false);
+  const [otpValue, setOtpValue] = useState('');
+  const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
 
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
@@ -50,7 +57,62 @@ export default function SignupPage() {
     },
   });
 
+  const aadharNumber = form.watch('aadharNumber');
+
+  async function handleSendOtp() {
+    if (aadharNumber.length !== 12) {
+      toast({
+        title: "Invalid Aadhar",
+        description: "Please enter a valid 12-digit Aadhar number first.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    setIsSendingOtp(true);
+    // Simulate API call to UIDAI/OTP Service
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setIsSendingOtp(false);
+    setIsOtpSent(true);
+    toast({
+      title: "OTP Sent",
+      description: "A 6-digit verification code has been sent to your Aadhaar-linked mobile.",
+    });
+  }
+
+  async function handleVerifyOtp() {
+    if (otpValue.length !== 6) return;
+    
+    setIsVerifyingOtp(true);
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    setIsVerifyingOtp(false);
+    
+    // Simulate successful verification with code 123456
+    if (otpValue === '123456') {
+      setIsAadharVerified(true);
+      toast({
+        title: "Aadhar Verified",
+        description: "Your identity has been successfully authenticated.",
+      });
+    } else {
+      toast({
+        title: "Verification Failed",
+        description: "Invalid OTP. Please check and try again.",
+        variant: "destructive"
+      });
+    }
+  }
+
   async function onSubmit(values: z.infer<typeof signupSchema>) {
+    if (!isAadharVerified) {
+      toast({
+        title: "Aadhar Not Verified",
+        description: "Please complete the Aadhar OTP verification first.",
+        variant: "destructive"
+      });
+      return;
+    }
+
     setIsLoading(true);
     try {
       const { user } = await createUserWithEmailAndPassword(auth, values.email, values.password);
@@ -60,7 +122,6 @@ export default function SignupPage() {
         displayName: fullName,
       });
 
-      // Save additional tourist profile data to Firestore
       const userDocRef = doc(firestore, 'users', user.uid);
       const profileData = {
         fullName,
@@ -68,6 +129,7 @@ export default function SignupPage() {
         age: values.age,
         aadharNumber: values.aadharNumber,
         mobileNumber: values.mobileNumber,
+        isVerified: true,
         createdAt: serverTimestamp(),
       };
 
@@ -88,18 +150,10 @@ export default function SignupPage() {
       
       router.push('/dashboard');
     } catch (error: any) {
-      console.error(error);
-      let message = "Could not create account.";
-      if (error.code === 'auth/api-key-not-valid') {
-        message = "Firebase API key is invalid.";
-      } else if (error.message) {
-        message = error.message;
-      }
-      
       toast({
         variant: 'destructive',
         title: 'Signup Failed',
-        description: message,
+        description: error.message || "Could not create account.",
       });
     } finally {
       setIsLoading(false);
@@ -126,7 +180,7 @@ export default function SignupPage() {
                       <FormControl>
                         <div className="relative">
                           <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input placeholder="John" className="pl-10 h-11" {...field} />
+                          <Input placeholder="John" className="pl-10 h-11 rounded-xl" {...field} />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -140,7 +194,7 @@ export default function SignupPage() {
                     <FormItem>
                       <FormLabel>Last Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Doe" className="h-11" {...field} />
+                        <Input placeholder="Doe" className="h-11 rounded-xl" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -158,7 +212,7 @@ export default function SignupPage() {
                       <FormControl>
                         <div className="relative">
                           <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input type="number" placeholder="25" className="pl-10 h-11" {...field} />
+                          <Input type="number" placeholder="25" className="pl-10 h-11 rounded-xl" {...field} />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -174,7 +228,7 @@ export default function SignupPage() {
                       <FormControl>
                         <div className="relative">
                           <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input placeholder="10-digit number" maxLength={10} className="pl-10 h-11" {...field} />
+                          <Input placeholder="10-digit number" maxLength={10} className="pl-10 h-11 rounded-xl" {...field} />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -183,23 +237,71 @@ export default function SignupPage() {
                 />
               </div>
 
-              <FormField
-                control={form.control}
-                name="aadharNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Aadhar Number</FormLabel>
-                    <FormControl>
-                      <div className="relative">
-                        <Fingerprint className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="12-digit numeric ID" maxLength={12} className="pl-10 h-11" {...field} />
+              <div className="space-y-4 bg-secondary/20 p-6 rounded-2xl border border-secondary">
+                <FormField
+                  control={form.control}
+                  name="aadharNumber"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="flex items-center gap-2">
+                        <Fingerprint className="w-4 h-4 text-primary" /> Aadhar Number
+                      </FormLabel>
+                      <div className="flex gap-2">
+                        <FormControl>
+                          <div className="relative flex-grow">
+                            <Input 
+                              placeholder="12-digit numeric ID" 
+                              maxLength={12} 
+                              className="h-11 rounded-xl" 
+                              disabled={isAadharVerified}
+                              {...field} 
+                            />
+                            {isAadharVerified && (
+                              <ShieldCheck className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-accent" />
+                            )}
+                          </div>
+                        </FormControl>
+                        {!isAadharVerified && (
+                          <Button 
+                            type="button" 
+                            variant="secondary" 
+                            onClick={handleSendOtp}
+                            disabled={isSendingOtp || aadharNumber.length !== 12 || isOtpSent}
+                            className="rounded-xl h-11"
+                          >
+                            {isSendingOtp ? <Loader2 className="h-4 w-4 animate-spin" /> : (isOtpSent ? 'Sent' : 'Get OTP')}
+                          </Button>
+                        )}
                       </div>
-                    </FormControl>
-                    <FormDescription className="text-[10px]">Verification ID is required for safety.</FormDescription>
-                    <FormMessage />
-                  </FormItem>
+                      <FormDescription className="text-[10px]">Must be verified via Aadhaar OTP.</FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {isOtpSent && !isAadharVerified && (
+                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
+                    <FormLabel className="text-xs">Enter 6-digit OTP (Test: 123456)</FormLabel>
+                    <div className="flex gap-2">
+                      <Input 
+                        placeholder="XXXXXX" 
+                        maxLength={6} 
+                        className="h-11 rounded-xl tracking-[0.5em] font-bold text-center"
+                        value={otpValue}
+                        onChange={(e) => setOtpValue(e.target.value)}
+                      />
+                      <Button 
+                        type="button" 
+                        onClick={handleVerifyOtp} 
+                        disabled={isVerifyingOtp || otpValue.length !== 6}
+                        className="rounded-xl h-11 bg-accent text-white"
+                      >
+                        {isVerifyingOtp ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Verify'}
+                      </Button>
+                    </div>
+                  </motion.div>
                 )}
-              />
+              </div>
 
               <FormField
                 control={form.control}
@@ -210,7 +312,7 @@ export default function SignupPage() {
                     <FormControl>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="name@example.com" className="pl-10 h-11" {...field} />
+                        <Input placeholder="name@example.com" className="pl-10 h-11 rounded-xl" {...field} />
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -230,7 +332,7 @@ export default function SignupPage() {
                         <Input
                           type={showPassword ? 'text' : 'password'}
                           placeholder="••••••••"
-                          className="pl-10 h-11"
+                          className="pl-10 h-11 rounded-xl"
                           {...field}
                         />
                         <button
@@ -247,10 +349,19 @@ export default function SignupPage() {
                 )}
               />
 
-              <Button type="submit" className="w-full h-12 text-lg rounded-xl mt-4" disabled={isLoading}>
+              <Button 
+                type="submit" 
+                className="w-full h-12 text-lg rounded-xl mt-4 font-bold" 
+                disabled={isLoading || !isAadharVerified}
+              >
                 {isLoading ? 'Creating Account...' : 'Create Account'}
                 <UserPlus className="ml-2 h-4 w-4" />
               </Button>
+              {!isAadharVerified && (
+                <p className="text-[10px] text-center text-muted-foreground italic">
+                  * Aadhar verification required to enable account creation.
+                </p>
+              )}
             </form>
           </Form>
         </CardContent>
