@@ -20,16 +20,16 @@ import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
 const formSchema = z.object({
-  fullName: z.string().min(2, { message: 'Full name is required (min 2 characters).' }),
-  email: z.string().email({ message: 'A valid email address is required.' }),
+  fullName: z.string().min(2, { message: 'Full name is required.' }),
+  email: z.string().email({ message: 'Valid email is required.' }),
   mobileNumber: z.string().regex(/^\d{10}$/, { message: '10-digit mobile number is mandatory.' }),
-  age: z.coerce.number().min(18, { message: 'Must be at least 18 years old.' }).max(100),
+  age: z.coerce.number().min(18, { message: 'Must be 18 or older.' }).max(100),
   gender: z.enum(['Male', 'Female', 'Other'], { required_error: 'Please select a gender.' }),
   location: z.string().min(3, { message: 'Operational city/region is mandatory.' }),
   languages: z.string().min(2, { message: 'Specify at least one language.' }),
   aadharNumber: z.string().regex(/^\d{12}$/, { message: '12-digit Aadhar number is mandatory.' }),
-  panNumber: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, { message: 'Invalid PAN card format (e.g., ABCDE1234F).' }),
-  bio: z.string().min(50, { message: 'Bio is mandatory (min 50 characters).' }),
+  panNumber: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, { message: 'Invalid PAN card format.' }),
+  bio: z.string().min(50, { message: 'Bio is mandatory (min 50 chars).' }),
   experience: z.string().min(10, { message: 'Experience details are mandatory.' }),
 });
 
@@ -39,6 +39,23 @@ export default function GuideRegistrationPage() {
   const firestore = useFirestore();
   const { user } = useUser();
   const [submitting, setSubmitting] = useState(false);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      fullName: '',
+      email: '',
+      mobileNumber: '',
+      age: 25,
+      gender: 'Male',
+      location: '',
+      languages: '',
+      aadharNumber: '',
+      panNumber: '',
+      bio: '',
+      experience: '',
+    },
+  });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!user) {
@@ -62,7 +79,6 @@ export default function GuideRegistrationPage() {
       imageUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/400/400`,
     };
 
-    // Initiate write immediately without awaiting server response for speed
     addDoc(guidesRef, guideData)
       .catch(async (error) => {
         const permissionError = new FirestorePermissionError({
@@ -73,13 +89,11 @@ export default function GuideRegistrationPage() {
         errorEmitter.emit('permission-error', permissionError);
       });
 
-    // Instant feedback to the user
     toast({
-      title: "Success!",
-      description: "Registration complete. Redirecting you to the experts list...",
+      title: "Registration Success!",
+      description: "You are now listed as a local expert.",
     });
     
-    // Immediate navigation using local state
     router.push('/guides');
   }
 
@@ -89,39 +103,39 @@ export default function GuideRegistrationPage() {
         <div className="md:col-span-2 space-y-8 bg-primary rounded-3xl p-8 text-white">
           <h1 className="font-headline text-3xl font-bold text-white">Local Ambassador Registration</h1>
           <p className="text-white/80 leading-relaxed">
-            All fields are mandatory. This information helps us verify your identity and build trust with tourists visiting Andhra Pradesh.
+            All fields are mandatory. This information helps us verify your identity and build trust with tourists.
           </p>
           <div className="space-y-6">
             <div className="flex gap-4">
               <ShieldCheck className="w-10 h-10 text-accent flex-shrink-0" />
               <div>
-                <p className="font-bold text-lg">Verified Status</p>
-                <p className="text-sm text-white/70">Aadhar and PAN details are mandatory for verification and will be displayed on your profile.</p>
+                <p className="font-bold text-lg">Identity Verification</p>
+                <p className="text-sm text-white/70">Aadhar and PAN details are required to confirm your status as a trusted expert.</p>
               </div>
             </div>
             <div className="flex gap-4">
               <Globe className="w-10 h-10 text-accent flex-shrink-0" />
               <div>
-                <p className="font-bold text-lg">Local Expertise</p>
-                <p className="text-sm text-white/70">Showcase exactly where you've been and how often you've guided there.</p>
+                <p className="font-bold text-lg">Places Shown</p>
+                <p className="text-sm text-white/70">List the specific places you have explored or shown to tourists in our Sunrise State.</p>
               </div>
             </div>
           </div>
           
           <div className="bg-white/10 p-6 rounded-2xl mt-8">
             <h4 className="font-bold flex items-center gap-2 mb-2 text-accent">
-              <Info className="w-4 h-4" /> Required Documentation
+              <Info className="w-4 h-4" /> Safety First
             </h4>
             <p className="text-xs text-white/70 leading-relaxed">
-              Your identity information is stored securely. Masked versions of your ID will be shown to travelers to confirm your status as a verified local expert.
+              Verified identity data is visible to tourists to ensure they are booking with a legitimate and safe local guide.
             </p>
           </div>
         </div>
 
         <Card className="md:col-span-3 border-none shadow-xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-900">
           <CardHeader className="bg-secondary/20 border-b p-8">
-            <CardTitle className="font-headline text-2xl">Complete Your Profile</CardTitle>
-            <CardDescription>All fields below are required for verification.</CardDescription>
+            <CardTitle className="font-headline text-2xl text-primary">Complete Your Profile</CardTitle>
+            <CardDescription>All fields are required for your profile to be active.</CardDescription>
           </CardHeader>
           <CardContent className="p-8">
             <Form {...form}>
@@ -134,7 +148,7 @@ export default function GuideRegistrationPage() {
                       <FormItem>
                         <FormLabel>Full Name <span className="text-destructive">*</span></FormLabel>
                         <FormControl>
-                          <Input placeholder="John Doe" {...field} />
+                          <Input placeholder="Enter your full name" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -147,7 +161,7 @@ export default function GuideRegistrationPage() {
                       <FormItem>
                         <FormLabel>Email Address <span className="text-destructive">*</span></FormLabel>
                         <FormControl>
-                          <Input placeholder="john@example.com" {...field} />
+                          <Input placeholder="your.email@example.com" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -165,7 +179,7 @@ export default function GuideRegistrationPage() {
                           <Phone className="w-4 h-4" /> Mobile <span className="text-destructive">*</span>
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="10-digit number" maxLength={10} {...field} />
+                          <Input placeholder="10-digit mobile" maxLength={10} {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -210,7 +224,7 @@ export default function GuideRegistrationPage() {
 
                 <div className="bg-secondary/10 p-6 rounded-2xl space-y-6 border border-secondary">
                   <p className="text-sm font-bold flex items-center gap-2 text-primary">
-                    <ShieldCheck className="w-4 h-4" /> Identity Verification (Mandatory)
+                    <ShieldCheck className="w-4 h-4" /> Verification IDs (Mandatory)
                   </p>
                   
                   <div className="space-y-6">
@@ -224,13 +238,14 @@ export default function GuideRegistrationPage() {
                           </FormLabel>
                           <FormControl>
                             <Input 
-                              placeholder="12-digit numeric Aadhar" 
+                              placeholder="12-digit numeric ID" 
                               type="text"
                               inputMode="numeric"
                               maxLength={12}
                               {...field} 
                             />
                           </FormControl>
+                          <FormDescription className="text-[10px]">Must be exactly 12 digits.</FormDescription>
                           <FormMessage />
                         </FormItem>
                       )}
@@ -264,7 +279,7 @@ export default function GuideRegistrationPage() {
                           <MapPin className="w-4 h-4" /> Operational City <span className="text-destructive">*</span>
                         </FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. Tirupati, AP" {...field} />
+                          <Input placeholder="e.g. Tirupati" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -277,7 +292,7 @@ export default function GuideRegistrationPage() {
                       <FormItem>
                         <FormLabel>Languages <span className="text-destructive">*</span></FormLabel>
                         <FormControl>
-                          <Input placeholder="Telugu, English, Hindi" {...field} />
+                          <Input placeholder="Telugu, English, etc." {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -291,16 +306,16 @@ export default function GuideRegistrationPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
-                        <Briefcase className="w-4 h-4" /> Places Explored <span className="text-destructive">*</span>
+                        <Briefcase className="w-4 h-4" /> Guiding Experience (Column Format) <span className="text-destructive">*</span>
                       </FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Tirumala Temple - 10 times&#10;Araku Valley - 5 times" 
+                          placeholder="Tirumala Temple - 20 times&#10;Araku Valley - 5 times" 
                           className="min-h-[120px]"
                           {...field} 
                         />
                       </FormControl>
-                      <FormDescription>Format: 'Place Name - Frequency' on separate lines.</FormDescription>
+                      <FormDescription className="text-[10px]">Enter 'Place Name - Frequency' on each new line.</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -311,10 +326,10 @@ export default function GuideRegistrationPage() {
                   name="bio"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Profile Bio <span className="text-destructive">*</span></FormLabel>
+                      <FormLabel>Professional Bio <span className="text-destructive">*</span></FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Tell travelers about your expertise." 
+                          placeholder="Introduce yourself and your expertise to travelers." 
                           className="min-h-[120px]"
                           {...field} 
                         />
@@ -328,7 +343,7 @@ export default function GuideRegistrationPage() {
                   disabled={submitting}
                   className="w-full h-12 text-lg bg-accent text-white hover:bg-accent/90 rounded-xl"
                 >
-                  {submitting ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Registering...</> : 'Register as Guide'}
+                  {submitting ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Finalizing Profile...</> : 'Complete Registration'}
                 </Button>
               </form>
             </Form>

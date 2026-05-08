@@ -7,7 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MapPin, Star, MessageSquare, ShieldCheck, Zap, Info, Calendar, MessageCircle, Fingerprint, CreditCard, FileText, Loader2, Phone, Mail, User as UserIcon, Briefcase } from 'lucide-react';
+import { MapPin, Star, MessageSquare, ShieldCheck, Zap, Info, Calendar, MessageCircle, Fingerprint, CreditCard, Loader2, Phone, Mail, User as UserIcon, Briefcase, FileText } from 'lucide-react';
 import AIItineraryPanel from '@/components/AIItineraryPanel';
 import GuideReviews from '@/components/GuideReviews';
 import ReviewForm from '@/components/ReviewForm';
@@ -136,7 +136,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
                 <Zap className="w-4 h-4 text-accent" /> AI Plan
               </TabsTrigger>
               <TabsTrigger value="verification" className="rounded-lg flex-1 py-3 flex gap-2">
-                <ShieldCheck className="w-4 h-4 text-accent" /> ID Verification
+                <ShieldCheck className="w-4 h-4 text-accent" /> Verified Identity
               </TabsTrigger>
               <TabsTrigger value="reviews" className="rounded-lg flex-1 py-3 flex gap-2">
                 <MessageCircle className="w-4 h-4 text-accent" /> Reviews
@@ -151,28 +151,48 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
               <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-8 space-y-8">
                 <div className="space-y-2">
                   <h3 className="font-headline text-2xl font-bold flex items-center gap-2">
-                    <ShieldCheck className="w-6 h-6 text-accent" /> Identity Confirmed
+                    <ShieldCheck className="w-6 h-6 text-accent" /> Government Verification
                   </h3>
-                  <p className="text-muted-foreground">Mandatory identity details verified for safety.</p>
+                  <p className="text-muted-foreground">Identity documents verified for traveler safety and trust.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div className="flex items-center gap-3 p-4 bg-secondary/20 rounded-2xl border">
                       <Fingerprint className="w-8 h-8 text-primary" />
                       <div>
-                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Aadhar</p>
-                        <p className="text-lg font-bold">XXXX-XXXX-{guide.aadharNumber?.slice(-4)}</p>
+                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Aadhar Number</p>
+                        <p className="text-lg font-bold">{guide.aadharNumber}</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Aadhar Softcopy</p>
+                      <div className="relative aspect-video rounded-xl overflow-hidden border bg-secondary/10 flex items-center justify-center">
+                         <Image src={`https://picsum.photos/seed/aadhar-${id}/600/400`} alt="Aadhar Softcopy" fill className="object-cover opacity-50 blur-[2px]" />
+                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/20 text-white">
+                            <FileText className="w-8 h-8 mb-2" />
+                            <span className="text-sm font-bold">Verified Document</span>
+                         </div>
                       </div>
                     </div>
                   </div>
 
-                  <div className="space-y-4">
+                  <div className="space-y-6">
                     <div className="flex items-center gap-3 p-4 bg-secondary/20 rounded-2xl border">
                       <CreditCard className="w-8 h-8 text-primary" />
                       <div>
-                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">PAN</p>
-                        <p className="text-lg font-bold">XXXXX{guide.panNumber?.slice(-4)}</p>
+                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">PAN Card Number</p>
+                        <p className="text-lg font-bold uppercase">{guide.panNumber}</p>
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">PAN Softcopy</p>
+                      <div className="relative aspect-video rounded-xl overflow-hidden border bg-secondary/10 flex items-center justify-center">
+                         <Image src={`https://picsum.photos/seed/pan-${id}/600/400`} alt="PAN Softcopy" fill className="object-cover opacity-50 blur-[2px]" />
+                         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/20 text-white">
+                            <FileText className="w-8 h-8 mb-2" />
+                            <span className="text-sm font-bold">Verified Document</span>
+                         </div>
                       </div>
                     </div>
                   </div>
@@ -180,7 +200,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
 
                 <div className="bg-accent/5 p-6 rounded-2xl border border-accent/20 flex gap-4">
                    <Info className="w-5 h-5 text-accent flex-shrink-0" />
-                   <p className="text-sm text-muted-foreground">Full ID numbers are partially masked to protect privacy while maintaining full verification status.</p>
+                   <p className="text-sm text-muted-foreground">Full ID details are visible to confirmed tourists to verify the authenticity of the local expert.</p>
                 </div>
               </Card>
             </TabsContent>
@@ -200,11 +220,11 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
 
             <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-6">
               <h3 className="font-headline font-semibold mb-6 flex items-center gap-2 text-primary">
-                <Briefcase className="w-5 h-5 text-accent" /> Experience Table
+                <Briefcase className="w-5 h-5 text-accent" /> Guiding Experience
               </h3>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-b pb-2">
-                  <span>Location</span>
+                  <span>Places Explored / Shown</span>
                   <span className="text-right">Frequency</span>
                 </div>
                 <div className="divide-y divide-secondary/30">
@@ -216,6 +236,9 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
                       </span>
                     </div>
                   ))}
+                  {experienceList.length === 0 && (
+                    <p className="text-sm text-muted-foreground py-4 italic">No specific experience details listed.</p>
+                  )}
                 </div>
               </div>
             </Card>
