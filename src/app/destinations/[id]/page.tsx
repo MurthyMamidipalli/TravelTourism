@@ -157,7 +157,9 @@ export default async function DestinationDetailPage({ params }: { params: Promis
 
   if (!dest) return notFound();
 
-  const imgData = PlaceHolderImages.find(img => img.id === id || (id === 'machu-picchu' && img.id === 'machu')) || PlaceHolderImages[0];
+  const foundImg = PlaceHolderImages.find(img => img.id === id || (id === 'machu-picchu' && img.id === 'machu'));
+  const fallbackImg = PlaceHolderImages.length > 0 ? PlaceHolderImages[0] : { imageUrl: 'https://picsum.photos/seed/default/1200/800', imageHint: 'Travel scenery' };
+  const imgData = foundImg || fallbackImg;
 
   return (
     <div className="flex flex-col">

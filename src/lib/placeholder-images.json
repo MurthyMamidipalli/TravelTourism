@@ -1,3 +1,124 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "paris",
+      "description": "Eiffel Tower in Paris",
+      "imageUrl": "https://picsum.photos/seed/paris/1200/800",
+      "imageHint": "Paris Eiffel Tower"
+    },
+    {
+      "id": "tokyo",
+      "description": "City lights of Tokyo",
+      "imageUrl": "https://picsum.photos/seed/tokyo/1200/800",
+      "imageHint": "Tokyo city skyline"
+    },
+    {
+      "id": "amalapuram",
+      "description": "Serene backwaters of Amalapuram",
+      "imageUrl": "https://picsum.photos/seed/amalapuram/1200/800",
+      "imageHint": "Andhra Pradesh backwaters"
+    },
+    {
+      "id": "bali",
+      "description": "Tropical beach in Bali",
+      "imageUrl": "https://picsum.photos/seed/bali/1200/800",
+      "imageHint": "Bali beach sunset"
+    },
+    {
+      "id": "london",
+      "description": "Big Ben in London",
+      "imageUrl": "https://picsum.photos/seed/london/1200/800",
+      "imageHint": "London Big Ben"
+    },
+    {
+      "id": "santorini",
+      "description": "Sunsets in Santorini",
+      "imageUrl": "https://picsum.photos/seed/santorini/1200/800",
+      "imageHint": "Santorini sunset"
+    },
+    {
+      "id": "machu",
+      "description": "Machu Picchu citadel",
+      "imageUrl": "https://picsum.photos/seed/machu/1200/800",
+      "imageHint": "Machu Picchu"
+    },
+    {
+      "id": "dubai",
+      "description": "Burj Khalifa Dubai",
+      "imageUrl": "https://picsum.photos/seed/dubai/1200/800",
+      "imageHint": "Dubai skyline"
+    },
+    {
+      "id": "rome",
+      "description": "The Colosseum in Rome",
+      "imageUrl": "https://picsum.photos/seed/rome/1200/800",
+      "imageHint": "Rome Colosseum"
+    },
+    {
+      "id": "new-york",
+      "description": "New York City Skyline",
+      "imageUrl": "https://picsum.photos/seed/ny/1200/800",
+      "imageHint": "New York City"
+    },
+    {
+      "id": "sydney",
+      "description": "Sydney Opera House",
+      "imageUrl": "https://picsum.photos/seed/sydney/1200/800",
+      "imageHint": "Sydney Opera House"
+    },
+    {
+      "id": "cairo",
+      "description": "Pyramids of Giza",
+      "imageUrl": "https://picsum.photos/seed/cairo/1200/800",
+      "imageHint": "Cairo Pyramids"
+    },
+    {
+      "id": "kyoto",
+      "description": "Traditional temple in Kyoto",
+      "imageUrl": "https://picsum.photos/seed/kyoto/1200/800",
+      "imageHint": "Kyoto Temple"
+    },
+    {
+      "id": "rio",
+      "description": "Christ the Redeemer in Rio",
+      "imageUrl": "https://picsum.photos/seed/rio/1200/800",
+      "imageHint": "Rio Christ Redeemer"
+    },
+    {
+      "id": "cape-town",
+      "description": "Table Mountain in Cape Town",
+      "imageUrl": "https://picsum.photos/seed/capetown/1200/800",
+      "imageHint": "Cape Town Mountain"
+    },
+    {
+      "id": "venice",
+      "description": "Grand Canal in Venice",
+      "imageUrl": "https://picsum.photos/seed/venice/1200/800",
+      "imageHint": "Venice Canal"
+    },
+    {
+      "id": "agra",
+      "description": "Taj Mahal in Agra",
+      "imageUrl": "https://picsum.photos/seed/agra/1200/800",
+      "imageHint": "Taj Mahal"
+    },
+    {
+      "id": "petra",
+      "description": "The Treasury in Petra",
+      "imageUrl": "https://picsum.photos/seed/petra/1200/800",
+      "imageHint": "Petra Jordan"
+    },
+    {
+      "id": "grand-canyon",
+      "description": "Grand Canyon vista",
+      "imageUrl": "https://picsum.photos/seed/grandcanyon/1200/800",
+      "imageHint": "Grand Canyon"
+    },
+    {
+      "id": "barcelona",
+      "description": "Sagrada Familia in Barcelona",
+      "imageUrl": "https://picsum.photos/seed/barcelona/1200/800",
+      "imageHint": "Barcelona Sagrada"
+    }
+  ]
 }
