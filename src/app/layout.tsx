@@ -1,12 +1,14 @@
+
 import type {Metadata} from 'next';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import { Toaster } from '@/components/ui/toaster';
 import Footer from '@/components/Footer';
+import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
-  title: 'Voyage Compass - Global Tourism & Local Guides',
-  description: 'Explore world destinations and connect with local expert guides.',
+  title: 'Voyage Compass - Andhra Pradesh Tourism',
+  description: 'Explore 32 breathtaking wonders of Andhra Pradesh and connect with verified local guides.',
 };
 
 export default function RootLayout({
@@ -22,12 +24,14 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
       </head>
       <body className="font-body antialiased bg-background text-foreground min-h-screen flex flex-col" suppressHydrationWarning>
-        <Navbar />
-        <main className="flex-grow">
-          {children}
-        </main>
-        <Footer />
-        <Toaster />
+        <FirebaseClientProvider>
+          <Navbar />
+          <main className="flex-grow">
+            {children}
+          </main>
+          <Footer />
+          <Toaster />
+        </FirebaseClientProvider>
       </body>
     </html>
   );
