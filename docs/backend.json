@@ -54,6 +54,27 @@
         "createdAt": { "type": "string", "format": "date-time" }
       },
       "required": ["userId", "rating", "comment"]
+    },
+    "Guide": {
+      "title": "Guide",
+      "description": "A verified local guide profile.",
+      "type": "object",
+      "properties": {
+        "fullName": { "type": "string" },
+        "email": { "type": "string" },
+        "location": { "type": "string" },
+        "languages": { "type": "string" },
+        "aadharNumber": { "type": "string" },
+        "panNumber": { "type": "string" },
+        "bio": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "specialty": { "type": "string" },
+        "rating": { "type": "number" },
+        "reviewCount": { "type": "number" },
+        "isVerified": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fullName", "email", "location", "aadharNumber", "panNumber"]
     }
   },
   "auth": {
@@ -71,6 +92,10 @@
     "/countries/{countryId}/cities/{cityId}/attractions/{attractionId}": {
       "schema": "Attraction",
       "description": "Attractions within a city"
+    },
+    "/guides/{guideId}": {
+      "schema": "Guide",
+      "description": "Verified local guides collection"
     },
     "/guides/{guideId}/reviews/{reviewId}": {
       "schema": "Review",

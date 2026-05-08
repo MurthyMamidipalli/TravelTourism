@@ -1,64 +1,35 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, MapPin, Star, ShieldCheck, Users } from 'lucide-react';
+import { Search, MapPin, Star, ShieldCheck, Users, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-
-const mockGuides = [
-  { 
-    id: '1', 
-    name: 'Ravi Teja', 
-    location: 'Amalapuram, Andhra Pradesh', 
-    rating: 4.9, 
-    reviews: 124, 
-    languages: ['Telugu', 'English', 'Hindi'],
-    img: 'https://picsum.photos/seed/guide1/400/400',
-    specialty: 'History & Culture'
-  },
-  { 
-    id: '4', 
-    name: 'Anjali Devi', 
-    location: 'Amalapuram, Andhra Pradesh', 
-    rating: 4.7, 
-    reviews: 56, 
-    languages: ['Telugu', 'English'],
-    img: 'https://picsum.photos/seed/guide4/400/400',
-    specialty: 'Nature & Backwaters'
-  },
-  { 
-    id: '5', 
-    name: 'Srinivas Rao', 
-    location: 'Tirupati, Andhra Pradesh', 
-    rating: 5.0, 
-    reviews: 210, 
-    languages: ['Telugu', 'English', 'Tamil'],
-    img: 'https://picsum.photos/seed/guide5/400/400',
-    specialty: 'Spiritual Tours'
-  },
-  { 
-    id: '6', 
-    name: 'Lakshmi Narayana', 
-    location: 'Vizag, Andhra Pradesh', 
-    rating: 4.8, 
-    reviews: 95, 
-    languages: ['Telugu', 'English'],
-    img: 'https://picsum.photos/seed/guide6/400/400',
-    specialty: 'Coastal Heritage'
-  }
-];
+import { useFirestore, useCollection } from '@/firebase';
+import { collection, query, where } from 'firebase/firestore';
 
 export default function GuidesPage() {
   const [search, setSearch] = useState('');
+  const firestore = useFirestore();
 
-  const filteredGuides = mockGuides.filter(guide => 
-    guide.location.toLowerCase().includes(search.toLowerCase()) ||
-    guide.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const guidesQuery = useMemo(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'guides');
+  }, [firestore]);
+
+  const { data: guides, loading } = useCollection(guidesQuery);
+
+  const filteredGuides = useMemo(() => {
+    if (!guides) return [];
+    return guides.filter(guide => 
+      guide.location?.toLowerCase().includes(search.toLowerCase()) ||
+      guide.fullName?.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [guides, search]);
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
@@ -83,52 +54,64 @@ export default function GuidesPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredGuides.length > 0 ? (
-          filteredGuides.map((guide) => (
-            <Link key={guide.id} href={`/guides/${guide.id}`}>
-              <Card className="overflow-hidden hover:shadow-xl transition-all border-none bg-white dark:bg-zinc-900">
-                <div className="relative h-64 w-full">
-                  <Image src={guide.img} alt={guide.name} fill className="object-cover" />
-                  <div className="absolute top-4 right-4">
-                    <Badge className="bg-white/90 text-primary border-none flex items-center gap-1 font-bold">
-                      <Star className="w-3 h-3 fill-accent text-accent" /> {guide.rating}
-                    </Badge>
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <Loader2 className="w-12 h-12 text-primary animate-spin" />
+          <p className="text-muted-foreground font-medium">Scanning for local experts...</p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {filteredGuides.length > 0 ? (
+            filteredGuides.map((guide) => (
+              <Link key={guide.id} href={`/guides/${guide.id}`}>
+                <Card className="overflow-hidden hover:shadow-xl transition-all border-none bg-white dark:bg-zinc-900">
+                  <div className="relative h-64 w-full">
+                    <Image 
+                      src={guide.imageUrl || `https://picsum.photos/seed/${guide.id}/400/400`} 
+                      alt={guide.fullName} 
+                      fill 
+                      className="object-cover" 
+                    />
+                    <div className="absolute top-4 right-4">
+                      <Badge className="bg-white/90 text-primary border-none flex items-center gap-1 font-bold">
+                        <Star className="w-3 h-3 fill-accent text-accent" /> {guide.rating || 'New'}
+                      </Badge>
+                    </div>
                   </div>
-                </div>
-                <CardContent className="p-6 space-y-4">
-                  <div className="space-y-1">
-                    <h3 className="font-headline text-xl font-bold flex items-center justify-between">
-                      {guide.name}
-                      <ShieldCheck className="w-5 h-5 text-accent" />
-                    </h3>
-                    <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
-                      <MapPin className="w-4 h-4 text-accent" /> {guide.location}
-                    </p>
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-2">
-                    {guide.languages.map(lang => (
-                      <Badge key={lang} variant="secondary" className="bg-secondary/50 text-primary">{lang}</Badge>
-                    ))}
-                  </div>
-                  
-                  <div className="pt-4 border-t flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground italic">{guide.specialty} Specialist</span>
-                    <Button variant="outline" size="sm" className="border-accent text-accent hover:bg-accent hover:text-white">View Profile</Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </Link>
-          ))
-        ) : (
-          <div className="col-span-full py-20 text-center">
-            <Users className="w-16 h-16 text-muted mx-auto mb-4" />
-            <h3 className="text-xl font-headline font-bold">No guides found in this area yet</h3>
-            <p className="text-muted-foreground">Try searching for another location like "Amalapuram" or "Tirupati".</p>
-          </div>
-        )}
-      </div>
+                  <CardContent className="p-6 space-y-4">
+                    <div className="space-y-1">
+                      <h3 className="font-headline text-xl font-bold flex items-center justify-between">
+                        {guide.fullName}
+                        <ShieldCheck className="w-5 h-5 text-accent" />
+                      </h3>
+                      <p className="text-muted-foreground flex items-center gap-1 text-sm font-medium">
+                        <MapPin className="w-4 h-4 text-accent" /> {guide.location}
+                      </p>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-2">
+                      {guide.languages?.split(',').map(lang => (
+                        <Badge key={lang} variant="secondary" className="bg-secondary/50 text-primary">{lang.trim()}</Badge>
+                      ))}
+                    </div>
+                    
+                    <div className="pt-4 border-t flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground italic">{guide.specialty || 'Local'} Specialist</span>
+                      <Button variant="outline" size="sm" className="border-accent text-accent hover:bg-accent hover:text-white">View Profile</Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            ))
+          ) : (
+            <div className="col-span-full py-20 text-center">
+              <Users className="w-16 h-16 text-muted mx-auto mb-4" />
+              <h3 className="text-xl font-headline font-bold">No guides found in this area yet</h3>
+              <p className="text-muted-foreground">Try searching for another location or register as a guide to appear here!</p>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

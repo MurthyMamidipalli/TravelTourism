@@ -1,71 +1,43 @@
 
-import { notFound } from 'next/navigation';
+'use client';
+
+import { use } from 'react';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MapPin, Star, MessageSquare, ShieldCheck, Zap, Info, Calendar, MessageCircle, Fingerprint, CreditCard, FileText } from 'lucide-react';
+import { MapPin, Star, MessageSquare, ShieldCheck, Zap, Info, Calendar, MessageCircle, Fingerprint, CreditCard, FileText, Loader2 } from 'lucide-react';
 import AIItineraryPanel from '@/components/AIItineraryPanel';
 import GuideReviews from '@/components/GuideReviews';
 import ReviewForm from '@/components/ReviewForm';
+import { useFirestore, useDoc } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
-const mockGuides = [
-  { 
-    id: '1', 
-    name: 'Ravi Teja', 
-    location: 'Amalapuram, Andhra Pradesh', 
-    bio: "Passionate about the rich history and beautiful backwaters of the Konaseema region. I've been guiding for over 10 years and love showing tourists the hidden culinary gems and traditional temples near Amalapuram.",
-    rating: 4.9, 
-    reviews: 124, 
-    languages: ['Telugu', 'English', 'Hindi'],
-    img: 'https://picsum.photos/seed/guide1/400/400',
-    specialty: 'History & Culture',
-    operationalRegion: 'Amalapuram, Andhra Pradesh',
-    aadharNumber: 'XXXX-XXXX-8829',
-    panNumber: 'XXXXX4412K',
-    aadharSoftcopy: 'https://picsum.photos/seed/aadhar1/600/400',
-    panSoftcopy: 'https://picsum.photos/seed/pan1/600/400'
-  },
-  { 
-    id: '4', 
-    name: 'Anjali Devi', 
-    location: 'Amalapuram, Andhra Pradesh', 
-    bio: "Specialist in the ecological wonders of Konaseema. I lead tours through the mangrove forests and scenic boat rides along the Godavari.",
-    rating: 4.7, 
-    reviews: 56, 
-    languages: ['Telugu', 'English'],
-    img: 'https://picsum.photos/seed/guide4/400/400',
-    specialty: 'Nature & Backwaters',
-    operationalRegion: 'Amalapuram, Andhra Pradesh',
-    aadharNumber: 'XXXX-XXXX-1123',
-    panNumber: 'XXXXX9981L',
-    aadharSoftcopy: 'https://picsum.photos/seed/aadhar2/600/400',
-    panSoftcopy: 'https://picsum.photos/seed/pan2/600/400'
-  },
-  { 
-    id: '5', 
-    name: 'Srinivas Rao', 
-    location: 'Tirupati, Andhra Pradesh', 
-    bio: "Experienced spiritual guide in the holy city of Tirupati. Helping devotees experience the divine essence of the 7 hills.",
-    rating: 5.0, 
-    reviews: 210, 
-    languages: ['Telugu', 'English', 'Tamil'],
-    img: 'https://picsum.photos/seed/guide5/400/400',
-    specialty: 'Spiritual Tours',
-    operationalRegion: 'Tirupati, Andhra Pradesh',
-    aadharNumber: 'XXXX-XXXX-5561',
-    panNumber: 'XXXXX2234M',
-    aadharSoftcopy: 'https://picsum.photos/seed/aadhar3/600/400',
-    panSoftcopy: 'https://picsum.photos/seed/pan3/600/400'
+export default function GuideProfilePage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
+  const firestore = useFirestore();
+
+  const guideRef = id ? doc(firestore, 'guides', id) : null;
+  const { data: guide, loading } = useDoc(guideRef);
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+        <Loader2 className="w-12 h-12 text-primary animate-spin" />
+        <p className="text-muted-foreground font-medium">Loading local expert profile...</p>
+      </div>
+    );
   }
-];
 
-export default async function GuideProfilePage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
-  const guide = mockGuides.find(g => g.id === id);
-
-  if (!guide) return notFound();
+  if (!guide) {
+    return (
+      <div className="container mx-auto px-4 py-20 text-center">
+        <h1 className="text-4xl font-bold mb-4">Guide Not Found</h1>
+        <p className="text-muted-foreground">The guide profile you are looking for does not exist.</p>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-12">
@@ -73,7 +45,12 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
         <div className="space-y-6">
           <Card className="border-none shadow-sm overflow-hidden bg-white dark:bg-zinc-900">
             <div className="relative h-80">
-              <Image src={guide.img} alt={guide.name} fill className="object-cover" />
+              <Image 
+                src={guide.imageUrl || `https://picsum.photos/seed/${guide.id}/400/400`} 
+                alt={guide.fullName} 
+                fill 
+                className="object-cover" 
+              />
               <div className="absolute bottom-4 left-4">
                  <Badge className="bg-accent text-white border-none flex items-center gap-1.5 py-1.5 px-3">
                    <ShieldCheck className="w-4 h-4" /> Identity Verified
@@ -82,7 +59,7 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
             </div>
             <CardContent className="p-6 space-y-4">
               <div className="flex items-center justify-between">
-                <h1 className="font-headline text-2xl font-bold">{guide.name}</h1>
+                <h1 className="font-headline text-2xl font-bold">{guide.fullName}</h1>
                 <ShieldCheck className="text-accent w-6 h-6" />
               </div>
               <p className="text-muted-foreground flex items-center gap-1 text-sm">
@@ -90,12 +67,12 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
               </p>
               <div className="flex items-center gap-2">
                 <Star className="w-5 h-5 fill-accent text-accent" />
-                <span className="font-bold">{guide.rating}</span>
-                <span className="text-muted-foreground">({guide.reviews} reviews)</span>
+                <span className="font-bold">{guide.rating || 'New'}</span>
+                <span className="text-muted-foreground">({guide.reviewCount || 0} reviews)</span>
               </div>
               <div className="flex flex-wrap gap-2 pt-2">
-                {guide.languages.map(l => (
-                  <Badge key={l} variant="secondary">{l}</Badge>
+                {guide.languages?.split(',').map(l => (
+                  <Badge key={l} variant="secondary">{l.trim()}</Badge>
                 ))}
               </div>
               <Button className="w-full bg-primary h-12 rounded-xl text-lg mt-4 shadow-lg shadow-primary/20">
@@ -108,7 +85,7 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
 
           <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-6">
             <h3 className="font-headline font-semibold mb-4 flex items-center gap-2">
-              <Info className="w-5 h-5 text-accent" /> About Me
+              <|Info className="w-5 h-5 text-accent" /> About Me
             </h3>
             <p className="text-muted-foreground leading-relaxed">{guide.bio}</p>
           </Card>
@@ -132,7 +109,7 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
             </TabsList>
             
             <TabsContent value="itinerary" className="mt-0">
-              <AIItineraryPanel location={guide.operationalRegion} />
+              <AIItineraryPanel location={guide.location} />
             </TabsContent>
 
             <TabsContent value="verification" className="mt-0 space-y-6">
@@ -150,15 +127,15 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
                       <Fingerprint className="w-8 h-8 text-primary" />
                       <div>
                         <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Aadhar Number</p>
-                        <p className="text-lg font-bold">{guide.aadharNumber}</p>
+                        <p className="text-lg font-bold">XXXX-XXXX-{guide.aadharNumber?.slice(-4)}</p>
                       </div>
                     </div>
                     <div className="relative aspect-video rounded-2xl overflow-hidden border-2 border-dashed border-muted-foreground/30">
                       <Image 
-                        src={guide.aadharSoftcopy} 
+                        src={`https://picsum.photos/seed/aadhar-${guide.id}/600/400`} 
                         alt="Aadhar Softcopy" 
                         fill 
-                        className="object-cover blur-[2px] hover:blur-0 transition-all duration-500" 
+                        className="object-cover blur-[4px] hover:blur-0 transition-all duration-500" 
                       />
                       <div className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-transparent transition-colors">
                         <Badge className="bg-white text-black font-bold flex gap-2">
@@ -173,15 +150,15 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
                       <CreditCard className="w-8 h-8 text-primary" />
                       <div>
                         <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">PAN Number</p>
-                        <p className="text-lg font-bold">{guide.panNumber}</p>
+                        <p className="text-lg font-bold">XXXXX{guide.panNumber?.slice(-4)}</p>
                       </div>
                     </div>
                     <div className="relative aspect-video rounded-2xl overflow-hidden border-2 border-dashed border-muted-foreground/30">
                       <Image 
-                        src={guide.panSoftcopy} 
+                        src={`https://picsum.photos/seed/pan-${guide.id}/600/400`} 
                         alt="PAN Softcopy" 
                         fill 
-                        className="object-cover blur-[2px] hover:blur-0 transition-all duration-500" 
+                        className="object-cover blur-[4px] hover:blur-0 transition-all duration-500" 
                       />
                       <div className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-transparent transition-colors">
                         <Badge className="bg-white text-black font-bold flex gap-2">

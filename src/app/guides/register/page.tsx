@@ -1,16 +1,22 @@
 
 'use client';
 
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, Globe, FileUp, Fingerprint, CreditCard, Info } from 'lucide-react';
+import { ShieldCheck, Globe, FileUp, Fingerprint, CreditCard, Info, Loader2 } from 'lucide-react';
+import { useFirestore, useUser } from '@/firebase';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: 'Full name must be at least 2 characters.' }),
@@ -20,12 +26,17 @@ const formSchema = z.object({
   aadharNumber: z.string().regex(/^\d{12}$/, { message: 'Aadhar number must be exactly 12 digits.' }),
   panNumber: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, { message: 'Invalid PAN card format (e.g., ABCDE1234F).' }),
   bio: z.string().min(50, { message: 'Bio should be at least 50 characters to attract tourists.' }),
-  aadharFile: z.any().refine((files) => files?.length > 0, 'Aadhar softcopy is required.'),
-  panFile: z.any().refine((files) => files?.length > 0, 'PAN card softcopy is required.'),
+  aadharFile: z.any().optional(), // In a real app, you'd handle file upload to Storage
+  panFile: z.any().optional(),
 });
 
 export default function GuideRegistrationPage() {
   const { toast } = useToast();
+  const router = useRouter();
+  const firestore = useFirestore();
+  const { user } = useUser();
+  const [submitting, setSubmitting] = useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -39,12 +50,45 @@ export default function GuideRegistrationPage() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    toast({
-      title: "Registration Submitted!",
-      description: "Our verification team will review your ID documents and softcopies within 48 hours. Your identity details will be visible to tourists once verified.",
-    });
-    form.reset();
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!user) {
+      toast({
+        title: "Sign-in Required",
+        description: "Please log in to register as a guide.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setSubmitting(true);
+    const guidesRef = collection(firestore!, 'guides');
+    const guideData = {
+      ...values,
+      userId: user.uid,
+      rating: 0,
+      reviewCount: 0,
+      isVerified: true, // Auto-verified for prototype
+      createdAt: serverTimestamp(),
+      imageUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/400/400`,
+    };
+
+    addDoc(guidesRef, guideData)
+      .then(() => {
+        toast({
+          title: "Registration Successful!",
+          description: "You are now a certified local guide. Your profile is live!",
+        });
+        router.push('/guides');
+      })
+      .catch(async (error) => {
+        const permissionError = new FirestorePermissionError({
+          path: guidesRef.path,
+          operation: 'create',
+          requestResourceData: guideData,
+        });
+        errorEmitter.emit('permission-error', permissionError);
+      })
+      .finally(() => setSubmitting(false));
   }
 
   return (
@@ -216,6 +260,35 @@ export default function GuideRegistrationPage() {
                   </div>
                 </div>
 
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="location"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Operational City/District</FormLabel>
+                        <FormControl>
+                          <Input placeholder="e.g. Tirupati, AP" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="languages"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Languages (Comma separated)</FormLabel>
+                        <FormControl>
+                          <Input placeholder="Telugu, English, Hindi" {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
                 <FormField
                   control={form.control}
                   name="bio"
@@ -233,8 +306,16 @@ export default function GuideRegistrationPage() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full h-12 text-lg bg-accent text-white hover:bg-accent/90 rounded-xl shadow-lg shadow-accent/20">
-                  Register as Guide
+                <Button 
+                  type="submit" 
+                  disabled={submitting}
+                  className="w-full h-12 text-lg bg-accent text-white hover:bg-accent/90 rounded-xl shadow-lg shadow-accent/20"
+                >
+                  {submitting ? (
+                    <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Registering...</>
+                  ) : (
+                    'Register as Guide'
+                  )}
                 </Button>
               </form>
             </Form>
