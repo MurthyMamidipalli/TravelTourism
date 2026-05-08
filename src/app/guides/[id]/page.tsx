@@ -30,7 +30,9 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
     return guide.experience
       .split('\n')
       .map((line: string) => {
-        const [place, count] = line.split('-').map(s => s.trim());
+        const parts = line.split('-').map(s => s.trim());
+        const place = parts[0];
+        const count = parts.length > 1 ? parts[1] : 'Guided';
         return { place, count };
       })
       .filter(item => item.place);
@@ -251,25 +253,27 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
 
             <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-6">
               <h3 className="font-headline font-semibold mb-6 flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-accent" /> Places Explored & Guided
+                <Briefcase className="w-5 h-5 text-accent" /> Experience Details
               </h3>
               {experienceList.length > 0 ? (
                 <div className="space-y-4">
-                  <div className="grid grid-cols-2 text-xs font-bold uppercase tracking-widest text-muted-foreground border-b pb-2">
-                    <span>Location</span>
-                    <span className="text-right">Frequency</span>
+                  <div className="grid grid-cols-2 text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground border-b border-secondary pb-3 px-2">
+                    <span>Places Explored</span>
+                    <span className="text-right">Visit Count</span>
                   </div>
-                  <div className="space-y-2">
+                  <div className="divide-y divide-secondary/30">
                     {experienceList.map((item, idx) => (
-                      <div key={idx} className="grid grid-cols-2 py-3 border-b border-secondary/50 last:border-0 hover:bg-secondary/10 transition-colors px-2 rounded-lg">
-                        <span className="font-medium text-foreground">{item.place}</span>
-                        <span className="text-right font-bold text-primary">{item.count || 'Guided'}</span>
+                      <div key={idx} className="grid grid-cols-2 py-4 px-2 hover:bg-secondary/10 transition-colors rounded-lg">
+                        <span className="font-bold text-foreground">{item.place}</span>
+                        <span className="text-right font-black text-primary bg-primary/5 px-3 py-1 rounded-full w-fit ml-auto">
+                          {item.count}
+                        </span>
                       </div>
                     ))}
                   </div>
                 </div>
               ) : (
-                <p className="text-muted-foreground leading-relaxed italic">Experience details not shared.</p>
+                <p className="text-muted-foreground leading-relaxed italic">No experience details shared yet.</p>
               )}
             </Card>
           </div>

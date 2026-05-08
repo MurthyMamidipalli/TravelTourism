@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, Globe, FileUp, Fingerprint, CreditCard, Info, Loader2, Phone, User as UserIcon, Briefcase } from 'lucide-react';
+import { ShieldCheck, Globe, FileUp, Fingerprint, CreditCard, Info, Loader2, Phone, User as UserIcon, Briefcase, MapPin } from 'lucide-react';
 import { useFirestore, useUser } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -112,25 +112,25 @@ export default function GuideRegistrationPage() {
             <div className="flex gap-4">
               <ShieldCheck className="w-10 h-10 text-accent flex-shrink-0" />
               <div>
-                <p className="font-bold">Mandatory Verification</p>
-                <p className="text-sm text-white/70">Aadhar/PAN verification is mandatory for tourist safety. Tourists can view your verification status on your profile.</p>
+                <p className="font-bold">Verified Identity</p>
+                <p className="text-sm text-white/70">Aadhar and PAN details are mandatory and will be visible on your profile to verify your identity to tourists.</p>
               </div>
             </div>
             <div className="flex gap-4">
               <Globe className="w-10 h-10 text-accent flex-shrink-0" />
               <div>
-                <p className="font-bold">Global Reach</p>
-                <p className="text-sm text-white/70">Access to thousands of international travelers visiting AP.</p>
+                <p className="font-bold">Global Visibility</p>
+                <p className="text-sm text-white/70">Showcase your expertise to thousands of travelers across the world.</p>
               </div>
             </div>
           </div>
           
           <div className="bg-white/10 p-6 rounded-2xl mt-8">
             <h4 className="font-bold flex items-center gap-2 mb-2">
-              <Info className="w-4 h-4 text-accent" /> Tourist Safety Policy
+              <Info className="w-4 h-4 text-accent" /> Information for Tourists
             </h4>
             <p className="text-xs text-white/70 leading-relaxed">
-              To ensure the highest level of trust, your registered identity details and document softcopies will be visible to tourists on your profile page.
+              Your "Past Experiences" will be displayed in a clean table format. Make sure to follow the requested structure (Place Name - Count) for the best visibility.
             </p>
           </div>
         </div>
@@ -230,7 +230,7 @@ export default function GuideRegistrationPage() {
                     <p className="text-sm font-bold flex items-center gap-2 text-primary">
                       <ShieldCheck className="w-4 h-4" /> Identity Verification
                     </p>
-                    <p className="text-[10px] text-muted-foreground">Verified ID details will be shared on your public profile.</p>
+                    <p className="text-[10px] text-muted-foreground">This info will be shared on your profile to verify your status.</p>
                   </div>
                   
                   <div className="space-y-6">
@@ -258,26 +258,6 @@ export default function GuideRegistrationPage() {
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={form.control}
-                        name="aadharFile"
-                        render={({ field: { value, onChange, ...fieldProps } }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center gap-2">
-                               <FileUp className="w-4 h-4" /> Aadhar Softcopy
-                            </FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="file" 
-                                accept="image/*,.pdf"
-                                onChange={(e) => onChange(e.target.files)}
-                                {...fieldProps} 
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
                     </div>
 
                     <div className="h-px bg-secondary/50" />
@@ -298,26 +278,6 @@ export default function GuideRegistrationPage() {
                           </FormItem>
                         )}
                       />
-                      <FormField
-                        control={form.control}
-                        name="panFile"
-                        render={({ field: { value, onChange, ...fieldProps } }) => (
-                          <FormItem>
-                            <FormLabel className="flex items-center gap-2">
-                               <FileUp className="w-4 h-4" /> PAN Softcopy
-                            </FormLabel>
-                            <FormControl>
-                              <Input 
-                                type="file" 
-                                accept="image/*,.pdf"
-                                onChange={(e) => onChange(e.target.files)}
-                                {...fieldProps} 
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
                     </div>
                   </div>
                 </div>
@@ -328,7 +288,9 @@ export default function GuideRegistrationPage() {
                     name="location"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Operational City/District</FormLabel>
+                        <FormLabel className="flex items-center gap-2">
+                          <MapPin className="w-4 h-4" /> Operational City/District
+                        </FormLabel>
                         <FormControl>
                           <Input placeholder="e.g. Tirupati, AP" {...field} />
                         </FormControl>
@@ -357,16 +319,16 @@ export default function GuideRegistrationPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
-                        <Briefcase className="w-4 h-4" /> Past Guiding Experience
+                        <Briefcase className="w-4 h-4" /> Places Explored & Guided
                       </FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="Place Name - X times (One per line)&#10;Tirumala Temple - 10 times&#10;Araku Valley - 5 times" 
+                          placeholder="Format: Place Name - Frequency (One per line)&#10;Tirumala Temple - 10 times&#10;Araku Valley - 5 times&#10;Borra Caves - 3 times" 
                           className="min-h-[120px]"
                           {...field} 
                         />
                       </FormControl>
-                      <FormDescription>List the places you have explored or shown to tourists. Use the 'Place Name - Frequency' format on separate lines for better visibility.</FormDescription>
+                      <FormDescription>List the places you have explored or shown to tourists. Use the 'Place Name - Frequency' format on separate lines. Each entry will appear as a separate row in your profile's experience table.</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
