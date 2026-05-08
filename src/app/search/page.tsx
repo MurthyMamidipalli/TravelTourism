@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -99,7 +98,7 @@ export default function SearchPage() {
             >
               <Link href={`/destinations/${item.id}`}>
                 <Card className="premium-card overflow-hidden group h-full">
-                  <div className="flex items-center gap-4 p-4">
+                  <div className="flex items-center gap-4 p-4 bg-white dark:bg-zinc-900">
                     <div className="relative w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0">
                       <Image src={`https://picsum.photos/seed/${item.id}/400/300`} alt={item.name} fill className="object-cover" />
                     </div>

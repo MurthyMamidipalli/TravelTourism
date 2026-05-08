@@ -1,4 +1,3 @@
-
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -6,7 +5,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Info, ArrowLeft, Compass, Globe, Calendar, Clock } from 'lucide-react';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const mockDestinations: Record<string, any> = {
   'tirumala-temple': { name: 'Tirumala Temple', district: 'Tirupati', itinerary: '2 Days', category: 'Pilgrimage', lang: 'Telugu, English', desc: 'World famous Hindu temple on the hills of Tirumala. A spiritual hub of millions.' },
