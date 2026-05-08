@@ -7,6 +7,7 @@ import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Search, Globe, ArrowRight, Map } from 'lucide-react';
 import { motion } from 'framer-motion';
 
@@ -25,6 +26,9 @@ const ALL_COUNTRIES = [
   { id: 'uae', name: 'United Arab Emirates', code: 'AE', region: 'Middle East', image: 'https://picsum.photos/seed/uae/800/600', cities: 3 },
   { id: 'spain', name: 'Spain', code: 'ES', region: 'Europe', image: 'https://picsum.photos/seed/spain/800/600', cities: 14 },
   { id: 'thailand', name: 'Thailand', code: 'TH', region: 'Asia', image: 'https://picsum.photos/seed/thailand/800/600', cities: 9 },
+  { id: 'jordan', name: 'Jordan', code: 'JO', region: 'Middle East', image: 'https://picsum.photos/seed/jordan/800/600', cities: 4 },
+  { id: 'south-africa', name: 'South Africa', code: 'ZA', region: 'Africa', image: 'https://picsum.photos/seed/southafrica/800/600', cities: 8 },
+  { id: 'indonesia', name: 'Indonesia', code: 'ID', region: 'Asia', image: 'https://picsum.photos/seed/indonesia/800/600', cities: 11 },
 ];
 
 export default function LocationsPage() {

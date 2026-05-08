@@ -15,20 +15,20 @@ const allDestinations = [
   { id: 'amalapuram', name: 'Amalapuram', country: 'India', description: 'A serene coastal town in Andhra Pradesh known for lush greenery.', img: 'https://picsum.photos/seed/amalapuram/600/400' },
   { id: 'agra', name: 'Agra', country: 'India', description: 'Home to the magnificent Taj Mahal, a symbol of eternal love.', img: 'https://picsum.photos/seed/agra/600/400' },
   { id: 'rome', name: 'Rome', country: 'Italy', description: 'The Eternal City, home to ancient ruins and divine food.', img: 'https://picsum.photos/seed/rome/600/400' },
-  { id: 'venice', name: 'Venice', country: 'Italy', description: 'A unique city of canals, gondolas, and stunning Renaissance architecture.', img: 'https://picsum.photos/seed/venice/600/400' },
+  { id: 'venice', name: 'Venice', country: 'Italy', description: 'A unique city of canals, gondolas, and stunning architecture.', img: 'https://picsum.photos/seed/venice/600/400' },
   { id: 'new-york', name: 'New York', country: 'USA', description: 'The Big Apple, a melting pot of culture and ambition.', img: 'https://picsum.photos/seed/ny/600/400' },
   { id: 'grand-canyon', name: 'Grand Canyon', country: 'USA', description: 'A massive, colorful gorge carved by the Colorado River.', img: 'https://picsum.photos/seed/grandcanyon/600/400' },
   { id: 'sydney', name: 'Sydney', country: 'Australia', description: 'Harbor city famous for the Opera House and golden beaches.', img: 'https://picsum.photos/seed/sydney/600/400' },
   { id: 'cairo', name: 'Cairo', country: 'Egypt', description: 'Guardian of the Pyramids and the timeless Nile River.', img: 'https://picsum.photos/seed/cairo/600/400' },
   { id: 'london', name: 'London', country: 'UK', description: 'Historical capital with iconic landmarks and royal heritage.', img: 'https://picsum.photos/seed/london/600/400' },
-  { id: 'santorini', name: 'Santorini', country: 'Greece', description: 'Stunning volcanic island known for white-washed buildings and sunsets.', img: 'https://picsum.photos/seed/santorini/600/400' },
-  { id: 'kyoto', name: 'Kyoto', country: 'Japan', description: 'Cultural heart of Japan with thousands of temples and zen gardens.', img: 'https://picsum.photos/seed/kyoto/600/400' },
-  { id: 'rio', name: 'Rio de Janeiro', country: 'Brazil', description: 'Vibrant city famous for Carnival, beaches, and Christ the Redeemer.', img: 'https://picsum.photos/seed/rio/600/400' },
-  { id: 'dubai', name: 'Dubai', country: 'UAE', description: 'Luxury hub with ultramodern architecture and desert adventures.', img: 'https://picsum.photos/seed/dubai/600/400' },
-  { id: 'machu-picchu', name: 'Machu Picchu', country: 'Peru', description: 'Ancient Incan citadel high in the Andes Mountains.', img: 'https://picsum.photos/seed/machu/600/400' },
+  { id: 'santorini', name: 'Santorini', country: 'Greece', description: 'Stunning volcanic island known for white-washed buildings.', img: 'https://picsum.photos/seed/santorini/600/400' },
+  { id: 'kyoto', name: 'Kyoto', country: 'Japan', description: 'Cultural heart of Japan with zen gardens and temples.', img: 'https://picsum.photos/seed/kyoto/600/400' },
+  { id: 'rio', name: 'Rio de Janeiro', country: 'Brazil', description: 'Vibrant city famous for Carnival and beaches.', img: 'https://picsum.photos/seed/rio/600/400' },
+  { id: 'dubai', name: 'Dubai', country: 'UAE', description: 'Luxury hub with ultramodern architecture.', img: 'https://picsum.photos/seed/dubai/600/400' },
+  { id: 'machu-picchu', name: 'Machu Picchu', country: 'Peru', description: 'Ancient Incan citadel high in the Andes.', img: 'https://picsum.photos/seed/machu/600/400' },
   { id: 'cape-town', name: 'Cape Town', country: 'South Africa', description: 'Spectacular coastal city at the foot of Table Mountain.', img: 'https://picsum.photos/seed/capetown/600/400' },
-  { id: 'petra', name: 'Petra', country: 'Jordan', description: 'Ancient rock-cut city and one of the new Seven Wonders of the World.', img: 'https://picsum.photos/seed/petra/600/400' },
-  { id: 'barcelona', name: 'Barcelona', country: 'Spain', description: 'A vibrant coastal city famous for its unique architecture and lively culture.', img: 'https://picsum.photos/seed/barcelona/600/400' },
+  { id: 'petra', name: 'Petra', country: 'Jordan', description: 'Ancient rock-cut city and Wonder of the World.', img: 'https://picsum.photos/seed/petra/600/400' },
+  { id: 'barcelona', name: 'Barcelona', country: 'Spain', description: 'Vibrant coastal city famous for unique architecture.', img: 'https://picsum.photos/seed/barcelona/600/400' },
 ];
 
 export default function DestinationsPage() {
@@ -48,7 +48,7 @@ export default function DestinationsPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input 
             placeholder="Search for a city or country..." 
-            className="pl-10 h-12 bg-white rounded-full shadow-sm"
+            className="pl-10 h-12 bg-white dark:bg-zinc-900 rounded-full shadow-sm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -58,7 +58,7 @@ export default function DestinationsPage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredDestinations.map((dest) => (
           <Link key={dest.id} href={`/destinations/${dest.id}`}>
-            <Card className="h-full group hover:shadow-md transition-shadow border-none overflow-hidden bg-white">
+            <Card className="h-full group hover:shadow-md transition-shadow border-none overflow-hidden bg-white dark:bg-zinc-900">
               <div className="relative h-48">
                 <Image
                   src={dest.img}
