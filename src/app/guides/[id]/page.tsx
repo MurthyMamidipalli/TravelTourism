@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MapPin, Star, MessageSquare, ShieldCheck, Zap, Info, Calendar, MessageCircle } from 'lucide-react';
+import { MapPin, Star, MessageSquare, ShieldCheck, Zap, Info, Calendar, MessageCircle, Fingerprint, CreditCard, FileText } from 'lucide-react';
 import AIItineraryPanel from '@/components/AIItineraryPanel';
 import GuideReviews from '@/components/GuideReviews';
 import ReviewForm from '@/components/ReviewForm';
@@ -21,7 +21,11 @@ const mockGuides = [
     languages: ['Telugu', 'English', 'Hindi'],
     img: 'https://picsum.photos/seed/guide1/400/400',
     specialty: 'History & Culture',
-    operationalRegion: 'Amalapuram, Andhra Pradesh'
+    operationalRegion: 'Amalapuram, Andhra Pradesh',
+    aadharNumber: 'XXXX-XXXX-8829',
+    panNumber: 'XXXXX4412K',
+    aadharSoftcopy: 'https://picsum.photos/seed/aadhar1/600/400',
+    panSoftcopy: 'https://picsum.photos/seed/pan1/600/400'
   },
   { 
     id: '4', 
@@ -33,7 +37,11 @@ const mockGuides = [
     languages: ['Telugu', 'English'],
     img: 'https://picsum.photos/seed/guide4/400/400',
     specialty: 'Nature & Backwaters',
-    operationalRegion: 'Amalapuram, Andhra Pradesh'
+    operationalRegion: 'Amalapuram, Andhra Pradesh',
+    aadharNumber: 'XXXX-XXXX-1123',
+    panNumber: 'XXXXX9981L',
+    aadharSoftcopy: 'https://picsum.photos/seed/aadhar2/600/400',
+    panSoftcopy: 'https://picsum.photos/seed/pan2/600/400'
   },
   { 
     id: '5', 
@@ -45,7 +53,11 @@ const mockGuides = [
     languages: ['Telugu', 'English', 'Tamil'],
     img: 'https://picsum.photos/seed/guide5/400/400',
     specialty: 'Spiritual Tours',
-    operationalRegion: 'Tirupati, Andhra Pradesh'
+    operationalRegion: 'Tirupati, Andhra Pradesh',
+    aadharNumber: 'XXXX-XXXX-5561',
+    panNumber: 'XXXXX2234M',
+    aadharSoftcopy: 'https://picsum.photos/seed/aadhar3/600/400',
+    panSoftcopy: 'https://picsum.photos/seed/pan3/600/400'
   }
 ];
 
@@ -62,6 +74,11 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
           <Card className="border-none shadow-sm overflow-hidden bg-white dark:bg-zinc-900">
             <div className="relative h-80">
               <Image src={guide.img} alt={guide.name} fill className="object-cover" />
+              <div className="absolute bottom-4 left-4">
+                 <Badge className="bg-accent text-white border-none flex items-center gap-1.5 py-1.5 px-3">
+                   <ShieldCheck className="w-4 h-4" /> Identity Verified
+                 </Badge>
+              </div>
             </div>
             <CardContent className="p-6 space-y-4">
               <div className="flex items-center justify-between">
@@ -81,7 +98,7 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
                   <Badge key={l} variant="secondary">{l}</Badge>
                 ))}
               </div>
-              <Button className="w-full bg-primary h-12 rounded-xl text-lg mt-4">
+              <Button className="w-full bg-primary h-12 rounded-xl text-lg mt-4 shadow-lg shadow-primary/20">
                 <MessageSquare className="w-5 h-5 mr-2" /> Send Inquiry
               </Button>
             </CardContent>
@@ -99,20 +116,89 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
 
         <div className="lg:col-span-2 space-y-8">
           <Tabs defaultValue="itinerary" className="w-full">
-            <TabsList className="bg-secondary/30 p-1 rounded-xl mb-6">
-              <TabsTrigger value="itinerary" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-primary flex items-center gap-2">
-                <Zap className="w-4 h-4 text-accent" /> AI Recommended Itinerary
+            <TabsList className="bg-secondary/30 p-1 rounded-xl mb-6 flex flex-wrap h-auto">
+              <TabsTrigger value="itinerary" className="rounded-lg flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-primary flex items-center gap-2 py-3">
+                <Zap className="w-4 h-4 text-accent" /> AI Itinerary
               </TabsTrigger>
-              <TabsTrigger value="reviews" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-primary flex items-center gap-2">
-                <MessageCircle className="w-4 h-4 text-accent" /> Tourist Reviews
+              <TabsTrigger value="verification" className="rounded-lg flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-primary flex items-center gap-2 py-3">
+                <ShieldCheck className="w-4 h-4 text-accent" /> Verified Identity
               </TabsTrigger>
-              <TabsTrigger value="services" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-primary flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-accent" /> Services & Pricing
+              <TabsTrigger value="reviews" className="rounded-lg flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-primary flex items-center gap-2 py-3">
+                <MessageCircle className="w-4 h-4 text-accent" /> Reviews
+              </TabsTrigger>
+              <TabsTrigger value="services" className="rounded-lg flex-1 data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-primary flex items-center gap-2 py-3">
+                <Calendar className="w-4 h-4 text-accent" /> Services
               </TabsTrigger>
             </TabsList>
             
             <TabsContent value="itinerary" className="mt-0">
               <AIItineraryPanel location={guide.operationalRegion} />
+            </TabsContent>
+
+            <TabsContent value="verification" className="mt-0 space-y-6">
+              <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-8 space-y-8">
+                <div className="space-y-2">
+                  <h3 className="font-headline text-2xl font-bold flex items-center gap-2">
+                    <ShieldCheck className="w-6 h-6 text-accent" /> Trust & Verification
+                  </h3>
+                  <p className="text-muted-foreground">For your safety, we verify all local experts through government-issued IDs.</p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 p-4 bg-secondary/20 rounded-2xl border border-secondary">
+                      <Fingerprint className="w-8 h-8 text-primary" />
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Aadhar Number</p>
+                        <p className="text-lg font-bold">{guide.aadharNumber}</p>
+                      </div>
+                    </div>
+                    <div className="relative aspect-video rounded-2xl overflow-hidden border-2 border-dashed border-muted-foreground/30">
+                      <Image 
+                        src={guide.aadharSoftcopy} 
+                        alt="Aadhar Softcopy" 
+                        fill 
+                        className="object-cover blur-[2px] hover:blur-0 transition-all duration-500" 
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-transparent transition-colors">
+                        <Badge className="bg-white text-black font-bold flex gap-2">
+                          <FileText className="w-3 h-3" /> Softcopy Verified
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-3 p-4 bg-secondary/20 rounded-2xl border border-secondary">
+                      <CreditCard className="w-8 h-8 text-primary" />
+                      <div>
+                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">PAN Number</p>
+                        <p className="text-lg font-bold">{guide.panNumber}</p>
+                      </div>
+                    </div>
+                    <div className="relative aspect-video rounded-2xl overflow-hidden border-2 border-dashed border-muted-foreground/30">
+                      <Image 
+                        src={guide.panSoftcopy} 
+                        alt="PAN Softcopy" 
+                        fill 
+                        className="object-cover blur-[2px] hover:blur-0 transition-all duration-500" 
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/20 hover:bg-transparent transition-colors">
+                        <Badge className="bg-white text-black font-bold flex gap-2">
+                          <FileText className="w-3 h-3" /> Softcopy Verified
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="bg-accent/5 p-6 rounded-2xl border border-accent/20">
+                  <p className="text-sm text-muted-foreground italic flex gap-2">
+                    <Info className="w-4 h-4 text-accent flex-shrink-0" />
+                    Sensitive information like full ID numbers are partially masked to protect guide privacy while ensuring tourist safety through back-end verification.
+                  </p>
+                </div>
+              </Card>
             </TabsContent>
 
             <TabsContent value="reviews" className="mt-0">

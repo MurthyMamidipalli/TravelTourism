@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -9,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, Globe, FileUp, Fingerprint, CreditCard } from 'lucide-react';
+import { ShieldCheck, Globe, FileUp, Fingerprint, CreditCard, Info } from 'lucide-react';
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: 'Full name must be at least 2 characters.' }),
@@ -41,7 +42,7 @@ export default function GuideRegistrationPage() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     toast({
       title: "Registration Submitted!",
-      description: "Our verification team will review your ID documents and softcopies within 48 hours.",
+      description: "Our verification team will review your ID documents and softcopies within 48 hours. Your identity details will be visible to tourists once verified.",
     });
     form.reset();
   }
@@ -59,7 +60,7 @@ export default function GuideRegistrationPage() {
               <ShieldCheck className="w-10 h-10 text-accent flex-shrink-0" />
               <div>
                 <p className="font-bold">Mandatory Verification</p>
-                <p className="text-sm text-white/70">Aadhar/PAN verification is mandatory for tourist safety.</p>
+                <p className="text-sm text-white/70">Aadhar/PAN verification is mandatory for tourist safety. Tourists can view your verification status on your profile.</p>
               </div>
             </div>
             <div className="flex gap-4">
@@ -69,6 +70,15 @@ export default function GuideRegistrationPage() {
                 <p className="text-sm text-white/70">Access to thousands of international travelers visiting AP.</p>
               </div>
             </div>
+          </div>
+          
+          <div className="bg-white/10 p-6 rounded-2xl mt-8">
+            <h4 className="font-bold flex items-center gap-2 mb-2">
+              <Info className="w-4 h-4 text-accent" /> Tourist Safety Policy
+            </h4>
+            <p className="text-xs text-white/70 leading-relaxed">
+              To ensure the highest level of trust, your registered Aadhar and PAN numbers, along with their softcopies, will be visible to tourists on your public profile page. Please ensure you upload clear, legible copies.
+            </p>
           </div>
         </div>
 
@@ -110,9 +120,12 @@ export default function GuideRegistrationPage() {
                 </div>
 
                 <div className="bg-secondary/10 p-6 rounded-2xl space-y-6 border border-secondary">
-                  <p className="text-sm font-bold flex items-center gap-2 text-primary">
-                    <ShieldCheck className="w-4 h-4" /> Identity Verification
-                  </p>
+                  <div className="space-y-1">
+                    <p className="text-sm font-bold flex items-center gap-2 text-primary">
+                      <ShieldCheck className="w-4 h-4" /> Identity Verification
+                    </p>
+                    <p className="text-[10px] text-muted-foreground">Verified ID details will be shared on your public profile.</p>
+                  </div>
                   
                   <div className="space-y-6">
                     <div className="space-y-4">
@@ -125,8 +138,16 @@ export default function GuideRegistrationPage() {
                                <Fingerprint className="w-4 h-4" /> Aadhar Number
                             </FormLabel>
                             <FormControl>
-                              <Input placeholder="12-digit number" {...field} />
+                              <Input 
+                                placeholder="12-digit number" 
+                                type="text"
+                                inputMode="numeric"
+                                pattern="\d*"
+                                maxLength={12}
+                                {...field} 
+                              />
                             </FormControl>
+                            <FormDescription className="text-[10px]">Must be exactly 12 numeric digits.</FormDescription>
                             <FormMessage />
                           </FormItem>
                         )}
@@ -137,7 +158,7 @@ export default function GuideRegistrationPage() {
                         render={({ field: { value, onChange, ...fieldProps } }) => (
                           <FormItem>
                             <FormLabel className="flex items-center gap-2">
-                               <FileUp className="w-4 h-4" /> Aadhar Softcopy
+                               <FileUp className="w-4 h-4" /> Aadhar Softcopy (Visible to Tourists)
                             </FormLabel>
                             <FormControl>
                               <Input 
@@ -165,7 +186,7 @@ export default function GuideRegistrationPage() {
                                <CreditCard className="w-4 h-4" /> PAN Card Number
                             </FormLabel>
                             <FormControl>
-                              <Input placeholder="ABCDE1234F" {...field} className="uppercase" />
+                              <Input placeholder="ABCDE1234F" {...field} className="uppercase" maxLength={10} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
@@ -177,7 +198,7 @@ export default function GuideRegistrationPage() {
                         render={({ field: { value, onChange, ...fieldProps } }) => (
                           <FormItem>
                             <FormLabel className="flex items-center gap-2">
-                               <FileUp className="w-4 h-4" /> PAN Softcopy
+                               <FileUp className="w-4 h-4" /> PAN Softcopy (Visible to Tourists)
                             </FormLabel>
                             <FormControl>
                               <Input 
@@ -212,7 +233,7 @@ export default function GuideRegistrationPage() {
                     </FormItem>
                   )}
                 />
-                <Button type="submit" className="w-full h-12 text-lg bg-accent text-white hover:bg-accent/90 rounded-xl">
+                <Button type="submit" className="w-full h-12 text-lg bg-accent text-white hover:bg-accent/90 rounded-xl shadow-lg shadow-accent/20">
                   Register as Guide
                 </Button>
               </form>
