@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -12,8 +13,11 @@ const allDestinations = [
   { id: 'tokyo', name: 'Tokyo', country: 'Japan', description: 'A neon-lit metropolis blending tradition and future.', img: 'https://picsum.photos/seed/tokyo/600/400' },
   { id: 'bali', name: 'Bali', country: 'Indonesia', description: 'Tropical paradise with lush jungles and sacred temples.', img: 'https://picsum.photos/seed/bali/600/400' },
   { id: 'amalapuram', name: 'Amalapuram', country: 'India', description: 'A serene coastal town in Andhra Pradesh known for lush greenery.', img: 'https://picsum.photos/seed/amalapuram/600/400' },
+  { id: 'agra', name: 'Agra', country: 'India', description: 'Home to the magnificent Taj Mahal, a symbol of eternal love.', img: 'https://picsum.photos/seed/agra/600/400' },
   { id: 'rome', name: 'Rome', country: 'Italy', description: 'The Eternal City, home to ancient ruins and divine food.', img: 'https://picsum.photos/seed/rome/600/400' },
+  { id: 'venice', name: 'Venice', country: 'Italy', description: 'A unique city of canals, gondolas, and stunning Renaissance architecture.', img: 'https://picsum.photos/seed/venice/600/400' },
   { id: 'new-york', name: 'New York', country: 'USA', description: 'The Big Apple, a melting pot of culture and ambition.', img: 'https://picsum.photos/seed/ny/600/400' },
+  { id: 'grand-canyon', name: 'Grand Canyon', country: 'USA', description: 'A massive, colorful gorge carved by the Colorado River.', img: 'https://picsum.photos/seed/grandcanyon/600/400' },
   { id: 'sydney', name: 'Sydney', country: 'Australia', description: 'Harbor city famous for the Opera House and golden beaches.', img: 'https://picsum.photos/seed/sydney/600/400' },
   { id: 'cairo', name: 'Cairo', country: 'Egypt', description: 'Guardian of the Pyramids and the timeless Nile River.', img: 'https://picsum.photos/seed/cairo/600/400' },
   { id: 'london', name: 'London', country: 'UK', description: 'Historical capital with iconic landmarks and royal heritage.', img: 'https://picsum.photos/seed/london/600/400' },
@@ -23,6 +27,8 @@ const allDestinations = [
   { id: 'dubai', name: 'Dubai', country: 'UAE', description: 'Luxury hub with ultramodern architecture and desert adventures.', img: 'https://picsum.photos/seed/dubai/600/400' },
   { id: 'machu-picchu', name: 'Machu Picchu', country: 'Peru', description: 'Ancient Incan citadel high in the Andes Mountains.', img: 'https://picsum.photos/seed/machu/600/400' },
   { id: 'cape-town', name: 'Cape Town', country: 'South Africa', description: 'Spectacular coastal city at the foot of Table Mountain.', img: 'https://picsum.photos/seed/capetown/600/400' },
+  { id: 'petra', name: 'Petra', country: 'Jordan', description: 'Ancient rock-cut city and one of the new Seven Wonders of the World.', img: 'https://picsum.photos/seed/petra/600/400' },
+  { id: 'barcelona', name: 'Barcelona', country: 'Spain', description: 'A vibrant coastal city famous for its unique architecture and lively culture.', img: 'https://picsum.photos/seed/barcelona/600/400' },
 ];
 
 export default function DestinationsPage() {

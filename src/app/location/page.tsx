@@ -10,18 +10,23 @@ const destinations = [
   { id: 'paris', name: 'Eiffel Tower', city: 'Paris', country: 'France', type: 'Monument' },
   { id: 'tokyo', name: 'Shibuya Crossing', city: 'Tokyo', country: 'Japan', type: 'Urban' },
   { id: 'amalapuram', name: 'Konaseema Backwaters', city: 'Amalapuram', country: 'India', type: 'Nature' },
+  { id: 'agra', name: 'Taj Mahal', city: 'Agra', country: 'India', type: 'History' },
   { id: 'rome', name: 'The Colosseum', city: 'Rome', country: 'Italy', type: 'History' },
+  { id: 'venice', name: 'Grand Canal', city: 'Venice', country: 'Italy', type: 'Vibrant' },
   { id: 'bali', name: 'Uluwatu Temple', city: 'Bali', country: 'Indonesia', type: 'Spiritual' },
   { id: 'london', name: 'Big Ben', city: 'London', country: 'UK', type: 'History' },
   { id: 'santorini', name: 'Oia Cliffs', city: 'Santorini', country: 'Greece', type: 'Views' },
   { id: 'machu-picchu', name: 'Incan Citadel', city: 'Machu Picchu', country: 'Peru', type: 'Archaeology' },
   { id: 'dubai', name: 'Burj Khalifa', city: 'Dubai', country: 'UAE', type: 'Modern' },
   { id: 'new-york', name: 'Times Square', city: 'New York', country: 'USA', type: 'Urban' },
+  { id: 'grand-canyon', name: 'Grand Canyon North Rim', city: 'Grand Canyon', country: 'USA', type: 'Nature' },
   { id: 'sydney', name: 'Opera House', city: 'Sydney', country: 'Australia', type: 'Coastal' },
   { id: 'cairo', name: 'The Great Pyramids', city: 'Cairo', country: 'Egypt', type: 'History' },
   { id: 'kyoto', name: 'Fushimi Inari', city: 'Kyoto', country: 'Japan', type: 'Cultural' },
   { id: 'rio', name: 'Copacabana Beach', city: 'Rio de Janeiro', country: 'Brazil', type: 'Vibrant' },
   { id: 'cape-town', name: 'Table Mountain', city: 'Cape Town', country: 'South Africa', type: 'Coastal' },
+  { id: 'petra', name: 'The Treasury', city: 'Petra', country: 'Jordan', type: 'History' },
+  { id: 'barcelona', name: 'Sagrada Familia', city: 'Barcelona', country: 'Spain', type: 'Cultural' },
 ];
 
 export default function LocationsPage() {

@@ -37,12 +37,26 @@ const mockDestinations: Record<string, any> = {
     tags: ['Nature', 'Backwaters', 'Greenery'],
     stats: { visitors: '1M+', rank: 'Coastal Gem' }
   },
+  'agra': { 
+    name: 'Agra', 
+    country: 'India', 
+    description: "Home to the Taj Mahal, Agra is a city on the banks of the Yamuna river in the Indian state of Uttar Pradesh.",
+    tags: ['Wonders', 'History', 'Mughal'],
+    stats: { visitors: '8M+', rank: '#1 Landmark India' }
+  },
   'rome': {
     name: 'Rome',
     country: 'Italy',
     description: 'Rome, the capital city of Italy, is a sprawling, cosmopolitan city with nearly 3,000 years of globally influential art, architecture and culture.',
     tags: ['History', 'Art', 'Cuisine'],
     stats: { visitors: '10M+', rank: '#2 Europe' }
+  },
+  'venice': {
+    name: 'Venice',
+    country: 'Italy',
+    description: 'Venice, the capital of northern Italy’s Veneto region, is built on more than 100 small islands in a lagoon in the Adriatic Sea.',
+    tags: ['Canals', 'Romance', 'Glass'],
+    stats: { visitors: '20M+', rank: 'Most Unique' }
   },
   'london': {
     name: 'London',
@@ -79,6 +93,13 @@ const mockDestinations: Record<string, any> = {
     tags: ['Urban', 'Shopping', 'Energy'],
     stats: { visitors: '60M+', rank: '#1 US' }
   },
+  'grand-canyon': {
+    name: 'Grand Canyon',
+    country: 'USA',
+    description: 'The Grand Canyon in Arizona is a natural formation distinguished by layered bands of red rock, revealing millions of years of geological history.',
+    tags: ['Nature', 'Hiking', 'Canyon'],
+    stats: { visitors: '5M+', rank: 'Natural Wonder' }
+  },
   'sydney': {
     name: 'Sydney',
     country: 'Australia',
@@ -113,6 +134,20 @@ const mockDestinations: Record<string, any> = {
     description: 'Cape Town is a port city on South Africa’s southwest coast, on a peninsula beneath the imposing Table Mountain.',
     tags: ['Scenic', 'Coastal', 'Adventure'],
     stats: { visitors: '1.5M+', rank: '#1 SA' }
+  },
+  'petra': {
+    name: 'Petra',
+    country: 'Jordan',
+    description: 'Petra is a famous archaeological site in Jordan\'s southwestern desert. Dating to around 300 B.C., it was the capital of the Nabataean Kingdom.',
+    tags: ['Desert', 'Ancient', 'History'],
+    stats: { visitors: '1M+', rank: 'Archaeological Gem' }
+  },
+  'barcelona': {
+    name: 'Barcelona',
+    country: 'Spain',
+    description: 'Barcelona, the cosmopolitan capital of Spain’s Catalonia region, is known for its art and architecture.',
+    tags: ['Culture', 'Gaudi', 'Beach'],
+    stats: { visitors: '12M+', rank: '#1 Spain' }
   }
 };
 

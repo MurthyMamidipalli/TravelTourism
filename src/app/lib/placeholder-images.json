@@ -92,6 +92,36 @@
       "imageHint": "Cape Town Mountain"
     },
     {
+      "id": "venice",
+      "description": "Grand Canal in Venice",
+      "imageUrl": "https://picsum.photos/seed/venice/1200/800",
+      "imageHint": "Venice Canal"
+    },
+    {
+      "id": "agra",
+      "description": "Taj Mahal in Agra",
+      "imageUrl": "https://picsum.photos/seed/agra/1200/800",
+      "imageHint": "Taj Mahal"
+    },
+    {
+      "id": "petra",
+      "description": "The Treasury in Petra",
+      "imageUrl": "https://picsum.photos/seed/petra/1200/800",
+      "imageHint": "Petra Jordan"
+    },
+    {
+      "id": "grand-canyon",
+      "description": "Grand Canyon vista",
+      "imageUrl": "https://picsum.photos/seed/grandcanyon/1200/800",
+      "imageHint": "Grand Canyon"
+    },
+    {
+      "id": "barcelona",
+      "description": "Sagrada Familia in Barcelona",
+      "imageUrl": "https://picsum.photos/seed/barcelona/1200/800",
+      "imageHint": "Barcelona Sagrada"
+    },
+    {
       "id": "guide-1",
       "description": "Friendly local tour guide",
       "imageUrl": "https://picsum.photos/seed/guide1/400/400",
