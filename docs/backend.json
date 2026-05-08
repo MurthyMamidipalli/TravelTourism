@@ -41,6 +41,19 @@
         "googleMapsUrl": { "type": "string" }
       },
       "required": ["name", "cityId"]
+    },
+    "Review": {
+      "title": "Review",
+      "description": "A review for a guide.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "userName": { "type": "string" },
+        "rating": { "type": "number" },
+        "comment": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "rating", "comment"]
     }
   },
   "auth": {
@@ -58,6 +71,10 @@
     "/countries/{countryId}/cities/{cityId}/attractions/{attractionId}": {
       "schema": "Attraction",
       "description": "Attractions within a city"
+    },
+    "/guides/{guideId}/reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Reviews for a specific guide"
     }
   }
 }

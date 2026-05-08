@@ -1,11 +1,14 @@
+
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { MapPin, Star, MessageSquare, ShieldCheck, Zap, Info, Calendar } from 'lucide-react';
+import { MapPin, Star, MessageSquare, ShieldCheck, Zap, Info, Calendar, MessageCircle } from 'lucide-react';
 import AIItineraryPanel from '@/components/AIItineraryPanel';
+import GuideReviews from '@/components/GuideReviews';
+import ReviewForm from '@/components/ReviewForm';
 
 const mockGuides = [
   { 
@@ -84,6 +87,8 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
             </CardContent>
           </Card>
 
+          <ReviewForm guideId={id} />
+
           <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-6">
             <h3 className="font-headline font-semibold mb-4 flex items-center gap-2">
               <Info className="w-5 h-5 text-accent" /> About Me
@@ -98,6 +103,9 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
               <TabsTrigger value="itinerary" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-primary flex items-center gap-2">
                 <Zap className="w-4 h-4 text-accent" /> AI Recommended Itinerary
               </TabsTrigger>
+              <TabsTrigger value="reviews" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-primary flex items-center gap-2">
+                <MessageCircle className="w-4 h-4 text-accent" /> Tourist Reviews
+              </TabsTrigger>
               <TabsTrigger value="services" className="rounded-lg data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-800 data-[state=active]:text-primary flex items-center gap-2">
                 <Calendar className="w-4 h-4 text-accent" /> Services & Pricing
               </TabsTrigger>
@@ -105,6 +113,10 @@ export default async function GuideProfilePage({ params }: { params: Promise<{ i
             
             <TabsContent value="itinerary" className="mt-0">
               <AIItineraryPanel location={guide.operationalRegion} />
+            </TabsContent>
+
+            <TabsContent value="reviews" className="mt-0">
+              <GuideReviews guideId={id} />
             </TabsContent>
 
             <TabsContent value="services">
