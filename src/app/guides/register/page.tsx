@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -10,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, MapPin, Globe, FileUp, Fingerprint, CreditCard } from 'lucide-react';
+import { ShieldCheck, Globe, FileUp, Fingerprint, CreditCard } from 'lucide-react';
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: 'Full name must be at least 2 characters.' }),
@@ -51,7 +50,7 @@ export default function GuideRegistrationPage() {
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 items-start">
         <div className="md:col-span-2 space-y-8 bg-primary rounded-3xl p-8 text-white">
-          <h1 className="font-headline text-3xl font-bold">Become a Local Ambassador</h1>
+          <h1 className="font-headline text-3xl font-bold text-white">Become a Local Ambassador</h1>
           <p className="text-white/80 leading-relaxed">
             Share your passion for Andhra Pradesh and earn while showcasing the beauty of your home.
           </p>

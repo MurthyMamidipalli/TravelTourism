@@ -3,11 +3,11 @@
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 
 /**
- * These values are now configured to connect to your specific Firebase project.
- * Ensure that Authentication and Firestore are enabled in your Firebase Console.
+ * Firebase Configuration for Voyage Compass.
+ * Replace the placeholder values with your actual project keys from the Firebase Console.
  */
 const firebaseConfig = {
-  apiKey: "AIzaSyD-placeholder-key", // In a real scenario, this would be fetched or provided by the tool
+  apiKey: "AIzaSyD-placeholder-key", // Replace with your real API Key from Firebase Console
   authDomain: "voyage-compass-ap.firebaseapp.com",
   projectId: "voyage-compass-ap",
   storageBucket: "voyage-compass-ap.firebasestorage.app",
