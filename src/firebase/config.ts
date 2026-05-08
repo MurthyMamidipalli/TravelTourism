@@ -4,7 +4,7 @@ import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 
 /**
  * Firebase project configuration.
- * Ensure these values exactly match your Firebase Console Project Settings.
+ * These values are public and safe to include in your client-side code.
  */
 const firebaseConfig = {
   apiKey: "AIzaSyDzb5BIoBdlNlsK9JNPM8OYswvjUzz6dyQ",
@@ -17,7 +17,7 @@ const firebaseConfig = {
 
 /**
  * Returns the initialized FirebaseApp instance.
- * Standardizes initialization across the client.
+ * Ensures only one instance is created on the client.
  */
 export function getFirebaseApp(): FirebaseApp {
   return getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
