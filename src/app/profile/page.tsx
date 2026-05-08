@@ -148,7 +148,7 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto space-y-10">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto space-y-10">
         <div className="flex items-center justify-between">
           <Link href="/dashboard" className="text-muted-foreground hover:text-primary flex items-center gap-1 text-sm font-medium">
             <ArrowLeft className="w-4 h-4" /> Back to Dashboard
@@ -175,21 +175,21 @@ export default function ProfilePage() {
           
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="absolute top-8 right-8 rounded-xl"><Edit3 className="w-4 h-4 mr-2" /> Edit</Button>
+              <Button variant="outline" size="sm" className="absolute top-8 right-8 rounded-xl h-9"><Edit3 className="w-4 h-4 mr-2" /> Edit</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px] rounded-3xl">
               <DialogHeader><DialogTitle>Edit Profile</DialogTitle></DialogHeader>
               <form onSubmit={form.handleSubmit(onSaveProfile)} className="space-y-4 py-4">
                 <div className="space-y-2">
                   <Label>Full Name</Label>
-                  <Input {...form.register('fullName')} className="rounded-xl" />
+                  <Input {...form.register('fullName')} className="rounded-xl h-11" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label>Age</Label><Input type="number" {...form.register('age')} className="rounded-xl" /></div>
-                  <div className="space-y-2"><Label>Mobile</Label><Input maxLength={10} {...form.register('mobileNumber')} className="rounded-xl" /></div>
+                  <div className="space-y-2"><Label>Age</Label><Input type="number" {...form.register('age')} className="rounded-xl h-11" /></div>
+                  <div className="space-y-2"><Label>Mobile</Label><Input maxLength={10} {...form.register('mobileNumber')} className="rounded-xl h-11" /></div>
                 </div>
                 <DialogFooter className="pt-4">
-                  <Button type="submit" className="w-full rounded-xl" disabled={isSaving}>
+                  <Button type="submit" className="w-full rounded-xl h-12 text-lg font-bold" disabled={isSaving}>
                     {isSaving ? <Loader2 className="animate-spin" /> : 'Save Changes'}
                   </Button>
                 </DialogFooter>
@@ -228,13 +228,13 @@ export default function ProfilePage() {
                   <div className="space-y-4">
                     <p className="text-xs text-destructive font-medium">Action required: Verify your identity via OTP to unlock all features.</p>
                     {!isOtpSent ? (
-                      <Button onClick={handleSendOtp} disabled={isSendingOtp} className="w-full bg-destructive hover:bg-destructive/90 rounded-xl">
+                      <Button onClick={handleSendOtp} disabled={isSendingOtp} className="w-full bg-destructive hover:bg-destructive/90 rounded-xl h-11">
                         {isSendingOtp ? <Loader2 className="animate-spin mr-2" /> : 'Start Verification'}
                       </Button>
                     ) : (
                       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
-                        <Input placeholder="6-digit OTP" maxLength={6} className="text-center font-bold tracking-widest h-12 rounded-xl" value={otpValue} onChange={e => setOtpValue(e.target.value)} />
-                        <Button onClick={handleVerifyOtp} disabled={isVerifying || otpValue.length !== 6} className="w-full bg-accent text-white rounded-xl">
+                        <Input placeholder="6-digit OTP" maxLength={6} className="text-center font-bold tracking-widest h-11 rounded-xl" value={otpValue} onChange={e => setOtpValue(e.target.value)} />
+                        <Button onClick={handleVerifyOtp} disabled={isVerifying || otpValue.length !== 6} className="w-full bg-accent text-white rounded-xl h-11">
                           {isVerifying ? <Loader2 className="animate-spin" /> : 'Verify Identity'}
                         </Button>
                         <p className="text-[10px] text-center text-muted-foreground">Use test code: 123456</p>
@@ -246,7 +246,7 @@ export default function ProfilePage() {
                     <ShieldCheck className="w-6 h-6 text-accent" />
                     <div>
                       <p className="text-sm font-bold text-accent">Identity Verified</p>
-                      <p className="text-[10px] text-muted-foreground">Authentication via Aadhar OTP successful.</p>
+                      <p className="text-[10px] text-muted-foreground">Authentication successful.</p>
                     </div>
                   </div>
                 )}

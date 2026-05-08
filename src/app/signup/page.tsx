@@ -70,6 +70,7 @@ export default function SignupPage() {
     }
     
     setIsSendingOtp(true);
+    // Optimized delay
     await new Promise(resolve => setTimeout(resolve, 500));
     setIsSendingOtp(false);
     setIsOtpSent(true);
@@ -131,14 +132,14 @@ export default function SignupPage() {
         createdAt: serverTimestamp(),
       };
 
+      // Optimistic save
       setDoc(userDocRef, profileData)
         .catch(async (error) => {
-          const permissionError = new FirestorePermissionError({
+          errorEmitter.emit('permission-error', new FirestorePermissionError({
             path: userDocRef.path,
             operation: 'create',
             requestResourceData: profileData,
-          });
-          errorEmitter.emit('permission-error', permissionError);
+          }));
         });
 
       toast({ 

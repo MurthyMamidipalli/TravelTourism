@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -29,8 +30,13 @@ export default function Navbar() {
 
   useEffect(() => {
     setMounted(true);
-    const handleScroll = () => setScrolled(window.scrollY > 20);
-    window.addEventListener('scroll', handleScroll);
+    const handleScroll = () => {
+      // Use requestAnimationFrame for smoother scroll handling
+      window.requestAnimationFrame(() => {
+        setScrolled(window.scrollY > 20);
+      });
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
     
     const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
     setIsDark(isDarkMode);
@@ -65,8 +71,10 @@ export default function Navbar() {
     { name: 'Search', href: '/search', icon: Search },
   ];
 
-  // Stable height to prevent content shifting
-  const navClass = `glass-nav transition-all duration-300 h-20 flex items-center ${scrolled ? 'shadow-sm border-b bg-white/90 dark:bg-black/90' : 'bg-white dark:bg-black'}`;
+  // Fixed height and stable layout to prevent "shaking"
+  const navClass = `glass-nav transition-colors duration-300 h-20 flex items-center border-b ${
+    scrolled ? 'bg-white/90 dark:bg-black/90 shadow-sm backdrop-blur-xl' : 'bg-white dark:bg-black'
+  }`;
 
   if (!mounted) {
     return (
@@ -90,9 +98,9 @@ export default function Navbar() {
   return (
     <nav className={navClass}>
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-full">
+        <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
-            <div className="bg-primary text-primary-foreground p-2 rounded-xl group-hover:rotate-12 transition-transform">
+            <div className="bg-primary text-primary-foreground p-2 rounded-xl group-hover:rotate-12 transition-transform duration-300">
               <Compass className="w-6 h-6" />
             </div>
             <span className="font-headline font-bold text-2xl tracking-tighter text-zinc-900 dark:text-white">
@@ -118,7 +126,7 @@ export default function Navbar() {
               variant="ghost"
               size="icon"
               onClick={() => setIsDark(!isDark)}
-              className="rounded-full"
+              className="rounded-full h-10 w-10"
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </Button>
@@ -126,7 +134,7 @@ export default function Navbar() {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0">
                     <Avatar className="h-10 w-10 border-2 border-primary/20">
                       <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
                       <AvatarFallback className="bg-primary/10 text-primary font-bold">
@@ -157,7 +165,7 @@ export default function Navbar() {
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
                     <Link href="/guides/register" className="cursor-pointer">
-                      <Utensils className="mr-2 h-4 w-4" />
+                      <ShieldCheck className="mr-2 h-4 w-4" />
                       <span>Become a Guide</span>
                     </Link>
                   </DropdownMenuItem>
@@ -171,12 +179,12 @@ export default function Navbar() {
             ) : (
               <div className="flex items-center gap-3">
                 <Link href="/login">
-                  <Button variant="ghost" className="rounded-full px-6 font-semibold">
+                  <Button variant="ghost" className="rounded-full px-6 font-semibold h-10">
                     Sign In
                   </Button>
                 </Link>
                 <Link href="/signup">
-                  <Button className="rounded-full px-6 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20">
+                  <Button className="rounded-full px-6 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20 h-10">
                     Get Started
                   </Button>
                 </Link>
@@ -185,7 +193,7 @@ export default function Navbar() {
           </div>
 
           {/* Mobile Toggle */}
-          <button className="md:hidden p-2" onClick={() => setIsOpen(!isOpen)}>
+          <button className="md:hidden p-2 h-10 w-10 flex items-center justify-center" onClick={() => setIsOpen(!isOpen)}>
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
@@ -195,10 +203,11 @@ export default function Navbar() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden border-t bg-background px-4 py-6 space-y-4 overflow-hidden absolute top-20 left-0 right-0 z-50 shadow-xl"
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+            className="md:hidden border-t bg-background px-4 py-6 space-y-4 absolute top-20 left-0 right-0 z-50 shadow-2xl"
           >
             {navItems.map((item) => (
               <Link
@@ -233,7 +242,7 @@ export default function Navbar() {
                     <UserIcon className="mr-2 h-4 w-4" /> My Profile
                   </Button>
                 </Link>
-                <Button variant="outline" className="w-full rounded-2xl h-12 text-destructive" onClick={handleSignOut}>
+                <Button variant="outline" className="w-full rounded-2xl h-12 text-destructive mt-2" onClick={handleSignOut}>
                   Log Out
                 </Button>
               </div>

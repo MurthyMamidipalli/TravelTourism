@@ -66,6 +66,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
                 src={guide.imageUrl || `https://picsum.photos/seed/${guide.id}/400/400`} 
                 alt={guide.fullName || 'Guide'} 
                 fill 
+                priority
                 className="object-cover" 
               />
               <div className="absolute bottom-4 left-4">
@@ -116,11 +117,11 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
             </h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Age</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Age</p>
                 <p className="font-bold">{guide.age} Years</p>
               </div>
               <div className="space-y-1">
-                <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Gender</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Gender</p>
                 <p className="font-bold">{guide.gender}</p>
               </div>
             </div>
@@ -161,12 +162,12 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
                     <div className="flex items-center gap-3 p-4 bg-secondary/20 rounded-2xl border">
                       <Fingerprint className="w-8 h-8 text-primary" />
                       <div>
-                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">Aadhar Number</p>
+                        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">Aadhar Number</p>
                         <p className="text-lg font-bold">{guide.aadharNumber}</p>
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Aadhar Softcopy</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Aadhar Softcopy</p>
                       <div className="relative aspect-video rounded-xl overflow-hidden border bg-secondary/10 flex items-center justify-center">
                          <Image src={`https://picsum.photos/seed/aadhar-${id}/600/400`} alt="Aadhar Softcopy" fill className="object-cover opacity-50 blur-[2px]" />
                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/20 text-white">
@@ -181,12 +182,12 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
                     <div className="flex items-center gap-3 p-4 bg-secondary/20 rounded-2xl border">
                       <CreditCard className="w-8 h-8 text-primary" />
                       <div>
-                        <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">PAN Card Number</p>
+                        <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest">PAN Card Number</p>
                         <p className="text-lg font-bold uppercase">{guide.panNumber}</p>
                       </div>
                     </div>
                     <div className="space-y-2">
-                      <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">PAN Softcopy</p>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">PAN Softcopy</p>
                       <div className="relative aspect-video rounded-xl overflow-hidden border bg-secondary/10 flex items-center justify-center">
                          <Image src={`https://picsum.photos/seed/pan-${id}/600/400`} alt="PAN Softcopy" fill className="object-cover opacity-50 blur-[2px]" />
                          <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/20 text-white">
