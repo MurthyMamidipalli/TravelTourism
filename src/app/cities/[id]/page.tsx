@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useState, useEffect } from 'react';
@@ -73,6 +72,7 @@ export default function CityPage({ params }: { params: Promise<{ id: string }> }
       <AnimatePresence mode="wait">
         {loading ? (
           <motion.div 
+            key="loading"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -83,6 +83,7 @@ export default function CityPage({ params }: { params: Promise<{ id: string }> }
           </motion.div>
         ) : (
           <motion.div 
+            key="content"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
@@ -97,7 +98,7 @@ export default function CityPage({ params }: { params: Promise<{ id: string }> }
                 <TouristCard 
                   id={item.id}
                   name={item.displayName?.text || 'Local Attraction'}
-                  image={`https://picsum.photos/seed/${item.id}/800/600`} // Placeholder for Place Photo
+                  image={`https://picsum.photos/seed/${item.id}/800/600`}
                   rating={item.rating || 4.5}
                   description={item.editorialSummary?.text || 'Visit this incredible spot for a unique local experience.'}
                   location={item.formattedAddress || cityName}

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use } from 'react';
@@ -7,7 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, MapPin, Users, Info } from 'lucide-react';
+import { ArrowLeft, Users, ArrowRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const mockCitiesByCountry: Record<string, any> = {
@@ -19,6 +18,14 @@ const mockCitiesByCountry: Record<string, any> = {
   'japan': [
     { id: 'tokyo', name: 'Tokyo', desc: 'A neon metropolis blending tradition with the future.', img: 'https://picsum.photos/seed/tokyo/600/400', pop: '14M' },
     { id: 'kyoto', name: 'Kyoto', desc: 'The cultural heart of Japan with thousands of temples.', img: 'https://picsum.photos/seed/kyoto/600/400', pop: '1.4M' },
+  ],
+  'italy': [
+    { id: 'rome', name: 'Rome', desc: 'The Eternal City with thousands of years of history.', img: 'https://picsum.photos/seed/rome/600/400', pop: '2.8M' },
+    { id: 'venice', name: 'Venice', desc: 'The famous city of canals and bridges.', img: 'https://picsum.photos/seed/venice/600/400', pop: '260k' },
+  ],
+  'india': [
+    { id: 'agra', name: 'Agra', desc: 'Home to the magnificent Taj Mahal.', img: 'https://picsum.photos/seed/agra/600/400', pop: '1.5M' },
+    { id: 'mumbai', name: 'Mumbai', desc: 'The bustling financial capital of India.', img: 'https://picsum.photos/seed/mumbai/600/400', pop: '12.5M' },
   ]
 };
 
@@ -48,7 +55,7 @@ export default function CountryPage({ params }: { params: Promise<{ id: string }
           >
             Explore {countryName}
           </motion.h1>
-          <p className="mt-4 text-xl font-medium opacity-90">Discover the major hubs and hidden gems.</p>
+          <p className="mt-4 text-xl font-medium opacity-90 text-center">Discover the major hubs and hidden gems.</p>
         </div>
       </div>
 
