@@ -1,0 +1,41 @@
+
+{
+  "placeholderImages": [
+    {
+      "id": "paris",
+      "description": "Eiffel Tower in Paris",
+      "imageUrl": "https://picsum.photos/seed/paris/1200/800",
+      "imageHint": "Paris Eiffel Tower"
+    },
+    {
+      "id": "tokyo",
+      "description": "City lights of Tokyo",
+      "imageUrl": "https://picsum.photos/seed/tokyo/1200/800",
+      "imageHint": "Tokyo city skyline"
+    },
+    {
+      "id": "amalapuram",
+      "description": "Serene backwaters of Amalapuram",
+      "imageUrl": "https://picsum.photos/seed/amalapuram/1200/800",
+      "imageHint": "Andhra Pradesh backwaters"
+    },
+    {
+      "id": "bali",
+      "description": "Tropical beach in Bali",
+      "imageUrl": "https://picsum.photos/seed/bali/1200/800",
+      "imageHint": "Bali beach sunset"
+    },
+    {
+      "id": "guide-1",
+      "description": "Friendly local tour guide",
+      "imageUrl": "https://picsum.photos/seed/guide1/400/400",
+      "imageHint": "Professional man smiling"
+    },
+    {
+      "id": "guide-2",
+      "description": "Experienced tour leader",
+      "imageUrl": "https://picsum.photos/seed/guide2/400/400",
+      "imageHint": "Professional woman smiling"
+    }
+  ]
+}
