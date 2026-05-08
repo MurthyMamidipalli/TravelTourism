@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use } from 'react';
@@ -85,7 +84,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
 
           <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-6">
             <h3 className="font-headline font-semibold mb-4 flex items-center gap-2">
-              <|Info className="w-5 h-5 text-accent" /> About Me
+              <Info className="w-5 h-5 text-accent" /> About Me
             </h3>
             <p className="text-muted-foreground leading-relaxed">{guide.bio}</p>
           </Card>
