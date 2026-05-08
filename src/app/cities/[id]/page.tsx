@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useState, useEffect } from 'react';
+import { use, useState, useEffect, useMemo } from 'react';
 import TouristCard from '@/components/TouristCard';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Loader2, Sparkles, MapPin } from 'lucide-react';
@@ -14,7 +14,7 @@ export default function CityPage({ params }: { params: Promise<{ id: string }> }
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('All');
 
-  const cityName = id.charAt(0).toUpperCase() + id.slice(1).replace('-', ' ');
+  const cityName = useMemo(() => id.charAt(0).toUpperCase() + id.slice(1).replace('-', ' '), [id]);
 
   useEffect(() => {
     async function fetchData() {
@@ -31,9 +31,12 @@ export default function CityPage({ params }: { params: Promise<{ id: string }> }
     fetchData();
   }, [cityName]);
 
-  const filtered = filter === 'All' 
-    ? attractions 
-    : attractions.filter(a => a.types?.some((t: string) => t.toLowerCase().includes(filter.toLowerCase())));
+  const filtered = useMemo(() => {
+    if (filter === 'All') return attractions;
+    return attractions.filter(a => 
+      a.types?.some((t: string) => t.toLowerCase().includes(filter.toLowerCase()))
+    );
+  }, [attractions, filter]);
 
   const categories = ['All', 'Museum', 'Park', 'History', 'Monument'];
 
@@ -91,14 +94,15 @@ export default function CityPage({ params }: { params: Promise<{ id: string }> }
             {filtered.map((item, idx) => (
               <motion.div
                 key={item.id}
-                initial={{ opacity: 0, y: 30 }}
+                layout
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: idx * 0.05 }}
+                transition={{ duration: 0.3, delay: Math.min(idx * 0.05, 0.4) }}
               >
                 <TouristCard 
                   id={item.id}
                   name={item.displayName?.text || 'Local Attraction'}
-                  image={`https://picsum.photos/seed/${item.id}/800/600`}
+                  image={`https://picsum.photos/seed/${item.id}/600/400`}
                   rating={item.rating || 4.5}
                   description={item.editorialSummary?.text || 'Visit this incredible spot for a unique local experience.'}
                   location={item.formattedAddress || cityName}

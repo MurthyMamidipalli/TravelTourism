@@ -1,13 +1,12 @@
-
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Search, MapPin, Clock, Utensils, Star } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const restaurantData = [
@@ -41,11 +40,15 @@ const restaurantData = [
 export default function RestaurantsPage() {
   const [search, setSearchTerm] = useState('');
 
-  const filtered = restaurantData.filter(r => 
-    r.name.toLowerCase().includes(search.toLowerCase()) || 
-    r.city.toLowerCase().includes(search.toLowerCase()) ||
-    r.cuisine.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = useMemo(() => {
+    if (!search.trim()) return restaurantData;
+    const lower = search.toLowerCase();
+    return restaurantData.filter(r => 
+      r.name.toLowerCase().includes(lower) || 
+      r.city.toLowerCase().includes(lower) ||
+      r.cuisine.toLowerCase().includes(lower)
+    );
+  }, [search]);
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
@@ -53,7 +56,7 @@ export default function RestaurantsPage() {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.4 }}
         >
           <Badge className="bg-accent/10 text-accent border-none mb-4 px-4 py-1 flex items-center gap-1.5 mx-auto w-fit">
             <Utensils className="w-3.5 h-3.5" /> Culinary Delights
@@ -76,55 +79,60 @@ export default function RestaurantsPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-        {filtered.map((rest, idx) => {
-          const imgData = PlaceHolderImages.find(img => img.id === rest.id) || PlaceHolderImages[0];
-          return (
-            <motion.div
-              key={rest.id}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.3, delay: idx * 0.05 }}
-            >
-              <Card className="premium-card overflow-hidden h-full group flex flex-col">
-                <div className="relative h-56">
-                  <Image 
-                    src={imgData.imageUrl} 
-                    alt={rest.name} 
-                    fill 
-                    className="object-cover group-hover:scale-110 transition-transform duration-700" 
-                    data-ai-hint={imgData.imageHint}
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                  <div className="absolute bottom-4 left-4 text-white right-4">
-                    <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1">{rest.cuisine}</p>
-                    <h3 className="text-xl font-bold tracking-tight line-clamp-1">{rest.name}</h3>
-                  </div>
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm">
-                    <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
-                    <span className="text-[10px] font-black">4.5</span>
-                  </div>
-                </div>
-                <CardContent className="p-5 space-y-4 flex flex-col flex-grow bg-white dark:bg-zinc-900">
-                  <div className="space-y-2 flex-grow">
-                    <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
-                      <MapPin className="w-4 h-4 text-accent" />
-                      <span>{rest.city}</span>
+        <AnimatePresence mode="popLayout">
+          {filtered.map((rest, idx) => {
+            const imgData = PlaceHolderImages.find(img => img.id === rest.id) || PlaceHolderImages[0];
+            return (
+              <motion.div
+                key={rest.id}
+                layout
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.2, delay: Math.min(idx * 0.03, 0.3) }}
+              >
+                <Card className="premium-card overflow-hidden h-full group flex flex-col">
+                  <div className="relative h-56 bg-secondary">
+                    <Image 
+                      src={imgData.imageUrl} 
+                      alt={rest.name} 
+                      fill 
+                      className="object-cover group-hover:scale-110 transition-transform duration-700" 
+                      data-ai-hint={imgData.imageHint}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                    <div className="absolute bottom-4 left-4 text-white right-4">
+                      <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1">{rest.cuisine}</p>
+                      <h3 className="text-xl font-bold tracking-tight line-clamp-1">{rest.name}</h3>
                     </div>
-                    <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
-                      <Clock className="w-4 h-4 text-primary" />
-                      <span>Suggested: {rest.itinerary}</span>
+                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm">
+                      <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
+                      <span className="text-[10px] font-black">4.5</span>
                     </div>
                   </div>
-                  <div className="pt-4 border-t">
-                    <Badge variant="secondary" className="bg-secondary/50 text-primary border-none text-[10px] font-bold">
-                      {rest.cuisine}
-                    </Badge>
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-          );
-        })}
+                  <CardContent className="p-5 space-y-4 flex flex-col flex-grow">
+                    <div className="space-y-2 flex-grow">
+                      <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
+                        <MapPin className="w-4 h-4 text-accent" />
+                        <span>{rest.city}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
+                        <Clock className="w-4 h-4 text-primary" />
+                        <span>Suggested: {rest.itinerary}</span>
+                      </div>
+                    </div>
+                    <div className="pt-4 border-t">
+                      <Badge variant="secondary" className="bg-secondary/50 text-primary border-none text-[10px] font-bold">
+                        {rest.cuisine}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </motion.div>
+            );
+          })}
+        </AnimatePresence>
       </div>
 
       {filtered.length === 0 && (

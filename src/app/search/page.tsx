@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Search as SearchIcon, MapPin, Loader2, Sparkles } from 'lucide-react';
+import { Search as SearchIcon, MapPin, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const allData = [
   { id: 'tirumala-temple', name: 'Tirumala Temple', district: 'Tirupati', type: 'Pilgrimage' },
@@ -46,26 +46,15 @@ const allData = [
 
 export default function SearchPage() {
   const [query, setQuery] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [results, setResults] = useState(allData);
 
-  useEffect(() => {
-    if (!query) {
-      setResults(allData);
-      return;
-    }
-    setLoading(true);
-    const timeout = setTimeout(() => {
-      const lowerQuery = query.toLowerCase();
-      const filtered = allData.filter(item => 
-        item.name.toLowerCase().includes(lowerQuery) ||
-        item.district.toLowerCase().includes(lowerQuery) ||
-        item.type.toLowerCase().includes(lowerQuery)
-      );
-      setResults(filtered);
-      setLoading(false);
-    }, 300);
-    return () => clearTimeout(timeout);
+  const results = useMemo(() => {
+    if (!query.trim()) return allData;
+    const lowerQuery = query.toLowerCase();
+    return allData.filter(item => 
+      item.name.toLowerCase().includes(lowerQuery) ||
+      item.district.toLowerCase().includes(lowerQuery) ||
+      item.type.toLowerCase().includes(lowerQuery)
+    );
   }, [query]);
 
   return (
@@ -81,48 +70,56 @@ export default function SearchPage() {
           <SearchIcon className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground w-6 h-6 group-focus-within:text-primary transition-colors" />
           <Input 
             placeholder="Search place, district or type..." 
-            className="pl-16 h-16 rounded-3xl bg-white dark:bg-zinc-900 shadow-2xl border-none text-xl"
+            className="pl-16 h-16 rounded-3xl bg-white dark:bg-zinc-900 shadow-2xl border-none text-xl focus-visible:ring-primary/20"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
           />
-          {loading && <Loader2 className="absolute right-6 top-1/2 -translate-y-1/2 animate-spin text-primary" />}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
-          {results.map((item, idx) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.05 }}
-            >
-              <Link href={`/destinations/${item.id}`}>
-                <Card className="premium-card overflow-hidden group h-full">
-                  <div className="flex items-center gap-4 p-4 bg-white dark:bg-zinc-900">
-                    <div className="relative w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0">
-                      <Image src={`https://picsum.photos/seed/${item.id}/400/300`} alt={item.name} fill className="object-cover" />
-                    </div>
-                    <div className="flex-grow space-y-1">
-                      <div className="flex items-center justify-between">
-                        <Badge variant="outline" className="text-[10px] uppercase font-bold">
-                          {item.type}
-                        </Badge>
-                        <Sparkles className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+          <AnimatePresence mode="popLayout">
+            {results.map((item, idx) => (
+              <motion.div
+                key={item.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.2, delay: Math.min(idx * 0.03, 0.3) }}
+              >
+                <Link href={`/destinations/${item.id}`}>
+                  <Card className="premium-card overflow-hidden group h-full">
+                    <div className="flex items-center gap-4 p-4">
+                      <div className="relative w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-secondary">
+                        <Image 
+                          src={`https://picsum.photos/seed/${item.id}/200/200`} 
+                          alt={item.name} 
+                          fill 
+                          className="object-cover"
+                          sizes="96px"
+                        />
                       </div>
-                      <h3 className="text-xl font-bold">{item.name}</h3>
-                      <p className="text-sm text-muted-foreground flex items-center gap-1">
-                        <MapPin className="w-3 h-3 text-accent" /> {item.district}
-                      </p>
+                      <div className="flex-grow space-y-1">
+                        <div className="flex items-center justify-between">
+                          <Badge variant="outline" className="text-[10px] uppercase font-bold">
+                            {item.type}
+                          </Badge>
+                          <Sparkles className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                        <h3 className="text-xl font-bold">{item.name}</h3>
+                        <p className="text-sm text-muted-foreground flex items-center gap-1">
+                          <MapPin className="w-3 h-3 text-accent" /> {item.district}
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </Card>
-              </Link>
-            </motion.div>
-          ))}
+                  </Card>
+                </Link>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </div>
 
-        {results.length === 0 && !loading && (
-          <div className="text-center py-20">
+        {results.length === 0 && (
+          <div className="text-center py-20 bg-secondary/10 rounded-3xl border border-dashed">
             <p className="text-muted-foreground text-lg">No results found for "{query}"</p>
           </div>
         )}

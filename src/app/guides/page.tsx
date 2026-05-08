@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -10,7 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Search, MapPin, Star, ShieldCheck, Users, Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useFirestore, useCollection } from '@/firebase';
-import { collection, query, where } from 'firebase/firestore';
+import { collection } from 'firebase/firestore';
 
 export default function GuidesPage() {
   const [search, setSearch] = useState('');
@@ -25,9 +24,11 @@ export default function GuidesPage() {
 
   const filteredGuides = useMemo(() => {
     if (!guides) return [];
+    if (!search.trim()) return guides;
+    const lower = search.toLowerCase();
     return guides.filter(guide => 
-      guide.location?.toLowerCase().includes(search.toLowerCase()) ||
-      guide.fullName?.toLowerCase().includes(search.toLowerCase())
+      guide.location?.toLowerCase().includes(lower) ||
+      guide.fullName?.toLowerCase().includes(lower)
     );
   }, [guides, search]);
 
@@ -50,7 +51,14 @@ export default function GuidesPage() {
           </div>
         </div>
         <div className="hidden lg:block relative w-64 h-64">
-           <Image src="https://picsum.photos/seed/guide-hero/512/512" alt="Guide" fill className="object-cover rounded-2xl rotate-3 shadow-2xl" />
+           <Image 
+             src="https://picsum.photos/seed/guide-hero/512/512" 
+             alt="Guide" 
+             fill 
+             priority
+             className="object-cover rounded-2xl rotate-3 shadow-2xl" 
+             sizes="256px"
+           />
         </div>
       </div>
 
@@ -62,15 +70,16 @@ export default function GuidesPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredGuides.length > 0 ? (
-            filteredGuides.map((guide) => (
+            filteredGuides.map((guide, idx) => (
               <Link key={guide.id} href={`/guides/${guide.id}`}>
-                <Card className="overflow-hidden hover:shadow-xl transition-all border-none bg-white dark:bg-zinc-900">
-                  <div className="relative h-64 w-full">
+                <Card className="overflow-hidden hover:shadow-xl transition-all border-none bg-white dark:bg-zinc-900 h-full">
+                  <div className="relative h-64 w-full bg-secondary">
                     <Image 
                       src={guide.imageUrl || `https://picsum.photos/seed/${guide.id}/400/400`} 
                       alt={guide.fullName} 
                       fill 
-                      className="object-cover" 
+                      className="object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     />
                     <div className="absolute top-4 right-4">
                       <Badge className="bg-white/90 text-primary border-none flex items-center gap-1 font-bold">
@@ -95,7 +104,7 @@ export default function GuidesPage() {
                       ))}
                     </div>
                     
-                    <div className="pt-4 border-t flex items-center justify-between">
+                    <div className="pt-4 border-t flex items-center justify-between mt-auto">
                       <span className="text-xs text-muted-foreground italic">{guide.specialty || 'Local'} Specialist</span>
                       <Button variant="outline" size="sm" className="border-accent text-accent hover:bg-accent hover:text-white">View Profile</Button>
                     </div>
