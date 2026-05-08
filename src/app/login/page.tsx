@@ -42,11 +42,11 @@ export default function LoginPage() {
     console.error('Auth Error Details:', error.code, error.message);
     switch (error.code) {
       case 'auth/operation-not-allowed':
-        return 'The sign-in method you tried is not enabled in your Firebase Console. Go to Authentication > Sign-in method and enable it.';
+        return 'The sign-in method you tried (like Guest or Google) is not enabled in your Firebase Console. Go to Authentication > Sign-in method and enable it.';
       case 'auth/configuration-not-found':
         return 'Firebase Authentication is not fully set up. Ensure you have enabled the providers in the Console.';
       case 'auth/invalid-api-key':
-        return 'The API key in src/firebase/config.ts is invalid. Please double-check it in Project Settings.';
+        return 'The API key in src/firebase/config.ts is invalid. Please double-check it in your Firebase Project Settings.';
       case 'auth/user-not-found':
       case 'auth/wrong-password':
       case 'auth/invalid-credential':
@@ -125,10 +125,10 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent className="p-8 pt-10 space-y-6">
           {authError && (
-            <Alert variant="destructive" className="rounded-2xl bg-destructive/5">
+            <Alert variant="destructive" className="rounded-2xl bg-destructive/5 border-destructive/20">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>Configuration Issue</AlertTitle>
-              <AlertDescription className="text-xs">
+              <AlertTitle className="font-bold">Provider Required</AlertTitle>
+              <AlertDescription className="text-sm">
                 {authError}
               </AlertDescription>
             </Alert>
@@ -180,7 +180,7 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full h-12 text-lg rounded-xl" disabled={isLoading || isGuestLoading}>
+              <Button type="submit" className="w-full h-12 text-lg rounded-xl shadow-lg shadow-primary/20" disabled={isLoading || isGuestLoading}>
                 {isLoading ? 'Signing in...' : 'Sign In'}
                 <LogIn className="ml-2 h-4 w-4" />
               </Button>
@@ -220,7 +220,7 @@ export default function LoginPage() {
             </Button>
             <Button variant="secondary" className="h-12 rounded-xl" onClick={handleGuestLogin} disabled={isLoading || isGuestLoading}>
               <UserRound className="mr-2 h-4 w-4" />
-              Guest
+              {isGuestLoading ? 'Logging in...' : 'Guest'}
             </Button>
           </div>
         </CardContent>
