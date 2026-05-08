@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, LogIn, Mail, Lock, UserRound, AlertCircle } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Mail, Lock, UserRound, AlertCircle, Globe } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const loginSchema = z.object({
@@ -28,7 +28,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGuestLoading, setIsGuestLoading] = useState(false);
-  const [authError, setAuthError] = useState<string | null>(null);
+  const [authError, setAuthError] = useState<{title: string, message: string} | null>(null);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -42,17 +42,32 @@ export default function LoginPage() {
     console.error('Auth Error Details:', error.code, error.message);
     switch (error.code) {
       case 'auth/operation-not-allowed':
-        return 'The sign-in method you tried (like Guest or Email) is not enabled in your Firebase Console. Go to Authentication > Sign-in method and enable it.';
-      case 'auth/configuration-not-found':
-        return 'Firebase Authentication is not fully set up. Ensure you have enabled the providers in the Console.';
-      case 'auth/invalid-api-key':
-        return 'The API key in config.ts is invalid. Please double-check it in your Firebase Project Settings.';
+        return {
+          title: 'Provider Not Enabled',
+          message: 'The sign-in method you tried (Google, Email, or Guest) is not enabled in your Firebase Console. Go to Authentication > Sign-in method and enable it.'
+        };
+      case 'auth/unauthorized-domain':
+        return {
+          title: 'Domain Not Authorized',
+          message: 'This domain is not in your authorized list. Go to Authentication > Settings > Authorized domains and add the current URL domain.'
+        };
+      case 'auth/popup-closed-by-user':
+        return {
+          title: 'Login Cancelled',
+          message: 'The login popup was closed before completion.'
+        };
       case 'auth/user-not-found':
       case 'auth/wrong-password':
       case 'auth/invalid-credential':
-        return 'Invalid email or password.';
+        return {
+          title: 'Login Failed',
+          message: 'Invalid email or password.'
+        };
       default:
-        return error.message || 'An unexpected error occurred.';
+        return {
+          title: 'Authentication Issue',
+          message: error.message || 'An unexpected error occurred.'
+        };
     }
   };
 
@@ -64,12 +79,12 @@ export default function LoginPage() {
       toast({ title: 'Welcome back!', description: 'Logged in successfully.' });
       router.push('/dashboard');
     } catch (error: any) {
-      const message = getFriendlyErrorMessage(error);
-      setAuthError(message);
+      const err = getFriendlyErrorMessage(error);
+      setAuthError(err);
       toast({
         variant: 'destructive',
-        title: 'Login Failed',
-        description: message,
+        title: err.title,
+        description: err.message,
       });
     } finally {
       setIsLoading(false);
@@ -84,9 +99,9 @@ export default function LoginPage() {
       toast({ title: 'Welcome!', description: 'Logged in with Google.' });
       router.push('/dashboard');
     } catch (error: any) {
-      const message = getFriendlyErrorMessage(error);
-      setAuthError(message);
-      toast({ variant: 'destructive', title: 'Google Login Failed', description: message });
+      const err = getFriendlyErrorMessage(error);
+      setAuthError(err);
+      toast({ variant: 'destructive', title: err.title, description: err.message });
     }
   };
 
@@ -98,9 +113,9 @@ export default function LoginPage() {
       toast({ title: 'Welcome Guest!', description: 'You are now logged in as a guest.' });
       router.push('/dashboard');
     } catch (error: any) {
-      const message = getFriendlyErrorMessage(error);
-      setAuthError(message);
-      toast({ variant: 'destructive', title: 'Guest Login Failed', description: message });
+      const err = getFriendlyErrorMessage(error);
+      setAuthError(err);
+      toast({ variant: 'destructive', title: err.title, description: err.message });
     } finally {
       setIsGuestLoading(false);
     }
@@ -115,10 +130,18 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent className="p-8 pt-10 space-y-6">
           {authError && (
-            <Alert variant="destructive" className="rounded-2xl">
+            <Alert variant="destructive" className="rounded-2xl border-destructive/20 bg-destructive/5">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle className="font-bold">Auth Issue</AlertTitle>
-              <AlertDescription className="text-sm">{authError}</AlertDescription>
+              <AlertTitle className="font-bold">{authError.title}</AlertTitle>
+              <AlertDescription className="text-sm">
+                {authError.message}
+                {authError.title === 'Domain Not Authorized' && (
+                  <div className="mt-2 p-2 bg-white/10 rounded flex items-center gap-2 text-xs">
+                    <Globe className="w-3 h-3" />
+                    <span>Copy this domain and add it to Firebase Console</span>
+                  </div>
+                )}
+              </AlertDescription>
             </Alert>
           )}
 
