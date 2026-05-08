@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -43,11 +44,19 @@ export default function SignupPage() {
     setIsLoading(true);
     try {
       const { user } = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      
+      // Update the user's profile with their full name
       await updateProfile(user, {
         displayName: `${values.firstName} ${values.lastName}`,
       });
-      toast({ title: 'Account Created', description: `Welcome to Voyage Compass, ${values.firstName}!` });
-      router.push('/');
+
+      toast({ 
+        title: 'Account Created', 
+        description: `Welcome to Voyage Compass, ${values.firstName}!` 
+      });
+      
+      // Force a hard refresh or small delay to ensure auth state syncs
+      router.push('/dashboard');
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -79,7 +88,7 @@ export default function SignupPage() {
                       <FormControl>
                         <div className="relative">
                           <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input placeholder="John" className="pl-10" {...field} />
+                          <Input placeholder="John" className="pl-10 h-11" {...field} />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -93,7 +102,7 @@ export default function SignupPage() {
                     <FormItem>
                       <FormLabel>Last Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Doe" {...field} />
+                        <Input placeholder="Doe" className="h-11" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -109,7 +118,7 @@ export default function SignupPage() {
                     <FormControl>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="name@example.com" className="pl-10" {...field} />
+                        <Input placeholder="name@example.com" className="pl-10 h-11" {...field} />
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -128,7 +137,7 @@ export default function SignupPage() {
                         <Input
                           type={showPassword ? 'text' : 'password'}
                           placeholder="••••••••"
-                          className="pl-10"
+                          className="pl-10 h-11"
                           {...field}
                         />
                         <button

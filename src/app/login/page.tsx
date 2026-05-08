@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -41,7 +42,7 @@ export default function LoginPage() {
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({ title: 'Welcome back!', description: 'Logged in successfully.' });
-      router.push('/');
+      router.push('/dashboard');
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -58,7 +59,7 @@ export default function LoginPage() {
     try {
       await signInWithPopup(auth, provider);
       toast({ title: 'Welcome!', description: 'Logged in with Google.' });
-      router.push('/');
+      router.push('/dashboard');
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -73,7 +74,7 @@ export default function LoginPage() {
     try {
       await signInAnonymously(auth);
       toast({ title: 'Welcome Guest!', description: 'You are now logged in as a guest.' });
-      router.push('/');
+      router.push('/dashboard');
     } catch (error: any) {
       toast({
         variant: 'destructive',
@@ -104,7 +105,7 @@ export default function LoginPage() {
                     <FormControl>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="name@example.com" className="pl-10" {...field} />
+                        <Input placeholder="name@example.com" className="pl-10 h-11" {...field} />
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -123,7 +124,7 @@ export default function LoginPage() {
                         <Input
                           type={showPassword ? 'text' : 'password'}
                           placeholder="••••••••"
-                          className="pl-10"
+                          className="pl-10 h-11"
                           {...field}
                         />
                         <button
