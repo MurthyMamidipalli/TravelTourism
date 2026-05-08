@@ -37,13 +37,13 @@ export default function LoginPage() {
   });
 
   const getFriendlyErrorMessage = (error: any) => {
+    console.error('Auth Error:', error.code, error.message);
     switch (error.code) {
       case 'auth/operation-not-allowed':
-        return 'This sign-in method is not enabled in your Firebase Console.';
       case 'auth/configuration-not-found':
-        return 'Firebase configuration mismatch. Please check your API keys and project settings.';
+        return 'This sign-in method (Email or Guest) is not enabled in your Firebase Console. Go to Authentication > Sign-in method to enable it.';
       case 'auth/invalid-api-key':
-        return 'The API key provided is invalid. Please update src/firebase/config.ts.';
+        return 'The API key provided is invalid. Please check your configuration in src/firebase/config.ts.';
       case 'auth/user-not-found':
       case 'auth/wrong-password':
       case 'auth/invalid-credential':

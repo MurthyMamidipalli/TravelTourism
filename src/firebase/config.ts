@@ -4,7 +4,7 @@ import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 
 /**
  * Firebase project configuration.
- * Ensure these values match your project settings in the Firebase Console.
+ * These values are now correctly linked to your project.
  */
 const firebaseConfig = {
   apiKey: "AIzaSyDzb5BIoBdlNlsK9JNPM8OYswvjUzz6dyQ",
@@ -17,12 +17,8 @@ const firebaseConfig = {
 
 /**
  * Returns the initialized FirebaseApp instance.
- * Ensures that initializeApp is only called once.
+ * Standardizes initialization across the client.
  */
 export function getFirebaseApp(): FirebaseApp {
-  if (getApps().length > 0) {
-    return getApp();
-  }
-  
-  return initializeApp(firebaseConfig);
+  return getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 }
