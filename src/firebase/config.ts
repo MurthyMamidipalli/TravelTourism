@@ -3,13 +3,17 @@
 
 import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
 
+/**
+ * IMPORTANT: Replace the placeholder values below with your actual Firebase project configuration.
+ * You can find this in your Firebase Console: Project Settings > General > Your apps > Web apps.
+ */
 const firebaseConfig = {
-  apiKey: "AIzaSy...", // Placeholder, will be populated by Firebase Studio
-  authDomain: "your-app.firebaseapp.com",
-  projectId: "your-app",
-  storageBucket: "your-app.appspot.com",
-  messagingSenderId: "123456789",
-  appId: "1:123456789:web:abcdef"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "your-project-id.firebaseapp.com",
+  projectId: "your-project-id",
+  storageBucket: "your-project-id.firebasestorage.app",
+  messagingSenderId: "your-sender-id",
+  appId: "your-app-id"
 };
 
 export function getFirebaseApp(): FirebaseApp {

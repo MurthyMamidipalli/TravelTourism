@@ -45,7 +45,6 @@ export default function SignupPage() {
     try {
       const { user } = await createUserWithEmailAndPassword(auth, values.email, values.password);
       
-      // Update the user's profile with their full name
       await updateProfile(user, {
         displayName: `${values.firstName} ${values.lastName}`,
       });
@@ -55,13 +54,20 @@ export default function SignupPage() {
         description: `Welcome to Voyage Compass, ${values.firstName}!` 
       });
       
-      // Force a hard refresh or small delay to ensure auth state syncs
       router.push('/dashboard');
     } catch (error: any) {
+      console.error(error);
+      let message = "Could not create account.";
+      if (error.code === 'auth/api-key-not-valid') {
+        message = "Firebase API key is invalid. Please check src/firebase/config.ts.";
+      } else if (error.message) {
+        message = error.message;
+      }
+      
       toast({
         variant: 'destructive',
         title: 'Signup Failed',
-        description: error.message || 'Could not create account.',
+        description: message,
       });
     } finally {
       setIsLoading(false);
