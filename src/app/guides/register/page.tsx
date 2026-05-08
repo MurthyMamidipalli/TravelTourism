@@ -8,15 +8,17 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Users, ShieldCheck, MapPin, Globe } from 'lucide-react';
+import { Users, ShieldCheck, MapPin, Globe, CreditCard, Fingerprint } from 'lucide-react';
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: 'Full name must be at least 2 characters.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   location: z.string().min(3, { message: 'Please specify your operational city/region.' }),
   languages: z.string().min(2, { message: 'Specify at least one language.' }),
+  aadharNumber: z.string().regex(/^\d{12}$/, { message: 'Aadhar number must be exactly 12 digits.' }),
+  panNumber: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, { message: 'Invalid PAN card format (e.g., ABCDE1234F).' }),
   bio: z.string().min(50, { message: 'Bio should be at least 50 characters to attract tourists.' }),
 });
 
@@ -29,6 +31,8 @@ export default function GuideRegistrationPage() {
       email: '',
       location: '',
       languages: '',
+      aadharNumber: '',
+      panNumber: '',
       bio: '',
     },
   });
@@ -37,7 +41,7 @@ export default function GuideRegistrationPage() {
     console.log(values);
     toast({
       title: "Registration Submitted!",
-      description: "Our team will review your application and get back to you within 48 hours.",
+      description: "Our verification team will review your ID documents and get back to you within 48 hours.",
     });
     form.reset();
   }
@@ -54,8 +58,8 @@ export default function GuideRegistrationPage() {
             <div className="flex gap-4">
               <ShieldCheck className="w-10 h-10 text-accent flex-shrink-0" />
               <div>
-                <p className="font-bold">Trust & Safety</p>
-                <p className="text-sm text-white/70">Verified profile badge and secure booking system.</p>
+                <p className="font-bold">Mandatory Verification</p>
+                <p className="text-sm text-white/70">Aadhar and PAN card verification is mandatory for tourist safety.</p>
               </div>
             </div>
             <div className="flex gap-4">
@@ -78,7 +82,7 @@ export default function GuideRegistrationPage() {
         <Card className="md:col-span-3 border-none shadow-xl rounded-3xl overflow-hidden bg-white">
           <CardHeader className="bg-secondary/20 border-b p-8">
             <CardTitle className="font-headline text-2xl">Create Your Guide Profile</CardTitle>
-            <CardDescription>Enter your professional details to register as a local guide.</CardDescription>
+            <CardDescription>Enter your professional details and identity information to register.</CardDescription>
           </CardHeader>
           <CardContent className="p-8">
             <Form {...form}>
@@ -111,6 +115,48 @@ export default function GuideRegistrationPage() {
                     )}
                   />
                 </div>
+
+                <div className="bg-secondary/10 p-4 rounded-2xl space-y-4 border border-secondary">
+                  <p className="text-sm font-bold flex items-center gap-2 text-primary">
+                    <ShieldCheck className="w-4 h-4" /> Identity Verification (Mandatory)
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <FormField
+                      control={form.control}
+                      name="aadharNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-1">
+                             Aadhar Number
+                          </FormLabel>
+                          <FormControl>
+                            <Input placeholder="12-digit number" {...field} className="bg-white" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="panNumber"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel className="flex items-center gap-1">
+                             PAN Card Number
+                          </FormLabel>
+                          <FormControl>
+                            <Input placeholder="ABCDE1234F" {...field} className="bg-white uppercase" />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </div>
+                  <FormDescription className="text-xs">
+                    Your identity documents are handled securely and used only for background verification.
+                  </FormDescription>
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                   <FormField
                     control={form.control}
@@ -119,7 +165,7 @@ export default function GuideRegistrationPage() {
                       <FormItem>
                         <FormLabel>Operational Location</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. Amalapuram, Andhra Pradesh" {...field} className="bg-background" />
+                          <Input placeholder="e.g. Amalapuram, AP" {...field} className="bg-background" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -132,13 +178,14 @@ export default function GuideRegistrationPage() {
                       <FormItem>
                         <FormLabel>Languages Spoken</FormLabel>
                         <FormControl>
-                          <Input placeholder="e.g. English, Telugu, Hindi" {...field} className="bg-background" />
+                          <Input placeholder="e.g. English, Telugu" {...field} className="bg-background" />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
+                
                 <FormField
                   control={form.control}
                   name="bio"
@@ -157,7 +204,7 @@ export default function GuideRegistrationPage() {
                   )}
                 />
                 <Button type="submit" className="w-full h-12 text-lg bg-accent text-white hover:bg-accent/90 rounded-xl">
-                  Submit Registration
+                  Verify & Register
                 </Button>
               </form>
             </Form>
