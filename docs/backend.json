@@ -70,7 +70,7 @@
         "aadharNumber": { "type": "string" },
         "panNumber": { "type": "string" },
         "bio": { "type": "string" },
-        "experience": { "type": "string", "description": "Places the guide has explored or shown to tourists." },
+        "experience": { "type": "string", "description": "A list of places explored or shown to tourists, including how many times (e.g., Tirumala - 10 times)." },
         "imageUrl": { "type": "string" },
         "specialty": { "type": "string" },
         "rating": { "type": "number" },

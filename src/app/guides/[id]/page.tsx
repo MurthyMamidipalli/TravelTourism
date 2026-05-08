@@ -25,6 +25,11 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
 
   const { data: guide, loading } = useDoc(guideRef);
 
+  const experienceList = useMemo(() => {
+    if (!guide?.experience) return [];
+    return guide.experience.split(/[\n,]+/).map((item: string) => item.trim()).filter(Boolean);
+  }, [guide?.experience]);
+
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
@@ -240,9 +245,19 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
 
             <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-6">
               <h3 className="font-headline font-semibold mb-4 flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-accent" /> Places Explored & Shown
+                <Briefcase className="w-5 h-5 text-accent" /> Places Explored & Guided
               </h3>
-              <p className="text-muted-foreground leading-relaxed">{guide.experience || 'Experience details not shared.'}</p>
+              {experienceList.length > 0 ? (
+                <div className="flex flex-wrap gap-2">
+                  {experienceList.map((exp: string, idx: number) => (
+                    <Badge key={idx} variant="outline" className="py-2 px-3 border-accent/30 bg-accent/5 text-sm font-medium">
+                      {exp}
+                    </Badge>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-muted-foreground leading-relaxed italic">Experience details not shared.</p>
+              )}
             </Card>
           </div>
         </div>
