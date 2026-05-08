@@ -7,6 +7,7 @@ export default function Footer() {
   const [year, setYear] = useState<number | null>(null);
 
   useEffect(() => {
+    // Only set on client to prevent hydration mismatch
     setYear(new Date().getFullYear());
   }, []);
 

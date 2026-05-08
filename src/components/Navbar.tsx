@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -30,9 +31,9 @@ export default function Navbar() {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     
-    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setIsDark(true);
-    }
+    // Theme preference check - only on client
+    const isDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    setIsDark(isDarkMode);
 
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
@@ -83,14 +84,20 @@ export default function Navbar() {
               </Link>
             ))}
             <div className="h-6 w-px bg-border mx-2" />
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsDark(!isDark)}
-              className="rounded-full"
-            >
-              {!mounted ? null : isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </Button>
+            
+            {/* Conditional render of theme toggle to prevent hydration mismatch */}
+            <div className="w-10 h-10 flex items-center justify-center">
+              {mounted && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setIsDark(!isDark)}
+                  className="rounded-full"
+                >
+                  {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </Button>
+              )}
+            </div>
 
             {user ? (
               <DropdownMenu>
