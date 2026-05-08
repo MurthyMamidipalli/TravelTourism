@@ -13,7 +13,8 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, LogIn, Mail, Lock, UserRound } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Mail, Lock, UserRound, AlertCircle } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),
@@ -27,6 +28,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGuestLoading, setIsGuestLoading] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -37,17 +39,20 @@ export default function LoginPage() {
   });
 
   const getFriendlyErrorMessage = (error: any) => {
-    console.error('Auth Error:', error.code, error.message);
+    console.error('Auth Error Details:', error.code, error.message);
     switch (error.code) {
       case 'auth/operation-not-allowed':
+        return 'The sign-in method you tried is not enabled in your Firebase Console. Go to Authentication > Sign-in method and enable it.';
       case 'auth/configuration-not-found':
-        return 'This sign-in method (Email or Guest) is not enabled in your Firebase Console. Go to Authentication > Sign-in method to enable it.';
+        return 'Firebase Authentication is not fully set up. Ensure you have enabled the providers in the Console.';
       case 'auth/invalid-api-key':
-        return 'The API key provided is invalid. Please check your configuration in src/firebase/config.ts.';
+        return 'The API key in src/firebase/config.ts is invalid. Please double-check it in Project Settings.';
       case 'auth/user-not-found':
       case 'auth/wrong-password':
       case 'auth/invalid-credential':
         return 'Invalid email or password.';
+      case 'auth/network-request-failed':
+        return 'Network error. Please check your internet connection.';
       default:
         return error.message || 'An unexpected error occurred.';
     }
@@ -55,15 +60,18 @@ export default function LoginPage() {
 
   async function onSubmit(values: z.infer<typeof loginSchema>) {
     setIsLoading(true);
+    setAuthError(null);
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({ title: 'Welcome back!', description: 'Logged in successfully.' });
       router.push('/dashboard');
     } catch (error: any) {
+      const message = getFriendlyErrorMessage(error);
+      setAuthError(message);
       toast({
         variant: 'destructive',
         title: 'Login Failed',
-        description: getFriendlyErrorMessage(error),
+        description: message,
       });
     } finally {
       setIsLoading(false);
@@ -72,30 +80,36 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     const provider = new GoogleAuthProvider();
+    setAuthError(null);
     try {
       await signInWithPopup(auth, provider);
       toast({ title: 'Welcome!', description: 'Logged in with Google.' });
       router.push('/dashboard');
     } catch (error: any) {
+      const message = getFriendlyErrorMessage(error);
+      setAuthError(message);
       toast({
         variant: 'destructive',
         title: 'Google Login Failed',
-        description: getFriendlyErrorMessage(error),
+        description: message,
       });
     }
   };
 
   const handleGuestLogin = async () => {
     setIsGuestLoading(true);
+    setAuthError(null);
     try {
       await signInAnonymously(auth);
       toast({ title: 'Welcome Guest!', description: 'You are now logged in as a guest.' });
       router.push('/dashboard');
     } catch (error: any) {
+      const message = getFriendlyErrorMessage(error);
+      setAuthError(message);
       toast({
         variant: 'destructive',
         title: 'Guest Login Failed',
-        description: getFriendlyErrorMessage(error),
+        description: message,
       });
     } finally {
       setIsGuestLoading(false);
@@ -109,7 +123,17 @@ export default function LoginPage() {
           <CardTitle className="text-3xl font-bold tracking-tight text-zinc-900 dark:text-white">Welcome Back</CardTitle>
           <CardDescription>Enter your credentials to access your account</CardDescription>
         </CardHeader>
-        <CardContent className="p-8 pt-10">
+        <CardContent className="p-8 pt-10 space-y-6">
+          {authError && (
+            <Alert variant="destructive" className="rounded-2xl bg-destructive/5">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Configuration Issue</AlertTitle>
+              <AlertDescription className="text-xs">
+                {authError}
+              </AlertDescription>
+            </Alert>
+          )}
+
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
               <FormField

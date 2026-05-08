@@ -4,7 +4,7 @@ import { initializeApp, getApps, getApp, type FirebaseApp } from 'firebase/app';
 
 /**
  * Firebase project configuration.
- * These values are now correctly linked to your project.
+ * Ensure these values exactly match your Firebase Console Project Settings.
  */
 const firebaseConfig = {
   apiKey: "AIzaSyDzb5BIoBdlNlsK9JNPM8OYswvjUzz6dyQ",
