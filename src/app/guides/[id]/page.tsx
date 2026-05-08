@@ -240,7 +240,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
 
             <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-6">
               <h3 className="font-headline font-semibold mb-4 flex items-center gap-2">
-                <Briefcase className="w-5 h-5 text-accent" /> Guiding Experience
+                <Briefcase className="w-5 h-5 text-accent" /> Places Explored & Shown
               </h3>
               <p className="text-muted-foreground leading-relaxed">{guide.experience || 'Experience details not shared.'}</p>
             </Card>

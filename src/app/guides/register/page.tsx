@@ -30,7 +30,7 @@ const formSchema = z.object({
   aadharNumber: z.string().regex(/^\d{12}$/, { message: 'Aadhar number must be exactly 12 digits.' }),
   panNumber: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, { message: 'Invalid PAN card format (e.g., ABCDE1234F).' }),
   bio: z.string().min(50, { message: 'Bio should be at least 50 characters to attract tourists.' }),
-  experience: z.string().min(20, { message: 'Please provide at least 20 characters about your experience.' }),
+  experience: z.string().min(20, { message: 'Please describe the places you have explored or shown to tourists.' }),
   aadharFile: z.any().optional(),
   panFile: z.any().optional(),
 });
@@ -357,16 +357,16 @@ export default function GuideRegistrationPage() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="flex items-center gap-2">
-                        <Briefcase className="w-4 h-4" /> Past Guiding Experiences
+                        <Briefcase className="w-4 h-4" /> Places Explored or Shown to Tourists
                       </FormLabel>
                       <FormControl>
                         <Textarea 
-                          placeholder="List your previous tours, years of experience, or notable clients." 
+                          placeholder="List the specific tourist spots, cities, or landmarks you have experience with." 
                           className="min-h-[100px]"
                           {...field} 
                         />
                       </FormControl>
-                      <FormDescription>Help tourists understand your background and expertise.</FormDescription>
+                      <FormDescription>What places have you explored or shown to tourists?</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
