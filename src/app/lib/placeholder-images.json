@@ -1,4 +1,3 @@
-
 {
   "placeholderImages": [
     {
@@ -24,6 +23,30 @@
       "description": "Tropical beach in Bali",
       "imageUrl": "https://picsum.photos/seed/bali/1200/800",
       "imageHint": "Bali beach sunset"
+    },
+    {
+      "id": "london",
+      "description": "Big Ben in London",
+      "imageUrl": "https://picsum.photos/seed/london/1200/800",
+      "imageHint": "London Big Ben"
+    },
+    {
+      "id": "santorini",
+      "description": "Sunsets in Santorini",
+      "imageUrl": "https://picsum.photos/seed/santorini/1200/800",
+      "imageHint": "Santorini sunset"
+    },
+    {
+      "id": "machu",
+      "description": "Machu Picchu citadel",
+      "imageUrl": "https://picsum.photos/seed/machu/1200/800",
+      "imageHint": "Machu Picchu"
+    },
+    {
+      "id": "dubai",
+      "description": "Burj Khalifa Dubai",
+      "imageUrl": "https://picsum.photos/seed/dubai/1200/800",
+      "imageHint": "Dubai skyline"
     },
     {
       "id": "guide-1",

@@ -1,4 +1,3 @@
-
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,6 +10,10 @@ const destinations = [
   { id: 'amalapuram', name: 'Konaseema Backwaters', city: 'Amalapuram', country: 'India', type: 'Nature', img: 'https://picsum.photos/seed/amalapuram/600/400' },
   { id: 'rome', name: 'The Colosseum', city: 'Rome', country: 'Italy', type: 'History', img: 'https://picsum.photos/seed/rome/600/400' },
   { id: 'bali', name: 'Uluwatu Temple', city: 'Bali', country: 'Indonesia', type: 'Spiritual', img: 'https://picsum.photos/seed/bali/600/400' },
+  { id: 'london', name: 'Big Ben', city: 'London', country: 'UK', type: 'History', img: 'https://picsum.photos/seed/london/600/400' },
+  { id: 'santorini', name: 'Oia Cliffs', city: 'Santorini', country: 'Greece', type: 'Views', img: 'https://picsum.photos/seed/santorini/600/400' },
+  { id: 'machu-picchu', name: 'Incan Citadel', city: 'Machu Picchu', country: 'Peru', type: 'Archaeology', img: 'https://picsum.photos/seed/machu/600/400' },
+  { id: 'dubai', name: 'Burj Khalifa', city: 'Dubai', country: 'UAE', type: 'Modern', img: 'https://picsum.photos/seed/dubai/600/400' },
 ];
 
 export default function LocationsPage() {

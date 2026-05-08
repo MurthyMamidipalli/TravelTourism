@@ -16,6 +16,13 @@ const allDestinations = [
   { id: 'new-york', name: 'New York', country: 'USA', description: 'The Big Apple, a melting pot of culture and ambition.', img: 'https://picsum.photos/seed/ny/600/400' },
   { id: 'sydney', name: 'Sydney', country: 'Australia', description: 'Harbor city famous for the Opera House and golden beaches.', img: 'https://picsum.photos/seed/sydney/600/400' },
   { id: 'cairo', name: 'Cairo', country: 'Egypt', description: 'Guardian of the Pyramids and the timeless Nile River.', img: 'https://picsum.photos/seed/cairo/600/400' },
+  { id: 'london', name: 'London', country: 'UK', description: 'Historical capital with iconic landmarks and royal heritage.', img: 'https://picsum.photos/seed/london/600/400' },
+  { id: 'santorini', name: 'Santorini', country: 'Greece', description: 'Stunning volcanic island known for white-washed buildings and sunsets.', img: 'https://picsum.photos/seed/santorini/600/400' },
+  { id: 'kyoto', name: 'Kyoto', country: 'Japan', description: 'Cultural heart of Japan with thousands of temples and zen gardens.', img: 'https://picsum.photos/seed/kyoto/600/400' },
+  { id: 'rio', name: 'Rio de Janeiro', country: 'Brazil', description: 'Vibrant city famous for Carnival, beaches, and Christ the Redeemer.', img: 'https://picsum.photos/seed/rio/600/400' },
+  { id: 'dubai', name: 'Dubai', country: 'UAE', description: 'Luxury hub with ultramodern architecture and desert adventures.', img: 'https://picsum.photos/seed/dubai/600/400' },
+  { id: 'machu-picchu', name: 'Machu Picchu', country: 'Peru', description: 'Ancient Incan citadel high in the Andes Mountains.', img: 'https://picsum.photos/seed/machu/600/400' },
+  { id: 'cape-town', name: 'Cape Town', country: 'South Africa', description: 'Spectacular coastal city at the foot of Table Mountain.', img: 'https://picsum.photos/seed/capetown/600/400' },
 ];
 
 export default function DestinationsPage() {

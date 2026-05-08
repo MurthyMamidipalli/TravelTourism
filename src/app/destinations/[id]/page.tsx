@@ -1,4 +1,3 @@
-
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -31,6 +30,38 @@ const mockDestinations = {
     img: 'https://picsum.photos/seed/amalapuram/1200/600',
     tags: ['Nature', 'Backwaters', 'Greenery'],
     stats: { visitors: '1M+', rank: 'Coastal Gem' }
+  },
+  'london': {
+    name: 'London',
+    country: 'UK',
+    description: 'London, the capital of England and the United Kingdom, is a 21st-century city with history stretching back to Roman times. At its center stand the imposing Houses of Parliament, the iconic Big Ben clock tower and Westminster Abbey.',
+    img: 'https://picsum.photos/seed/london/1200/600',
+    tags: ['History', 'Royal', 'Diversity'],
+    stats: { visitors: '20M+', rank: '#3 World Wide' }
+  },
+  'santorini': {
+    name: 'Santorini',
+    country: 'Greece',
+    description: 'Santorini is one of the Cyclades islands in the Aegean Sea. It was devastated by a volcanic eruption in the 16th century BC, forever shaping its rugged landscape. The whitewashed, cubiform houses of its 2 principal towns, Fira and Oia, cling to cliffs above an underwater caldera.',
+    img: 'https://picsum.photos/seed/santorini/1200/600',
+    tags: ['Views', 'Luxury', 'Romance'],
+    stats: { visitors: '2M+', rank: '#1 Greek Island' }
+  },
+  'machu-picchu': {
+    name: 'Machu Picchu',
+    country: 'Peru',
+    description: 'Machu Picchu is an Incan citadel set high in the Andes Mountains in Peru, above the Urubamba River valley. Built in the 15th century and later abandoned, it’s renowned for its sophisticated dry-stone walls that fuse huge blocks without the use of mortar.',
+    img: 'https://picsum.photos/seed/machu/1200/600',
+    tags: ['Ancient', 'Adventure', 'Mountains'],
+    stats: { visitors: '1.5M+', rank: 'Wonder of World' }
+  },
+  'dubai': {
+    name: 'Dubai',
+    country: 'UAE',
+    description: 'Dubai is a city and emirate in the United Arab Emirates luxury shopping, ultramodern architecture and a lively nightlife scene. Burj Khalifa, an 830m-tall tower, dominates the skyscraper-filled skyline.',
+    img: 'https://picsum.photos/seed/dubai/1200/600',
+    tags: ['Modern', 'Luxury', 'Desert'],
+    stats: { visitors: '16M+', rank: '#4 World Wide' }
   }
 };
 
@@ -41,7 +72,6 @@ export default async function DestinationDetailPage({ params }: { params: { id: 
 
   return (
     <div className="flex flex-col">
-      {/* Hero Header */}
       <div className="relative h-[60vh] overflow-hidden">
         <Image src={dest.img} alt={dest.name} fill className="object-cover" priority />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-black/20" />
@@ -62,7 +92,6 @@ export default async function DestinationDetailPage({ params }: { params: { id: 
 
       <div className="container mx-auto px-4 py-12 -mt-20 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          {/* Main Info */}
           <div className="lg:col-span-2 space-y-8">
             <Card className="border-none shadow-lg p-8 bg-white rounded-3xl">
               <div className="flex items-center gap-2 text-primary font-semibold mb-4">
@@ -104,7 +133,6 @@ export default async function DestinationDetailPage({ params }: { params: { id: 
             </div>
           </div>
 
-          {/* Sidebar: Guides Suggestion */}
           <div className="space-y-6">
             <Card className="border-none shadow-xl bg-primary text-white p-8 rounded-3xl sticky top-24">
               <h3 className="font-headline text-2xl font-bold mb-4">Local Guides in {dest.name}</h3>
