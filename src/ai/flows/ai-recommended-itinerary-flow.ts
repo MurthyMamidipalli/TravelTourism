@@ -19,7 +19,7 @@ const AIRecommendedItineraryInputSchema = z.object({
     .string()
     .optional()
     .describe(
-      'Optional preferences for the itinerary, such as interests, pace, or duration. Examples: 'family-friendly activities', 'adventure and nature', 'relaxed pace for 3 days'.'
+      "Optional preferences for the itinerary, such as interests, pace, or duration. Examples: 'family-friendly activities', 'adventure and nature', 'relaxed pace for 3 days'."
     ),
 });
 export type AIRecommendedItineraryInput = z.infer<typeof AIRecommendedItineraryInputSchema>;
