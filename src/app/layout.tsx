@@ -3,6 +3,7 @@ import type {Metadata} from 'next';
 import './globals.css';
 import Navbar from '@/components/Navbar';
 import { Toaster } from '@/components/ui/toaster';
+import Footer from '@/components/Footer';
 
 export const metadata: Metadata = {
   title: 'Voyage Compass - Global Tourism & Local Guides',
@@ -26,11 +27,7 @@ export default function RootLayout({
         <main className="flex-grow">
           {children}
         </main>
-        <footer className="border-t py-8 mt-12 bg-white/50 backdrop-blur-sm">
-          <div className="container mx-auto px-4 text-center text-muted-foreground text-sm">
-            <p>&copy; {new Date().getFullYear()} Voyage Compass. All rights reserved.</p>
-          </div>
-        </footer>
+        <Footer />
         <Toaster />
       </body>
     </html>
