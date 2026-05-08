@@ -1,13 +1,25 @@
-
 'use client';
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Compass, Globe, Search, Menu, X, Sun, Moon } from 'lucide-react';
+import { Compass, Globe, Search, Menu, X, Sun, Moon, LogOut, User as UserIcon } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useUser, useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 export default function Navbar() {
+  const { user } = useUser();
+  const auth = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [isDark, setIsDark] = useState(false);
@@ -18,7 +30,6 @@ export default function Navbar() {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener('scroll', handleScroll);
     
-    // Check system preference
     if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
       setIsDark(true);
     }
@@ -35,6 +46,10 @@ export default function Navbar() {
       }
     }
   }, [isDark, mounted]);
+
+  const handleSignOut = () => {
+    signOut(auth);
+  };
 
   const navItems = [
     { name: 'Home', href: '/', icon: Compass },
@@ -56,7 +71,7 @@ export default function Navbar() {
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-6">
             {navItems.map((item) => (
               <Link
                 key={item.name}
@@ -76,9 +91,54 @@ export default function Navbar() {
             >
               {!mounted ? null : isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </Button>
-            <Button className="rounded-full px-6 bg-primary hover:bg-primary/90">
-              Get Started
-            </Button>
+
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+                    <Avatar className="h-10 w-10 border-2 border-primary/20">
+                      <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
+                      <AvatarFallback className="bg-primary/10 text-primary font-bold">
+                        {(user.displayName || 'U').charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{user.displayName}</p>
+                      <p className="text-xs leading-none text-muted-foreground">{user.email}</p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/guides/register" className="cursor-pointer">
+                      <UserIcon className="mr-2 h-4 w-4" />
+                      <span>Become a Guide</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut} className="text-destructive focus:text-destructive cursor-pointer">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Log out</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <div className="flex items-center gap-3">
+                <Link href="/login">
+                  <Button variant="ghost" className="rounded-full px-6 font-semibold">
+                    Sign In
+                  </Button>
+                </Link>
+                <Link href="/signup">
+                  <Button className="rounded-full px-6 bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20">
+                    Get Started
+                  </Button>
+                </Link>
+              </div>
+            )}
           </div>
 
           {/* Mobile Toggle */}
@@ -108,7 +168,32 @@ export default function Navbar() {
                 {item.name}
               </Link>
             ))}
-            <Button className="w-full rounded-2xl h-14 text-lg">Join Voyage Compass</Button>
+            {user ? (
+              <div className="pt-4 border-t space-y-2">
+                <div className="flex items-center gap-3 p-3">
+                  <Avatar className="h-10 w-10">
+                    <AvatarImage src={user.photoURL || ''} />
+                    <AvatarFallback>{(user.displayName || 'U').charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div className="flex flex-col">
+                    <span className="font-bold">{user.displayName}</span>
+                    <span className="text-xs text-muted-foreground">{user.email}</span>
+                  </div>
+                </div>
+                <Button variant="outline" className="w-full rounded-2xl h-12 text-destructive" onClick={handleSignOut}>
+                  Log Out
+                </Button>
+              </div>
+            ) : (
+              <div className="pt-4 border-t flex flex-col gap-3">
+                <Link href="/login" onClick={() => setIsOpen(false)}>
+                  <Button variant="outline" className="w-full rounded-2xl h-14 text-lg">Sign In</Button>
+                </Link>
+                <Link href="/signup" onClick={() => setIsOpen(false)}>
+                  <Button className="w-full rounded-2xl h-14 text-lg">Join Voyage Compass</Button>
+                </Link>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
