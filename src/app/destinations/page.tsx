@@ -1,12 +1,14 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Search, MapPin, Calendar } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const allDestinations = [
   { id: 'tirumala-temple', name: 'Tirumala Temple', district: 'Tirupati', itinerary: '2 Days', category: 'Pilgrimage' },
@@ -46,21 +48,24 @@ const allDestinations = [
 export default function DestinationsPage() {
   const [searchTerm, setSearchTerm] = useState('');
 
-  const filteredDestinations = allDestinations.filter((dest) =>
-    dest.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    dest.district.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredDestinations = useMemo(() => {
+    const lower = searchTerm.toLowerCase();
+    return allDestinations.filter((dest) =>
+      dest.name.toLowerCase().includes(lower) ||
+      dest.district.toLowerCase().includes(lower)
+    );
+  }, [searchTerm]);
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-8">
       <div className="text-center space-y-4 max-w-2xl mx-auto">
         <h1 className="font-headline text-4xl font-bold text-primary">Discover Andhra Pradesh</h1>
-        <p className="text-muted-foreground">32 Breathtaking tourist destinations across the heart of South India.</p>
+        <p className="text-muted-foreground">32 Breathtaking wonders of the heart of South India.</p>
         <div className="relative mt-6">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
           <Input 
-            placeholder="Search for a place or district..." 
-            className="pl-10 h-12 bg-white dark:bg-zinc-900 rounded-full shadow-sm"
+            placeholder="Search place or district..." 
+            className="pl-11 h-12 bg-white dark:bg-zinc-900 rounded-full shadow-sm"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -68,37 +73,49 @@ export default function DestinationsPage() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-        {filteredDestinations.map((dest) => (
-          <Link key={dest.id} href={`/destinations/${dest.id}`}>
-            <Card className="h-full group hover:shadow-md transition-shadow border-none overflow-hidden bg-white dark:bg-zinc-900">
-              <div className="relative h-48">
-                <Image
-                  src={`https://picsum.photos/seed/${dest.id}/600/400`}
-                  alt={dest.name}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div className="absolute top-2 right-2">
-                  <Badge variant="secondary" className="bg-white/90 text-primary font-bold">{dest.category}</Badge>
-                </div>
-              </div>
-              <CardContent className="p-5">
-                <div className="flex items-center gap-1 text-accent font-semibold text-xs uppercase tracking-wider mb-1">
-                  <MapPin className="w-3 h-3" /> {dest.district}
-                </div>
-                <h3 className="font-headline text-xl font-bold mb-2">{dest.name}</h3>
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                  <Calendar className="w-4 h-4" /> Suggested: {dest.itinerary}
-                </div>
-              </CardContent>
-            </Card>
-          </Link>
-        ))}
+        <AnimatePresence mode="popLayout">
+          {filteredDestinations.map((dest, idx) => (
+            <motion.div
+              key={dest.id}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <Link href={`/destinations/${dest.id}`}>
+                <Card className="h-full group hover:shadow-md transition-shadow border-none overflow-hidden bg-white dark:bg-zinc-900">
+                  <div className="relative h-48 bg-secondary">
+                    <Image
+                      src={`https://picsum.photos/seed/${dest.id}/600/400`}
+                      alt={dest.name}
+                      fill
+                      priority={idx < 4}
+                      className="object-cover group-hover:scale-105 transition-transform duration-500"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+                    />
+                    <div className="absolute top-2 right-2">
+                      <Badge variant="secondary" className="bg-white/90 text-primary font-bold shadow-sm">{dest.category}</Badge>
+                    </div>
+                  </div>
+                  <CardContent className="p-5">
+                    <div className="flex items-center gap-1 text-accent font-semibold text-[10px] uppercase tracking-wider mb-1">
+                      <MapPin className="w-3 h-3" /> {dest.district}
+                    </div>
+                    <h3 className="font-headline text-lg font-bold mb-2 line-clamp-1">{dest.name}</h3>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <Calendar className="w-3 h-3" /> {dest.itinerary}
+                    </div>
+                  </CardContent>
+                </Card>
+              </Link>
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </div>
 
       {filteredDestinations.length === 0 && (
-        <div className="text-center py-20">
-          <p className="text-muted-foreground text-lg">No destinations found matching &quot;{searchTerm}&quot;</p>
+        <div className="text-center py-20 bg-secondary/10 rounded-3xl">
+          <p className="text-muted-foreground">No matches found.</p>
         </div>
       )}
     </div>

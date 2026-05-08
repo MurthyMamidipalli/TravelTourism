@@ -18,7 +18,7 @@ import { useFirestore, useUser } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: 'Full name is required.' }),
@@ -41,7 +41,6 @@ export default function GuideRegistrationPage() {
   const { user } = useUser();
   const [submitting, setSubmitting] = useState(false);
 
-  // OTP Verification States
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isAadharVerified, setIsAadharVerified] = useState(false);
@@ -69,54 +68,36 @@ export default function GuideRegistrationPage() {
 
   async function handleSendOtp() {
     if (aadharNumber.length !== 12) {
-      toast({
-        title: "Invalid Aadhar",
-        description: "Please enter a valid 12-digit Aadhar number first.",
-        variant: "destructive"
-      });
+      toast({ title: "Invalid Aadhar", description: "Enter 12 digits first.", variant: "destructive" });
       return;
     }
-    
     setIsSendingOtp(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 500));
     setIsSendingOtp(false);
     setIsOtpSent(true);
-    toast({
-      title: "OTP Sent",
-      description: "A 6-digit code has been sent to your Aadhar-linked mobile.",
-    });
+    toast({ title: "OTP Sent", description: "Code sent to linked mobile." });
   }
 
   async function handleVerifyOtp() {
     if (otpValue.length !== 6) return;
-    
     setIsVerifyingOtp(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 400));
     setIsVerifyingOtp(false);
-    
     if (otpValue === '123456') {
       setIsAadharVerified(true);
-      toast({
-        title: "Identity Verified",
-        description: "Your Aadhar has been authenticated successfully.",
-      });
+      toast({ title: "Verified", description: "Identity authenticated." });
     } else {
-      toast({
-        title: "Error",
-        description: "Invalid OTP. Use 123456 for testing.",
-        variant: "destructive"
-      });
+      toast({ title: "Error", description: "Invalid OTP (Test: 123456).", variant: "destructive" });
     }
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!user) {
-      toast({ title: "Sign-in Required", description: "Please log in to register.", variant: "destructive" });
+      toast({ title: "Sign-in Required", description: "Please log in.", variant: "destructive" });
       return;
     }
-
     if (!isAadharVerified) {
-      toast({ title: "Verification Required", description: "Please verify your Aadhar via OTP.", variant: "destructive" });
+      toast({ title: "Verification Required", description: "Complete Aadhar verification.", variant: "destructive" });
       return;
     }
 
@@ -132,315 +113,159 @@ export default function GuideRegistrationPage() {
       imageUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/400/400`,
     };
 
-    addDoc(guidesRef, guideData)
-      .catch(async (error) => {
-        const permissionError = new FirestorePermissionError({
-          path: guidesRef.path,
-          operation: 'create',
-          requestResourceData: guideData,
-        });
-        errorEmitter.emit('permission-error', permissionError);
-      });
-
-    toast({
-      title: "Registration Success!",
-      description: "You are now listed as a local expert.",
+    addDoc(guidesRef, guideData).catch(async () => {
+      errorEmitter.emit('permission-error', new FirestorePermissionError({ path: guidesRef.path, operation: 'create', requestResourceData: guideData }));
     });
-    
+
+    toast({ title: "Registration Success!", description: "You are now a local expert." });
     router.push('/guides');
   }
 
   return (
     <div className="container mx-auto px-4 py-12">
       <div className="max-w-4xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 items-start">
-        <div className="md:col-span-2 space-y-8 bg-primary rounded-3xl p-8 text-white">
-          <h1 className="font-headline text-3xl font-bold text-white">Local Ambassador Registration</h1>
-          <p className="text-white/80 leading-relaxed">
-            All fields are mandatory. Aadhar OTP verification is required to build trust in our Sunrise State community.
-          </p>
-          <div className="space-y-6">
-            <div className="flex gap-4">
-              <ShieldCheck className="w-10 h-10 text-accent flex-shrink-0" />
+        <div className="md:col-span-2 space-y-6 bg-primary rounded-3xl p-8 text-white">
+          <h1 className="font-headline text-3xl font-bold">Guide Registration</h1>
+          <p className="text-white/80 text-sm">All fields are mandatory. Aadhar OTP verification ensures safety in our community.</p>
+          <div className="space-y-4">
+            <div className="flex gap-3">
+              <ShieldCheck className="w-8 h-8 text-accent flex-shrink-0" />
               <div>
-                <p className="font-bold text-lg">OTP Authentication</p>
-                <p className="text-sm text-white/70">Securely verify your identity via UIDAI-linked mobile number.</p>
+                <p className="font-bold">Identity Verification</p>
+                <p className="text-xs text-white/70">Real-time OTP authentication via UIDAI.</p>
               </div>
             </div>
-            <div className="flex gap-4">
-              <Globe className="w-10 h-10 text-accent flex-shrink-0" />
+            <div className="flex gap-3">
+              <Globe className="w-8 h-8 text-accent flex-shrink-0" />
               <div>
-                <p className="font-bold text-lg">Detailed Experience</p>
-                <p className="text-sm text-white/70">List your explored places to showcase your expertise.</p>
+                <p className="font-bold">Expert Profile</p>
+                <p className="text-xs text-white/70">Showcase your experience in the Sunrise State.</p>
               </div>
             </div>
-          </div>
-          
-          <div className="bg-white/10 p-6 rounded-2xl mt-8">
-            <h4 className="font-bold flex items-center gap-2 mb-2 text-accent">
-              <Info className="w-4 h-4" /> Why OTP?
-            </h4>
-            <p className="text-xs text-white/70 leading-relaxed">
-              Real-time Aadhar verification ensures that every guide on Voyage Compass is a legitimate and trusted individual.
-            </p>
           </div>
         </div>
 
         <Card className="md:col-span-3 border-none shadow-xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-900">
-          <CardHeader className="bg-secondary/20 border-b p-8">
-            <CardTitle className="font-headline text-2xl text-primary">Complete Your Profile</CardTitle>
-            <CardDescription>All fields are required for your profile to be active.</CardDescription>
+          <CardHeader className="bg-secondary/20 border-b p-6">
+            <CardTitle className="font-headline text-xl text-primary">Complete Your Profile</CardTitle>
           </CardHeader>
-          <CardContent className="p-8">
+          <CardContent className="p-6">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="fullName"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Full Name <span className="text-destructive">*</span></FormLabel>
-                        <FormControl>
-                          <Input placeholder="Enter your full name" className="rounded-xl h-11" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email Address <span className="text-destructive">*</span></FormLabel>
-                        <FormControl>
-                          <Input placeholder="your.email@example.com" className="rounded-xl h-11" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField control={form.control} name="fullName" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Full Name</FormLabel>
+                      <FormControl><Input placeholder="Name" className="rounded-xl" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="email" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Email</FormLabel>
+                      <FormControl><Input placeholder="Email" className="rounded-xl" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="mobileNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <Phone className="w-4 h-4" /> Mobile <span className="text-destructive">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input placeholder="10-digit mobile" maxLength={10} className="rounded-xl h-11" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="age"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Age <span className="text-destructive">*</span></FormLabel>
-                        <FormControl>
-                          <Input type="number" className="rounded-xl h-11" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="gender"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Gender <span className="text-destructive">*</span></FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
-                          <FormControl>
-                            <SelectTrigger className="rounded-xl h-11">
-                              <SelectValue placeholder="Select" />
-                            </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                            <SelectItem value="Male">Male</SelectItem>
-                            <SelectItem value="Female">Female</SelectItem>
-                            <SelectItem value="Other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  <FormField control={form.control} name="mobileNumber" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Mobile</FormLabel>
+                      <FormControl><Input placeholder="10 digits" maxLength={10} className="rounded-xl" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="age" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Age</FormLabel>
+                      <FormControl><Input type="number" className="rounded-xl" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                  <FormField control={form.control} name="gender" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Gender</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl><SelectTrigger className="rounded-xl"><SelectValue placeholder="Select" /></SelectTrigger></FormControl>
+                        <SelectContent><SelectItem value="Male">Male</SelectItem><SelectItem value="Female">Female</SelectItem><SelectItem value="Other">Other</SelectItem></SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
                 </div>
 
-                <div className="bg-secondary/10 p-6 rounded-2xl space-y-6 border border-secondary shadow-inner">
-                  <p className="text-sm font-bold flex items-center gap-2 text-primary">
-                    <ShieldCheck className="w-4 h-4" /> Aadhar OTP Verification
-                  </p>
-                  
-                  <div className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="aadharNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="flex gap-2">
-                            <FormControl>
-                              <div className="relative flex-grow">
-                                <Input 
-                                  placeholder="12-digit Aadhar Number" 
-                                  maxLength={12} 
-                                  disabled={isAadharVerified}
-                                  className="h-11 rounded-xl pr-10"
-                                  {...field} 
-                                />
-                                {isAadharVerified && (
-                                  <ShieldCheck className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 text-accent" />
-                                )}
-                              </div>
-                            </FormControl>
-                            {!isAadharVerified && (
-                              <Button 
-                                type="button" 
-                                variant="outline" 
-                                onClick={handleSendOtp}
-                                disabled={isSendingOtp || aadharNumber.length !== 12 || isOtpSent}
-                                className="rounded-xl h-11"
-                              >
-                                {isSendingOtp ? <Loader2 className="h-4 w-4 animate-spin" /> : (isOtpSent ? 'Sent' : 'Get OTP')}
-                              </Button>
-                            )}
+                <div className="bg-secondary/10 p-5 rounded-2xl space-y-4 border border-secondary shadow-inner">
+                  <p className="text-xs font-bold text-primary flex items-center gap-2"><Fingerprint className="w-4 h-4" /> Aadhar Verification</p>
+                  <FormField control={form.control} name="aadharNumber" render={({ field }) => (
+                    <FormItem>
+                      <div className="flex gap-2">
+                        <FormControl>
+                          <div className="relative flex-grow">
+                            <Input placeholder="12-digit Aadhar" maxLength={12} disabled={isAadharVerified} className="rounded-xl" {...field} />
+                            {isAadharVerified && <ShieldCheck className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-accent" />}
                           </div>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    {isOtpSent && !isAadharVerified && (
-                      <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
-                        <FormLabel className="text-xs">Enter 6-digit OTP (Test: 123456)</FormLabel>
-                        <div className="flex gap-2">
-                          <Input 
-                            placeholder="XXXXXX" 
-                            maxLength={6} 
-                            className="h-11 rounded-xl text-center font-black tracking-widest"
-                            value={otpValue}
-                            onChange={(e) => setOtpValue(e.target.value)}
-                          />
-                          <Button 
-                            type="button" 
-                            onClick={handleVerifyOtp} 
-                            disabled={isVerifyingOtp || otpValue.length !== 6}
-                            className="rounded-xl h-11 bg-accent text-white"
-                          >
-                            {isVerifyingOtp ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Verify'}
+                        </FormControl>
+                        {!isAadharVerified && (
+                          <Button type="button" variant="outline" size="sm" onClick={handleSendOtp} disabled={isSendingOtp || aadharNumber.length !== 12 || isOtpSent} className="rounded-xl">
+                            {isSendingOtp ? <Loader2 className="h-3 w-3 animate-spin" /> : 'Get OTP'}
                           </Button>
-                        </div>
-                      </motion.div>
-                    )}
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="panNumber"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                           <CreditCard className="w-4 h-4" /> PAN Card Number <span className="text-destructive">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input placeholder="ABCDE1234F" {...field} className="uppercase h-11 rounded-xl" maxLength={10} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                  <FormField
-                    control={form.control}
-                    name="location"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="flex items-center gap-2">
-                          <MapPin className="w-4 h-4" /> Operational City <span className="text-destructive">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <Input placeholder="e.g. Tirupati" className="rounded-xl h-11" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="languages"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Languages <span className="text-destructive">*</span></FormLabel>
-                        <FormControl>
-                          <Input placeholder="Telugu, English, etc." className="rounded-xl h-11" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  control={form.control}
-                  name="experience"
-                  render={({ field }) => (
+                        )}
+                      </div>
+                    </FormItem>
+                  )} />
+                  {isOtpSent && !isAadharVerified && (
+                    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex gap-2">
+                      <Input placeholder="XXXXXX" maxLength={6} className="rounded-xl text-center tracking-widest font-bold" value={otpValue} onChange={(e) => setOtpValue(e.target.value)} />
+                      <Button type="button" size="sm" onClick={handleVerifyOtp} disabled={isVerifyingOtp || otpValue.length !== 6} className="rounded-xl bg-accent text-white">Verify</Button>
+                    </motion.div>
+                  )}
+                  <FormField control={form.control} name="panNumber" render={({ field }) => (
                     <FormItem>
-                      <FormLabel className="flex items-center gap-2">
-                        <Briefcase className="w-4 h-4" /> Guiding Experience (Column Format) <span className="text-destructive">*</span>
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Tirumala Temple - 20 times&#10;Araku Valley - 5 times" 
-                          className="min-h-[120px] rounded-xl"
-                          {...field} 
-                        />
-                      </FormControl>
-                      <FormDescription className="text-[10px]">Enter 'Place Name - Frequency' on each new line.</FormDescription>
+                      <FormLabel>PAN Card</FormLabel>
+                      <FormControl><Input placeholder="ABCDE1234F" {...field} className="uppercase rounded-xl" maxLength={10} /></FormControl>
                       <FormMessage />
                     </FormItem>
-                  )}
-                />
+                  )} />
+                </div>
 
-                <FormField
-                  control={form.control}
-                  name="bio"
-                  render={({ field }) => (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField control={form.control} name="location" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Professional Bio <span className="text-destructive">*</span></FormLabel>
-                      <FormControl>
-                        <Textarea 
-                          placeholder="Introduce yourself and your expertise to travelers." 
-                          className="min-h-[120px] rounded-xl"
-                          {...field} 
-                        />
-                      </FormControl>
+                      <FormLabel>City</FormLabel>
+                      <FormControl><Input placeholder="e.g. Tirupati" className="rounded-xl" {...field} /></FormControl>
                       <FormMessage />
                     </FormItem>
-                  )}
-                />
+                  )} />
+                  <FormField control={form.control} name="languages" render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Languages</FormLabel>
+                      <FormControl><Input placeholder="Telugu, English" className="rounded-xl" {...field} /></FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )} />
+                </div>
+
+                <FormField control={form.control} name="experience" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Experience (Place - Count)</FormLabel>
+                    <FormControl><Textarea placeholder="Tirumala Temple - 20 times" className="rounded-xl min-h-[100px]" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
+
+                <FormField control={form.control} name="bio" render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Professional Bio</FormLabel>
+                    <FormControl><Textarea placeholder="About you..." className="rounded-xl min-h-[100px]" {...field} /></FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )} />
                 
-                <Button 
-                  type="submit" 
-                  disabled={submitting || !isAadharVerified}
-                  className="w-full h-14 text-lg bg-accent text-white hover:bg-accent/90 rounded-2xl shadow-xl shadow-accent/20"
-                >
-                  {submitting ? <><Loader2 className="w-5 h-5 mr-2 animate-spin" /> Finalizing Profile...</> : 'Complete Registration'}
+                <Button type="submit" disabled={submitting || !isAadharVerified} className="w-full h-12 text-lg bg-accent text-white rounded-2xl shadow-lg">
+                  {submitting ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Complete Registration'}
                 </Button>
-                {!isAadharVerified && (
-                  <p className="text-xs text-center text-muted-foreground italic">
-                    Aadhar OTP verification is required to enable registration.
-                  </p>
-                )}
               </form>
             </Form>
           </CardContent>

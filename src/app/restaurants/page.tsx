@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -53,43 +54,38 @@ export default function RestaurantsPage() {
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
       <div className="flex flex-col items-center text-center space-y-6 max-w-3xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4 }}
-        >
-          <Badge className="bg-accent/10 text-accent border-none mb-4 px-4 py-1 flex items-center gap-1.5 mx-auto w-fit">
+        <div className="space-y-4">
+          <Badge className="bg-accent/10 text-accent border-none px-4 py-1 flex items-center gap-1.5 mx-auto w-fit">
             <Utensils className="w-3.5 h-3.5" /> Culinary Delights
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-black tracking-tight text-zinc-900 dark:text-white font-headline">AP Restaurants</h1>
+          <h1 className="text-4xl md:text-6xl font-black tracking-tight font-headline">AP Restaurants</h1>
           <p className="text-xl text-muted-foreground mt-4 leading-relaxed font-body">
-            Savor the authentic flavors of Andhra Pradesh. From spicy biryanis to traditional thalis.
+            Savor authentic flavors of Andhra Pradesh.
           </p>
-        </motion.div>
+        </div>
 
         <div className="relative w-full max-w-xl group">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-5 h-5 group-focus-within:text-primary transition-colors" />
           <Input 
-            placeholder="Search by name, city or cuisine..." 
-            className="pl-12 h-16 rounded-2xl bg-white dark:bg-zinc-900 shadow-2xl border-none text-lg focus-visible:ring-primary/20"
+            placeholder="Search name, city or cuisine..." 
+            className="pl-12 h-14 rounded-2xl bg-white dark:bg-zinc-900 shadow-xl border-none text-lg focus-visible:ring-primary/20"
             value={search}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <AnimatePresence mode="popLayout">
           {filtered.map((rest, idx) => {
             const imgData = PlaceHolderImages.find(img => img.id === rest.id) || PlaceHolderImages[0];
             return (
               <motion.div
                 key={rest.id}
-                layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.2, delay: Math.min(idx * 0.03, 0.3) }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
               >
                 <Card className="premium-card overflow-hidden h-full group flex flex-col">
                   <div className="relative h-56 bg-secondary">
@@ -97,32 +93,29 @@ export default function RestaurantsPage() {
                       src={imgData.imageUrl} 
                       alt={rest.name} 
                       fill 
-                      className="object-cover group-hover:scale-110 transition-transform duration-700" 
+                      priority={idx < 4}
+                      className="object-cover group-hover:scale-110 transition-transform duration-500" 
                       data-ai-hint={imgData.imageHint}
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
                     <div className="absolute bottom-4 left-4 text-white right-4">
-                      <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1">{rest.cuisine}</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest opacity-80 mb-1">{rest.cuisine}</p>
                       <h3 className="text-xl font-bold tracking-tight line-clamp-1">{rest.name}</h3>
                     </div>
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-lg flex items-center gap-1 shadow-sm">
-                      <Star className="w-3 h-3 fill-amber-500 text-amber-500" />
-                      <span className="text-[10px] font-black">4.5</span>
-                    </div>
                   </div>
-                  <CardContent className="p-5 space-y-4 flex flex-col flex-grow">
+                  <CardContent className="p-5 space-y-3 flex flex-col flex-grow">
                     <div className="space-y-2 flex-grow">
-                      <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
-                        <MapPin className="w-4 h-4 text-accent" />
+                      <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
+                        <MapPin className="w-3.5 h-3.5 text-accent" />
                         <span>{rest.city}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium">
-                        <Clock className="w-4 h-4 text-primary" />
-                        <span>Suggested: {rest.itinerary}</span>
+                      <div className="flex items-center gap-2 text-muted-foreground text-xs font-medium">
+                        <Clock className="w-3.5 h-3.5 text-primary" />
+                        <span>{rest.itinerary}</span>
                       </div>
                     </div>
-                    <div className="pt-4 border-t">
+                    <div className="pt-3 border-t">
                       <Badge variant="secondary" className="bg-secondary/50 text-primary border-none text-[10px] font-bold">
                         {rest.cuisine}
                       </Badge>
@@ -136,10 +129,9 @@ export default function RestaurantsPage() {
       </div>
 
       {filtered.length === 0 && (
-        <div className="text-center py-20 bg-secondary/10 rounded-3xl border border-dashed border-muted-foreground/30">
-          <Utensils className="w-16 h-16 text-muted-foreground/30 mx-auto mb-4" />
+        <div className="text-center py-24 bg-secondary/10 rounded-3xl border border-dashed">
+          <Utensils className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
           <h3 className="text-xl font-bold font-headline">No restaurants found</h3>
-          <p className="text-muted-foreground mt-2">Try searching with a different keyword.</p>
         </div>
       )}
     </div>

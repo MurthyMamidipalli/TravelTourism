@@ -1,3 +1,4 @@
+
 'use client';
 
 import { use, useState, useEffect, useMemo } from 'react';
@@ -17,18 +18,20 @@ export default function CityPage({ params }: { params: Promise<{ id: string }> }
   const cityName = useMemo(() => id.charAt(0).toUpperCase() + id.slice(1).replace('-', ' '), [id]);
 
   useEffect(() => {
+    let active = true;
     async function fetchData() {
       setLoading(true);
       try {
         const data = await getCityAttractions(cityName);
-        setAttractions(data);
+        if (active) setAttractions(data);
       } catch (error) {
         console.error('Failed to load attractions:', error);
       } finally {
-        setLoading(false);
+        if (active) setLoading(false);
       }
     }
     fetchData();
+    return () => { active = false; };
   }, [cityName]);
 
   const filtered = useMemo(() => {
@@ -54,7 +57,7 @@ export default function CityPage({ params }: { params: Promise<{ id: string }> }
             </div>
           </div>
           <p className="text-muted-foreground text-xl max-w-2xl flex items-center gap-2">
-            <MapPin className="w-5 h-5 text-accent" /> Discover real-time attractions powered by Google Places.
+            <MapPin className="w-5 h-5 text-accent" /> Discover local gems with Google Places.
           </p>
         </div>
 
@@ -63,7 +66,7 @@ export default function CityPage({ params }: { params: Promise<{ id: string }> }
             <Button
               key={cat}
               variant={filter === cat ? 'default' : 'outline'}
-              className="rounded-full px-6 transition-all"
+              className="rounded-full px-6 transition-all h-10"
               onClick={() => setFilter(cat)}
             >
               {cat}
@@ -79,32 +82,33 @@ export default function CityPage({ params }: { params: Promise<{ id: string }> }
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className="flex flex-col items-center justify-center py-32 space-y-4"
           >
             <Loader2 className="w-12 h-12 text-primary animate-spin" />
-            <p className="text-muted-foreground font-medium animate-pulse">Scanning Google Places for local gems...</p>
+            <p className="text-muted-foreground font-medium animate-pulse">Scanning for attractions...</p>
           </motion.div>
         ) : (
           <motion.div 
             key="content"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            transition={{ duration: 0.2 }}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
             {filtered.map((item, idx) => (
               <motion.div
                 key={item.id}
-                layout
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: Math.min(idx * 0.05, 0.4) }}
+                transition={{ duration: 0.2, delay: Math.min(idx * 0.03, 0.2) }}
               >
                 <TouristCard 
                   id={item.id}
                   name={item.displayName?.text || 'Local Attraction'}
                   image={`https://picsum.photos/seed/${item.id}/600/400`}
                   rating={item.rating || 4.5}
-                  description={item.editorialSummary?.text || 'Visit this incredible spot for a unique local experience.'}
+                  description={item.editorialSummary?.text || 'A unique local experience.'}
                   location={item.formattedAddress || cityName}
                   category={item.types?.[0]?.replace('_', ' ') || 'Point of Interest'}
                 />
@@ -115,9 +119,9 @@ export default function CityPage({ params }: { params: Promise<{ id: string }> }
       </AnimatePresence>
 
       {!loading && filtered.length === 0 && (
-        <div className="text-center py-32 bg-secondary/20 rounded-3xl border border-dashed border-muted-foreground/30">
-          <p className="text-muted-foreground text-lg">We couldn't find specific matches for "{filter}" right now.</p>
-          <Button variant="link" onClick={() => setFilter('All')} className="mt-2 text-primary">View all attractions</Button>
+        <div className="text-center py-24 bg-secondary/10 rounded-3xl border border-dashed">
+          <p className="text-muted-foreground">No matches for "{filter}" found.</p>
+          <Button variant="link" onClick={() => setFilter('All')} className="mt-2 text-primary">View all</Button>
         </div>
       )}
     </div>

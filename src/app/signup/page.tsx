@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff, UserPlus, Mail, Lock, User, Fingerprint, Phone, Calendar, ShieldCheck, Loader2 } from 'lucide-react';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { motion } from 'framer-motion';
 
 const signupSchema = z.object({
   firstName: z.string().min(2, { message: 'First name must be at least 2 characters.' }),
@@ -37,7 +38,6 @@ export default function SignupPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
-  // OTP Verification States
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [isOtpSent, setIsOtpSent] = useState(false);
   const [isAadharVerified, setIsAadharVerified] = useState(false);
@@ -70,13 +70,12 @@ export default function SignupPage() {
     }
     
     setIsSendingOtp(true);
-    // Simulate API call to UIDAI/OTP Service
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 500));
     setIsSendingOtp(false);
     setIsOtpSent(true);
     toast({
       title: "OTP Sent",
-      description: "A 6-digit verification code has been sent to your Aadhaar-linked mobile.",
+      description: "Verification code sent to your linked mobile.",
     });
   }
 
@@ -84,20 +83,19 @@ export default function SignupPage() {
     if (otpValue.length !== 6) return;
     
     setIsVerifyingOtp(true);
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 400));
     setIsVerifyingOtp(false);
     
-    // Simulate successful verification with code 123456
     if (otpValue === '123456') {
       setIsAadharVerified(true);
       toast({
         title: "Aadhar Verified",
-        description: "Your identity has been successfully authenticated.",
+        description: "Identity authenticated successfully.",
       });
     } else {
       toast({
         title: "Verification Failed",
-        description: "Invalid OTP. Please check and try again.",
+        description: "Invalid OTP (Test: 123456).",
         variant: "destructive"
       });
     }
@@ -107,7 +105,7 @@ export default function SignupPage() {
     if (!isAadharVerified) {
       toast({
         title: "Aadhar Not Verified",
-        description: "Please complete the Aadhar OTP verification first.",
+        description: "Please complete OTP verification.",
         variant: "destructive"
       });
       return;
@@ -145,7 +143,7 @@ export default function SignupPage() {
 
       toast({ 
         title: 'Account Created', 
-        description: `Welcome to Voyage Compass, ${values.firstName}!` 
+        description: `Welcome, ${values.firstName}!` 
       });
       
       router.push('/dashboard');
@@ -162,7 +160,7 @@ export default function SignupPage() {
 
   return (
     <div className="container mx-auto px-4 py-12 flex justify-center items-center min-h-[80vh]">
-      <Card className="w-full max-w-lg border-none shadow-2xl rounded-3xl overflow-hidden">
+      <Card className="w-full max-w-lg border-none shadow-2xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
         <CardHeader className="space-y-1 text-center bg-primary/5 py-8">
           <CardTitle className="text-3xl font-bold tracking-tight">Join Voyage Compass</CardTitle>
           <CardDescription>Start your journey across Andhra Pradesh today</CardDescription>
@@ -237,7 +235,7 @@ export default function SignupPage() {
                 />
               </div>
 
-              <div className="space-y-4 bg-secondary/20 p-6 rounded-2xl border border-secondary">
+              <div className="space-y-4 bg-secondary/20 p-6 rounded-2xl border border-secondary shadow-inner">
                 <FormField
                   control={form.control}
                   name="aadharNumber"
@@ -273,20 +271,19 @@ export default function SignupPage() {
                           </Button>
                         )}
                       </div>
-                      <FormDescription className="text-[10px]">Must be verified via Aadhaar OTP.</FormDescription>
+                      <FormDescription className="text-[10px]">Verify via Aadhaar OTP (Test: 123456).</FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
                 />
 
                 {isOtpSent && !isAadharVerified && (
-                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
-                    <FormLabel className="text-xs">Enter 6-digit OTP (Test: 123456)</FormLabel>
+                  <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="space-y-2">
                     <div className="flex gap-2">
                       <Input 
                         placeholder="XXXXXX" 
                         maxLength={6} 
-                        className="h-11 rounded-xl tracking-[0.5em] font-bold text-center"
+                        className="h-11 rounded-xl text-center font-bold tracking-widest"
                         value={otpValue}
                         onChange={(e) => setOtpValue(e.target.value)}
                       />
@@ -338,7 +335,7 @@ export default function SignupPage() {
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary"
                         >
                           {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
@@ -351,7 +348,7 @@ export default function SignupPage() {
 
               <Button 
                 type="submit" 
-                className="w-full h-12 text-lg rounded-xl mt-4 font-bold" 
+                className="w-full h-12 text-lg rounded-xl mt-4 font-bold shadow-xl shadow-primary/20" 
                 disabled={isLoading || !isAadharVerified}
               >
                 {isLoading ? 'Creating Account...' : 'Create Account'}
