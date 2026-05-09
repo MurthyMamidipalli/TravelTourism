@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, MapPin, Calendar, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const allDestinations = [
   { id: 'tirumala-temple', name: 'Tirumala Temple', districtId: 'tirupati', district: 'Tirupati', itinerary: '2 Days', category: 'Pilgrimage' },
@@ -43,19 +44,33 @@ export default function DistrictPage({ params }: { params: Promise<{ id: string 
     return id.charAt(0).toUpperCase() + id.slice(1).replace('-', ' ');
   }, [id]);
 
+  const getCategoryImage = (dest: any) => {
+    const found = PlaceHolderImages.find(img => img.id === dest.id);
+    if (found) return { url: found.imageUrl, hint: found.imageHint };
+    
+    // Category Fallbacks
+    switch(dest.category.toLowerCase()) {
+      case 'pilgrimage': return { url: 'https://picsum.photos/seed/temple/600/400', hint: 'Hindu Temple' };
+      case 'beach': return { url: 'https://picsum.photos/seed/beach/600/400', hint: 'Ocean Beach' };
+      case 'nature': return { url: 'https://picsum.photos/seed/nature/600/400', hint: 'Waterfall Forest' };
+      case 'city': return { url: 'https://picsum.photos/seed/city/600/400', hint: 'City Skyline' };
+      default: return { url: `https://picsum.photos/seed/${dest.id}/600/400`, hint: 'Tourist Spot' };
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
       <div className="space-y-4">
         <Link href="/locations/andhra-pradesh" className="text-muted-foreground hover:text-primary transition-colors flex items-center gap-1 text-sm font-medium">
           <ArrowLeft className="w-4 h-4" /> All Districts
         </Link>
-        <div className="flex items-center justify-between gap-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
             <h1 className="text-4xl md:text-6xl font-bold font-headline">Explore {districtName}</h1>
             <p className="text-muted-foreground text-xl">Top landmarks and curated destinations in this region.</p>
           </div>
           <Link href={`/guides?search=${id}`}>
-            <Button className="rounded-2xl h-12 px-6">Find Local Guides</Button>
+            <Button className="rounded-2xl h-12 px-6 shadow-lg shadow-primary/20">Find Local Guides</Button>
           </Link>
         </div>
       </div>
@@ -63,42 +78,46 @@ export default function DistrictPage({ params }: { params: Promise<{ id: string 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         <AnimatePresence mode="popLayout">
           {filteredDestinations.length > 0 ? (
-            filteredDestinations.map((dest, idx) => (
-              <motion.div
-                key={dest.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.15, delay: idx * 0.05 }}
-              >
-                <Link href={`/destinations/${dest.id}`}>
-                  <Card className="premium-card group h-full overflow-hidden flex flex-col">
-                    <div className="relative h-48">
-                      <Image 
-                        src={`https://picsum.photos/seed/${dest.id}/600/400`} 
-                        alt={dest.name} 
-                        fill 
-                        className="object-cover group-hover:scale-105 transition-transform duration-500" 
-                      />
-                      <div className="absolute top-2 right-2">
-                        <Badge className="bg-white/90 text-primary border-none font-bold">{dest.category}</Badge>
-                      </div>
-                    </div>
-                    <CardContent className="p-5 flex-grow flex flex-col justify-between">
-                      <div>
-                        <h3 className="font-headline text-lg font-bold mb-2 line-clamp-1">{dest.name}</h3>
-                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                          <Calendar className="w-3 h-3" /> {dest.itinerary}
+            filteredDestinations.map((dest, idx) => {
+              const imgData = getCategoryImage(dest);
+              return (
+                <motion.div
+                  key={dest.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.15, delay: idx * 0.05 }}
+                >
+                  <Link href={`/destinations/${dest.id}`}>
+                    <Card className="premium-card group h-full overflow-hidden flex flex-col">
+                      <div className="relative h-48 overflow-hidden bg-secondary">
+                        <Image 
+                          src={imgData.url} 
+                          alt={dest.name} 
+                          fill 
+                          className="object-cover group-hover:scale-105 transition-transform duration-500" 
+                          data-ai-hint={imgData.hint}
+                        />
+                        <div className="absolute top-2 right-2">
+                          <Badge className="bg-white/90 text-primary border-none font-bold shadow-sm">{dest.category}</Badge>
                         </div>
                       </div>
-                      <div className="pt-4 border-t mt-4 flex items-center justify-between text-primary font-bold">
-                        <span>View Details</span>
-                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              </motion.div>
-            ))
+                      <CardContent className="p-5 flex-grow flex flex-col justify-between">
+                        <div>
+                          <h3 className="font-headline text-lg font-bold mb-2 line-clamp-1">{dest.name}</h3>
+                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                            <Calendar className="w-3 h-3" /> {dest.itinerary}
+                          </div>
+                        </div>
+                        <div className="pt-4 border-t mt-4 flex items-center justify-between text-primary font-bold">
+                          <span>View Details</span>
+                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </Link>
+                </motion.div>
+              );
+            })
           ) : (
             <div className="col-span-full py-24 text-center bg-secondary/10 rounded-3xl border border-dashed">
               <p className="text-muted-foreground">No specific destinations listed for this district yet.</p>

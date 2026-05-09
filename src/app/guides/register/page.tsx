@@ -85,21 +85,23 @@ export default function GuideRegistrationPage() {
     }
     
     setIsSendingOtp(true);
+    // Simulation of SMS dispatch
     setTimeout(() => {
       setIsSendingOtp(false);
       setIsOtpSent(true);
       setResendTimer(60);
       toast({ 
         title: "OTP Dispatched", 
-        description: "A verification code has been sent to your registered mobile number.",
+        description: "A secure verification code has been sent to your registered mobile number.",
       });
-    }, 800);
+    }, 1500);
   }
 
   async function handleVerifyOtp() {
     if (otpValue.length !== 6) return;
     setIsVerifyingOtp(true);
     
+    // Internal simulation key is 123456
     setTimeout(() => {
       if (otpValue === '123456') {
         setIsVerifyingOtp(false);
@@ -116,7 +118,7 @@ export default function GuideRegistrationPage() {
           variant: "destructive" 
         });
       }
-    }, 500);
+    }, 800);
   }
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
@@ -250,7 +252,7 @@ export default function GuideRegistrationPage() {
                           <span>Enter the verification code sent to your mobile.</span>
                         </div>
                         <div className="flex gap-2">
-                          <Input placeholder="Enter OTP" maxLength={6} className="rounded-xl h-12 text-center font-bold text-lg tracking-[0.2em]" value={otpValue} onChange={(e) => setOtpValue(e.target.value)} suppressHydrationWarning />
+                          <Input placeholder="6-digit Code" maxLength={6} className="rounded-xl h-12 text-center font-bold text-lg tracking-[0.2em]" value={otpValue} onChange={(e) => setOtpValue(e.target.value)} suppressHydrationWarning />
                           <Button type="button" className="h-12 rounded-xl px-8 shadow-md" onClick={handleVerifyOtp} disabled={otpValue.length !== 6 || isVerifyingOtp}>
                             {isVerifyingOtp ? <Loader2 className="animate-spin" /> : 'Confirm'}
                           </Button>
@@ -261,7 +263,7 @@ export default function GuideRegistrationPage() {
 
                   {isAadharVerified && (
                     <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-accent/10 p-3 rounded-xl text-accent text-sm font-bold flex items-center justify-center gap-2 border border-accent/20">
-                      <CheckCircle2 className="w-5 h-5" /> Identity Verified
+                      <CheckCircle2 className="w-5 h-5" /> Identity Verified Securely
                     </motion.div>
                   )}
                 </div>
@@ -291,7 +293,7 @@ export default function GuideRegistrationPage() {
                   <FormItem>
                     <FormLabel>Guiding History & Expertise</FormLabel>
                     <FormControl>
-                      <Textarea className="rounded-xl min-h-[120px]" placeholder="Briefly describe your experience..." {...field} />
+                      <Textarea className="rounded-xl min-h-[120px]" placeholder="Briefly describe your experience and places you specialize in..." {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

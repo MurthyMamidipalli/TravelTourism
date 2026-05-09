@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -8,6 +9,7 @@ import { Search as SearchIcon, MapPin, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const allData = [
   { id: 'tirumala-temple', name: 'Tirumala Temple', district: 'Tirupati', type: 'Pilgrimage' },
@@ -42,6 +44,10 @@ const allData = [
   { id: 'nagarjuna-sagar', name: 'Nagarjuna Sagar', district: 'Palnadu', type: 'Dam' },
   { id: 'srisailam', name: 'Srisailam', district: 'Nandyal', type: 'Pilgrimage' },
   { id: 'srisailam-dam', name: 'Srisailam Dam', district: 'Nandyal', type: 'Dam' },
+  { id: 'charminar', name: 'Charminar', district: 'Hyderabad', type: 'Heritage' },
+  { id: 'golconda-fort', name: 'Golconda Fort', district: 'Hyderabad', type: 'Heritage' },
+  { id: 'kuntala-falls', name: 'Kuntala Falls', district: 'Adilabad', type: 'Nature' },
+  { id: 'ramappa-temple', name: 'Ramappa Temple', district: 'Warangal', type: 'Heritage' },
 ];
 
 export default function SearchPage() {
@@ -57,13 +63,26 @@ export default function SearchPage() {
     );
   }, [query]);
 
+  const getCategoryImage = (item: any) => {
+    const found = PlaceHolderImages.find(img => img.id === item.id);
+    if (found) return { url: found.imageUrl, hint: found.imageHint };
+    
+    switch(item.type.toLowerCase()) {
+      case 'pilgrimage': return { url: 'https://picsum.photos/seed/search-temple/200/200', hint: 'Hindu Temple' };
+      case 'beach': return { url: 'https://picsum.photos/seed/search-beach/200/200', hint: 'Ocean Beach' };
+      case 'nature': return { url: 'https://picsum.photos/seed/search-nature/200/200', hint: 'Waterfall Nature' };
+      case 'heritage': return { url: 'https://picsum.photos/seed/search-fort/200/200', hint: 'Historic Landmark' };
+      default: return { url: `https://picsum.photos/seed/${item.id}/200/200`, hint: 'Tourist Place' };
+    }
+  };
+
   return (
-    <div className="container mx-auto px-4 py-12 max-w-5xl">
+    <div className="container mx-auto px-4 py-12 max-w-5xl [scrollbar-gutter:stable]">
       <div className="space-y-8">
         <div className="text-center space-y-4">
-          <Badge className="bg-primary/10 text-primary border-none">Discover AP</Badge>
+          <Badge className="bg-primary/10 text-primary border-none">Global Discovery</Badge>
           <h1 className="text-4xl md:text-6xl font-bold">Search Local Places</h1>
-          <p className="text-muted-foreground text-lg">Find the best tourist spots in Andhra Pradesh from our list of 32 wonders.</p>
+          <p className="text-muted-foreground text-lg">Find the best tourist spots across the heart of India.</p>
         </div>
 
         <div className="relative group max-w-2xl mx-auto">
@@ -78,43 +97,47 @@ export default function SearchPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12">
           <AnimatePresence mode="popLayout">
-            {results.map((item, idx) => (
-              <motion.div
-                key={item.id}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.2, delay: Math.min(idx * 0.03, 0.3) }}
-              >
-                <Link href={`/destinations/${item.id}`}>
-                  <Card className="premium-card overflow-hidden group h-full">
-                    <div className="flex items-center gap-4 p-4">
-                      <div className="relative w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-secondary">
-                        <Image 
-                          src={`https://picsum.photos/seed/${item.id}/200/200`} 
-                          alt={item.name} 
-                          fill 
-                          className="object-cover"
-                          sizes="96px"
-                        />
-                      </div>
-                      <div className="flex-grow space-y-1">
-                        <div className="flex items-center justify-between">
-                          <Badge variant="outline" className="text-[10px] uppercase font-bold">
-                            {item.type}
-                          </Badge>
-                          <Sparkles className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+            {results.map((item, idx) => {
+              const imgData = getCategoryImage(item);
+              return (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.2, delay: Math.min(idx * 0.03, 0.3) }}
+                >
+                  <Link href={`/destinations/${item.id}`}>
+                    <Card className="premium-card overflow-hidden group h-full">
+                      <div className="flex items-center gap-4 p-4">
+                        <div className="relative w-24 h-24 rounded-2xl overflow-hidden flex-shrink-0 bg-secondary">
+                          <Image 
+                            src={imgData.url} 
+                            alt={item.name} 
+                            fill 
+                            className="object-cover"
+                            sizes="96px"
+                            data-ai-hint={imgData.hint}
+                          />
                         </div>
-                        <h3 className="text-xl font-bold">{item.name}</h3>
-                        <p className="text-sm text-muted-foreground flex items-center gap-1">
-                          <MapPin className="w-3 h-3 text-accent" /> {item.district}
-                        </p>
+                        <div className="flex-grow space-y-1">
+                          <div className="flex items-center justify-between">
+                            <Badge variant="outline" className="text-[10px] uppercase font-bold">
+                              {item.type}
+                            </Badge>
+                            <Sparkles className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                          </div>
+                          <h3 className="text-xl font-bold">{item.name}</h3>
+                          <p className="text-sm text-muted-foreground flex items-center gap-1">
+                            <MapPin className="w-3 h-3 text-accent" /> {item.district}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </Card>
-                </Link>
-              </motion.div>
-            ))}
+                    </Card>
+                  </Link>
+                </motion.div>
+              );
+            })}
           </AnimatePresence>
         </div>
 

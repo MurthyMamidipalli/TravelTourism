@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
@@ -66,7 +67,7 @@ export default function DashboardPage() {
   const isAnonymous = user?.isAnonymous;
 
   return (
-    <div className="container mx-auto px-4 py-12 space-y-12 min-h-screen">
+    <div className="container mx-auto px-4 py-12 space-y-12 min-h-screen [scrollbar-gutter:stable]">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-2">
           <motion.h1 
@@ -77,7 +78,7 @@ export default function DashboardPage() {
           >
             Welcome, {profile?.fullName?.split(' ')[0] || user?.displayName?.split(' ')[0] || 'Traveler'}!
           </motion.h1>
-          <p className="text-muted-foreground text-lg">Your personalized journey through Andhra Pradesh starts here.</p>
+          <p className="text-muted-foreground text-lg">Your personalized journey through the wonders of India starts here.</p>
         </div>
         <div className="flex gap-3">
           <Link href="/search">
@@ -191,9 +192,9 @@ export default function DashboardPage() {
             <CardTitle>Quick Links</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
-            <Link href="/locations/andhra-pradesh" className="text-sm font-bold text-primary hover:underline">Districts of AP</Link>
-            <Link href="/restaurants/andhra-pradesh" className="text-sm font-bold text-primary hover:underline">Culinary Delights</Link>
-            <Link href="/guides" className="text-sm font-bold text-primary hover:underline">Find Guides</Link>
+            <Link href="/locations/andhra-pradesh" className="text-sm font-bold text-primary hover:underline">Andhra Pradesh Districts</Link>
+            <Link href="/locations/telangana" className="text-sm font-bold text-primary hover:underline">Telangana Districts</Link>
+            <Link href="/guides" className="text-sm font-bold text-primary hover:underline">Find Verified Guides</Link>
           </CardContent>
         </Card>
       </div>
