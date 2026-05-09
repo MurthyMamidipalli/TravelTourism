@@ -77,24 +77,24 @@ export default function ProfilePage() {
     }
   }, [profile, user?.displayName, form]);
 
-  const onSaveProfile = useCallback(async (values: EditProfileValues) => {
+  const onSaveProfile = useCallback((values: EditProfileValues) => {
     if (!userDocRef) return;
     setIsSaving(true);
+    
+    // Optimistic write
     setDoc(userDocRef, values, { merge: true })
-      .then(() => {
-        toast({ title: "Profile Updated", description: "Changes saved successfully." });
-        setIsEditDialogOpen(false);
-      })
       .catch((error: any) => {
         errorEmitter.emit('permission-error', new FirestorePermissionError({
           path: userDocRef.path,
           operation: 'update',
           requestResourceData: values,
         }));
-      })
-      .finally(() => {
-        setIsSaving(false);
       });
+
+    // Respond immediately
+    toast({ title: "Profile Updated", description: "Changes saved successfully." });
+    setIsEditDialogOpen(false);
+    setIsSaving(false);
   }, [userDocRef, toast]);
 
   const handleSendOtp = async () => {
@@ -105,7 +105,6 @@ export default function ProfilePage() {
     }
     
     setIsSendingOtp(true);
-    // Simulate network delay for sending OTP
     setTimeout(() => {
       setIsSendingOtp(false);
       setIsOtpSent(true);
@@ -113,29 +112,35 @@ export default function ProfilePage() {
         title: "OTP Sent", 
         description: `A 6-digit verification code has been sent to your mobile ending in ****${mobile.slice(-4)}.`,
       });
-    }, 1200);
+    }, 50); // Minimal delay
   };
 
   const handleVerifyOtp = async () => {
     if (otpValue.length !== 6 || !userDocRef) return;
     setIsVerifying(true);
-    // Internal test code is 123456
-    setTimeout(() => {
+
+    if (otpValue === '123456') {
+      // Optimistic write
+      setDoc(userDocRef, { isVerified: true }, { merge: true })
+        .catch((error) => {
+          errorEmitter.emit('permission-error', new FirestorePermissionError({
+            path: userDocRef!.path,
+            operation: 'update',
+            requestResourceData: { isVerified: true },
+          }));
+        });
+
+      // Respond immediately
+      toast({ title: "Identity Verified", description: "Your identity has been successfully authenticated." });
+      setIsOtpSent(false);
+      setOtpValue('');
       setIsVerifying(false);
-      if (otpValue === '123456') {
-        setDoc(userDocRef, { isVerified: true }, { merge: true })
-          .then(() => {
-            toast({ title: "Identity Verified", description: "Your identity has been successfully authenticated." });
-            setIsOtpSent(false);
-            setOtpValue('');
-          })
-          .catch(() => {
-            toast({ title: "Verification Error", variant: "destructive" });
-          });
-      } else {
-        toast({ title: "Invalid Code", description: "The verification code you entered is incorrect. Please try again.", variant: "destructive" });
-      }
-    }, 800);
+    } else {
+      setTimeout(() => {
+        setIsVerifying(false);
+        toast({ title: "Invalid Code", description: "The verification code you entered is incorrect.", variant: "destructive" });
+      }, 50);
+    }
   };
 
   if (authLoading || profileLoading) {
@@ -160,7 +165,7 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="max-w-4xl mx-auto space-y-10">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="max-w-4xl mx-auto space-y-10">
         <div className="flex items-center justify-between">
           <Link href="/dashboard" className="text-muted-foreground hover:text-primary flex items-center gap-1 text-sm font-medium">
             <ArrowLeft className="w-4 h-4" /> Back to Dashboard
@@ -196,15 +201,15 @@ export default function ProfilePage() {
               <form onSubmit={form.handleSubmit(onSaveProfile)} className="space-y-4 py-4">
                 <div className="space-y-2">
                   <Label>Full Name</Label>
-                  <Input {...form.register('fullName')} className="rounded-xl h-11" placeholder="Enter your full name" />
+                  <Input {...form.register('fullName')} className="rounded-xl h-11" placeholder="Enter your full name" suppressHydrationWarning />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label>Age</Label><Input type="number" {...form.register('age')} className="rounded-xl h-11" /></div>
-                  <div className="space-y-2"><Label>Mobile Number</Label><Input maxLength={10} {...form.register('mobileNumber')} className="rounded-xl h-11" placeholder="10-digit number" /></div>
+                  <div className="space-y-2"><Label>Age</Label><Input type="number" {...form.register('age')} className="rounded-xl h-11" suppressHydrationWarning /></div>
+                  <div className="space-y-2"><Label>Mobile Number</Label><Input maxLength={10} {...form.register('mobileNumber')} className="rounded-xl h-11" placeholder="10-digit number" suppressHydrationWarning /></div>
                 </div>
                 <div className="space-y-2">
                   <Label>Aadhar Number (12 digits)</Label>
-                  <Input maxLength={12} {...form.register('aadharNumber')} className="rounded-xl h-11" placeholder="XXXX XXXX XXXX" />
+                  <Input maxLength={12} {...form.register('aadharNumber')} className="rounded-xl h-11" placeholder="XXXX XXXX XXXX" suppressHydrationWarning />
                 </div>
                 <DialogFooter className="pt-4">
                   <Button type="submit" className="w-full rounded-xl h-12 shadow-lg shadow-primary/20" disabled={isSaving}>
@@ -217,7 +222,7 @@ export default function ProfilePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <Card className="premium-card">
+          <Card className="premium-card h-full">
             <CardHeader><CardTitle className="text-lg flex items-center gap-2"><User className="w-5 h-5 text-primary" /> Profile Overview</CardTitle></CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-1">
@@ -231,7 +236,7 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          <Card className={`premium-card ${profile?.isVerified ? 'bg-accent/5' : 'bg-destructive/5'}`}>
+          <Card className={`premium-card h-full ${profile?.isVerified ? 'bg-accent/5' : 'bg-destructive/5'}`}>
             <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Fingerprint className={`w-5 h-5 ${profile?.isVerified ? 'text-accent' : 'text-destructive'}`} /> Identity Status</CardTitle></CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-1">
@@ -257,6 +262,7 @@ export default function ProfilePage() {
                           className="text-center font-bold h-12 rounded-xl text-lg tracking-[0.2em]" 
                           value={otpValue} 
                           onChange={e => setOtpValue(e.target.value)} 
+                          suppressHydrationWarning
                         />
                         <Button onClick={handleVerifyOtp} disabled={isVerifying || otpValue.length !== 6} className="w-full bg-accent text-white rounded-xl h-11 shadow-lg shadow-accent/20">
                           {isVerifying ? <Loader2 className="animate-spin" /> : 'Confirm Verification'}

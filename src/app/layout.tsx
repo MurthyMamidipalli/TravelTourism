@@ -25,11 +25,13 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased bg-background text-foreground min-h-screen flex flex-col [scrollbar-gutter:stable]" suppressHydrationWarning>
         <FirebaseClientProvider>
-          <Navbar />
-          <main className="flex-grow">
-            {children}
-          </main>
-          <Footer />
+          <div className="flex flex-col min-h-screen w-full overflow-x-hidden">
+            <Navbar />
+            <main className="flex-grow w-full max-w-[100vw]">
+              {children}
+            </main>
+            <Footer />
+          </div>
           <Toaster />
         </FirebaseClientProvider>
       </body>

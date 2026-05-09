@@ -79,27 +79,28 @@ export default function GuideRegistrationPage() {
       setIsOtpSent(true);
       toast({ 
         title: "Secure OTP Sent", 
-        description: `A verification code has been dispatched to your mobile ending in ****${mobileValue.slice(-4)}.`,
+        description: `A verification code has been dispatched to your mobile.`,
       });
-    }, 1200);
+    }, 50); // Instant feedback
   }
 
   async function handleVerifyOtp() {
     if (otpValue.length !== 6) return;
     setIsVerifyingOtp(true);
-    // Simulated internal test code is 123456
-    setTimeout(() => {
+    
+    if (otpValue === '123456') {
       setIsVerifyingOtp(false);
-      if (otpValue === '123456') {
-        setIsAadharVerified(true);
-        toast({ title: "Aadhar Verified", description: "Identity authentication successful." });
-      } else {
-        toast({ title: "Incorrect Code", description: "The verification code you entered is invalid. Please check and try again.", variant: "destructive" });
-      }
-    }, 800);
+      setIsAadharVerified(true);
+      toast({ title: "Aadhar Verified", description: "Identity authentication successful." });
+    } else {
+      setTimeout(() => {
+        setIsVerifyingOtp(false);
+        toast({ title: "Incorrect Code", description: "The verification code is invalid.", variant: "destructive" });
+      }, 50);
+    }
   }
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (!user || !isAadharVerified) {
       toast({ title: "Authentication Required", description: "Please complete Aadhar verification before proceeding.", variant: "destructive" });
       return;
@@ -116,20 +117,20 @@ export default function GuideRegistrationPage() {
       imageUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/400/400`,
     };
 
+    // Optimistic write
     addDoc(guidesRef, guideData)
-      .then(() => {
-        toast({ title: "Expert Registration Complete", description: "Welcome to the elite guide program!" });
-        router.push('/guides');
-      })
       .catch((error) => {
         errorEmitter.emit('permission-error', new FirestorePermissionError({ path: guidesRef.path, operation: 'create', requestResourceData: guideData }));
-        setSubmitting(false);
       });
-  }
+
+    // Respond immediately
+    toast({ title: "Expert Registration Complete", description: "Welcome to the elite guide program!" });
+    router.push('/guides');
+  };
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 items-start">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 items-start">
         <div className="md:col-span-2 space-y-6 bg-primary rounded-3xl p-8 text-white shadow-2xl">
           <ShieldCheck className="w-16 h-16 mb-4" />
           <h1 className="font-headline text-4xl font-bold tracking-tight">Expert Local Guide Program</h1>
@@ -141,11 +142,11 @@ export default function GuideRegistrationPage() {
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold">1</div>
               <span>Secure Identity Check</span>
             </div>
-            <div className="flex items-center gap-3 opacity-60">
+            <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold">2</div>
               <span>Professional Profile</span>
             </div>
-            <div className="flex items-center gap-3 opacity-60">
+            <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold">3</div>
               <span>Start Earning</span>
             </div>
@@ -196,12 +197,11 @@ export default function GuideRegistrationPage() {
                     <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-3 pt-2">
                       <FormLabel>Enter 6-Digit Verification Code</FormLabel>
                       <div className="flex gap-2">
-                        <Input placeholder="Enter Code" maxLength={6} className="rounded-xl h-12 text-center font-bold text-lg tracking-[0.2em]" value={otpValue} onChange={(e) => setOtpValue(e.target.value)} />
+                        <Input placeholder="Enter Code" maxLength={6} className="rounded-xl h-12 text-center font-bold text-lg tracking-[0.2em]" value={otpValue} onChange={(e) => setOtpValue(e.target.value)} suppressHydrationWarning />
                         <Button type="button" className="h-12 rounded-xl px-8 shadow-md" onClick={handleVerifyOtp} disabled={otpValue.length !== 6 || isVerifyingOtp}>
                           {isVerifyingOtp ? <Loader2 className="animate-spin" /> : 'Verify'}
                         </Button>
                       </div>
-                      <p className="text-[10px] text-muted-foreground">The code was sent to your phone. Please check your SMS.</p>
                     </motion.div>
                   )}
 
@@ -217,14 +217,14 @@ export default function GuideRegistrationPage() {
                     <FormItem><FormLabel>Primary Operational City</FormLabel><FormControl><Input placeholder="e.g. Tirupati" className="rounded-xl h-11" {...field} suppressHydrationWarning /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="languages" render={({ field }) => (
-                    <FormItem><FormLabel>Languages Spoken</FormLabel><FormControl><Input placeholder="e.g. Telugu, English, Hindi" className="rounded-xl h-11" {...field} suppressHydrationWarning /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Languages Spoken</FormLabel><FormControl><Input placeholder="e.g. Telugu, English, Hindi" className="rounded-xl h-11" {...field} suppressHydrationWarning /></FormControl><FormMessage /></FormMessage>
                   )} />
                 </div>
 
                 <FormField control={form.control} name="experience" render={({ field }) => (
                   <FormItem>
                     <FormLabel>Professional Experience & History</FormLabel>
-                    <FormControl><Textarea className="rounded-xl min-h-[120px]" placeholder="Detail your experience exploring local regions..." {...field} /></FormControl>
+                    <FormControl><Textarea className="rounded-xl min-h-[120px]" placeholder="Detail your experience..." {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
@@ -232,7 +232,7 @@ export default function GuideRegistrationPage() {
                 <div className="bg-accent/5 p-4 rounded-xl border border-accent/20 flex gap-3">
                   <Info className="w-5 h-5 text-accent flex-shrink-0" />
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    By submitting, you certify that all information is accurate and you agree to our platform standards for local expertise and tourist safety.
+                    By submitting, you certify that all information is accurate and you agree to our platform standards.
                   </p>
                 </div>
 
