@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -180,17 +179,14 @@ export default function GuideRegistrationPage() {
                       <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl hover:bg-primary/5 transition-colors cursor-pointer group">
                         <FileText className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-2" />
                         <span className="text-[10px] font-bold text-center">Upload Aadhar</span>
-                        <input type="file" className="hidden" />
                       </div>
                       <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl hover:bg-primary/5 transition-colors cursor-pointer group">
                         <FileText className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-2" />
                         <span className="text-[10px] font-bold text-center">Upload PAN</span>
-                        <input type="file" className="hidden" />
                       </div>
                       <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl hover:bg-primary/5 transition-colors cursor-pointer group">
                         <FileText className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-2" />
                         <span className="text-[10px] font-bold text-center">Upload Passport</span>
-                        <input type="file" className="hidden" />
                       </div>
                     </div>
                   </div>
