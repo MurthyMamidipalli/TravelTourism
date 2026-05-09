@@ -6,15 +6,23 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { signInWithEmailAndPassword, signInWithPopup, GoogleAuthProvider, signInAnonymously } from 'firebase/auth';
+import { 
+  signInWithEmailAndPassword, 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  signInAnonymously,
+  sendPasswordResetEmail 
+} from 'firebase/auth';
 import { useAuth } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, LogIn, Mail, Lock, UserRound, AlertCircle, Copy, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Mail, Lock, UserRound, AlertCircle, Copy, Loader2, KeyRound } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Valid email is required.' }),
@@ -28,6 +36,9 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
+  const [isResetLoading, setIsResetLoading] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [isResetDialogOpen, setIsResetDialogOpen] = useState(false);
   const [authError, setAuthError] = useState<{title: string, message: string, domain?: string} | null>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -46,7 +57,7 @@ export default function LoginPage() {
       case 'auth/unauthorized-domain':
         return { 
           title: 'Domain Not Authorized', 
-          message: `This domain is not authorized for Google Sign-In. Add the hostname below in your Firebase Console > Authentication > Settings > Authorized Domains.`, 
+          message: `Your Google Login popup is blank because this domain is not authorized in Firebase. Copy the hostname below and add it to "Authorized Domains" in your Firebase Console.`, 
           domain: hostname 
         };
       case 'auth/popup-blocked':
@@ -86,8 +97,39 @@ export default function LoginPage() {
       router.push('/dashboard');
     } catch (error: any) {
       setAuthError(getFriendlyErrorMessage(error));
+      // If it's a blank popup issue, usually it's domain authorization
+      if (!error.code) {
+        setAuthError({
+          title: 'Connection Issue',
+          message: 'If the popup appeared blank, please ensure this domain is added to your Firebase Authorized Domains list.',
+          domain: window.location.hostname
+        });
+      }
     } finally {
       setIsGoogleLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!resetEmail) return;
+    
+    setIsResetLoading(true);
+    try {
+      await sendPasswordResetEmail(auth, resetEmail);
+      toast({ 
+        title: 'Reset Link Sent', 
+        description: 'Check your email inbox for instructions to reset your password.' 
+      });
+      setIsResetDialogOpen(false);
+    } catch (error: any) {
+      toast({ 
+        variant: 'destructive',
+        title: 'Error', 
+        description: error.message || 'Could not send reset email.' 
+      });
+    } finally {
+      setIsResetLoading(false);
     }
   };
 
@@ -95,20 +137,28 @@ export default function LoginPage() {
     <div className="container mx-auto px-4 py-20 flex justify-center items-center min-h-[80vh]">
       <Card className="w-full max-w-md border-none shadow-2xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
         <CardHeader className="text-center bg-primary/5 py-10">
-          <CardTitle className="text-3xl font-black tracking-tight text-primary">TravelSphere</CardTitle>
-          <CardDescription>Explore the heart of India</CardDescription>
+          <CardTitle className="text-3xl font-black tracking-tight text-primary uppercase">TravelSphere</CardTitle>
+          <CardDescription className="text-base font-medium">Explore the wonders of India</CardDescription>
         </CardHeader>
         <CardContent className="p-8 pt-10 space-y-6">
           {authError && (
-            <Alert variant="destructive" className="rounded-2xl bg-destructive/5 border-destructive/20">
+            <Alert variant="destructive" className="rounded-2xl bg-destructive/5 border-destructive/20 animate-in fade-in slide-in-from-top-1">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle className="font-bold">{authError.title}</AlertTitle>
               <AlertDescription className="space-y-3">
-                <p className="text-xs">{authError.message}</p>
+                <p className="text-xs leading-relaxed">{authError.message}</p>
                 {authError.domain && (
-                  <div className="bg-white/50 dark:bg-black/50 p-2 rounded-lg border border-destructive/20 flex items-center justify-between gap-2">
+                  <div className="bg-white/50 dark:bg-black/50 p-2 rounded-lg border border-destructive/20 flex items-center justify-between gap-2 mt-2">
                     <code className="text-[10px] font-mono break-all">{authError.domain}</code>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => navigator.clipboard.writeText(authError.domain!)}>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 shrink-0" 
+                      onClick={() => {
+                        navigator.clipboard.writeText(authError.domain!);
+                        toast({ description: "Hostname copied to clipboard" });
+                      }}
+                    >
                       <Copy className="h-3 w-3" />
                     </Button>
                   </div>
@@ -121,7 +171,7 @@ export default function LoginPage() {
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField control={form.control} name="email" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Email ID</FormLabel>
                   <FormControl>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -133,7 +183,45 @@ export default function LoginPage() {
               )} />
               <FormField control={form.control} name="password" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Password</FormLabel>
+                  <div className="flex items-center justify-between">
+                    <FormLabel>Password</FormLabel>
+                    <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+                      <DialogTrigger asChild>
+                        <button type="button" className="text-xs font-bold text-primary hover:underline">
+                          Forgot Password?
+                        </button>
+                      </DialogTrigger>
+                      <DialogContent className="rounded-3xl sm:max-w-md">
+                        <DialogHeader>
+                          <DialogTitle className="flex items-center gap-2">
+                            <KeyRound className="w-5 h-5 text-primary" /> Reset Password
+                          </DialogTitle>
+                          <DialogDescription>
+                            Enter your email address and we&apos;ll send you a link to reset your password.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <form onSubmit={handleForgotPassword} className="space-y-4 py-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="reset-email">Email Address</Label>
+                            <Input 
+                              id="reset-email" 
+                              type="email" 
+                              placeholder="name@example.com"
+                              className="rounded-xl h-11"
+                              value={resetEmail}
+                              onChange={(e) => setResetEmail(e.target.value)}
+                              required
+                            />
+                          </div>
+                          <DialogFooter>
+                            <Button type="submit" className="w-full rounded-xl h-11 font-bold" disabled={isResetLoading}>
+                              {isResetLoading ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : 'Send Reset Link'}
+                            </Button>
+                          </DialogFooter>
+                        </form>
+                      </DialogContent>
+                    </Dialog>
+                  </div>
                   <FormControl>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -148,7 +236,7 @@ export default function LoginPage() {
                   <FormMessage />
                 </FormItem>
               )} />
-              <Button type="submit" className="w-full h-12 text-lg rounded-xl font-bold shadow-lg shadow-primary/20" disabled={isLoading || isGoogleLoading}>
+              <Button type="submit" className="w-full h-12 text-lg rounded-xl font-bold shadow-lg shadow-primary/20 mt-2" disabled={isLoading || isGoogleLoading}>
                 {isLoading ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : 'Sign In'}
                 {!isLoading && <LogIn className="ml-2 h-4 w-4" />}
               </Button>
@@ -163,20 +251,20 @@ export default function LoginPage() {
           <div className="grid grid-cols-2 gap-4">
             <Button 
               variant="outline" 
-              className="h-12 rounded-xl border-zinc-200 dark:border-zinc-800" 
+              className="h-12 rounded-xl border-zinc-200 dark:border-zinc-800 font-bold" 
               onClick={handleGoogleLogin}
               disabled={isLoading || isGoogleLoading}
             >
-              {isGoogleLoading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Google'}
+              {isGoogleLoading ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : 'Google'}
             </Button>
-            <Button variant="secondary" className="h-12 rounded-xl" onClick={() => signInAnonymously(auth).then(() => router.push('/dashboard'))}>
+            <Button variant="secondary" className="h-12 rounded-xl font-bold" onClick={() => signInAnonymously(auth).then(() => router.push('/dashboard'))}>
               <UserRound className="mr-2 h-4 w-4" /> Guest
             </Button>
           </div>
         </CardContent>
         <CardFooter className="flex justify-center p-8 bg-secondary/10 border-t">
           <p className="text-sm text-muted-foreground font-medium">
-            New here? <Link href="/signup" className="text-primary font-bold hover:underline">Create Account</Link>
+            New traveler? <Link href="/signup" className="text-primary font-bold hover:underline">Join Now</Link>
           </p>
         </CardFooter>
       </Card>
