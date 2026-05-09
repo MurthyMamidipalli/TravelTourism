@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -80,7 +79,7 @@ export default function LoginPage() {
     <div className="container mx-auto px-4 py-20 flex justify-center items-center min-h-[80vh]">
       <Card className="w-full max-w-md border-none shadow-2xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
         <CardHeader className="text-center bg-primary/5 py-10">
-          <CardTitle className="text-3xl font-black tracking-tight text-primary">Voyage Compass</CardTitle>
+          <CardTitle className="text-3xl font-black tracking-tight text-primary">TravelSphere</CardTitle>
           <CardDescription>Explore the heart of India</CardDescription>
         </CardHeader>
         <CardContent className="p-8 pt-10 space-y-6">

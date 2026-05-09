@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -106,7 +105,7 @@ export default function SignupPage() {
     <div className="container mx-auto px-4 py-12 flex justify-center items-center min-h-[80vh]">
       <Card className="w-full max-w-2xl border-none shadow-2xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
         <CardHeader className="space-y-1 text-center bg-primary/5 py-8">
-          <CardTitle className="text-3xl font-bold tracking-tight">Join Voyage Compass</CardTitle>
+          <CardTitle className="text-3xl font-bold tracking-tight">Join TravelSphere</CardTitle>
           <CardDescription>Verified identity protocol for all travelers</CardDescription>
         </CardHeader>
         <CardContent className="p-8 pt-10">

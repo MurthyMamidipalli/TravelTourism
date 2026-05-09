@@ -79,7 +79,7 @@ export default function Navbar() {
                 <Compass className="w-6 h-6" />
               </div>
               <span className="font-headline font-bold text-2xl tracking-tighter">
-                Voyage<span className="text-primary">Compass</span>
+                Travel<span className="text-primary">Sphere</span>
               </span>
             </div>
           </div>
@@ -99,7 +99,7 @@ export default function Navbar() {
               <Compass className="w-6 h-6" />
             </div>
             <span className="font-headline font-bold text-2xl tracking-tighter text-zinc-900 dark:text-white">
-              Voyage<span className="text-primary">Compass</span>
+              Travel<span className="text-primary">Sphere</span>
             </span>
           </Link>
 
@@ -244,7 +244,7 @@ export default function Navbar() {
                   <Button variant="outline" className="w-full rounded-2xl h-14 text-lg">Sign In</Button>
                 </Link>
                 <Link href="/signup" onClick={() => setIsOpen(false)}>
-                  <Button className="w-full rounded-2xl h-14 text-lg">Join Voyage Compass</Button>
+                  <Button className="w-full rounded-2xl h-14 text-lg">Join TravelSphere</Button>
                 </Link>
               </div>
             )}

@@ -6,7 +6,7 @@ import Footer from '@/components/Footer';
 import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
-  title: 'Voyage Compass - Andhra Pradesh Tourism',
+  title: 'TravelSphere - Andhra Pradesh Tourism',
   description: 'Explore breathtaking wonders of Andhra Pradesh and connect with verified local guides.',
 };
 

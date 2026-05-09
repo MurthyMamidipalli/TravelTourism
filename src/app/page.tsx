@@ -1,4 +1,3 @@
-
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Compass } from 'lucide-react';
@@ -11,7 +10,7 @@ export default function Home() {
           <Compass className="w-12 h-12 text-primary animate-pulse" />
         </div>
         <h1 className="font-headline text-5xl md:text-7xl font-black tracking-tighter">
-          Voyage <span className="text-primary">Compass</span>
+          Travel<span className="text-primary">Sphere</span>
         </h1>
         <p className="text-xl text-muted-foreground font-medium">
           Your portal to the wonders of the heart of India.
