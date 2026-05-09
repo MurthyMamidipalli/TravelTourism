@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, MapPin, Sparkles, Filter, X, Landmark, Waves, Shield, Building2, Trees, Mountain, History, ArrowRight, Lock, LogIn } from 'lucide-react';
+import { Search, MapPin, Sparkles, Filter, X, Landmark, Waves, Shield, Building2, Trees, Mountain, History, ArrowRight, Lock, LogIn, Cave as CaveIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import TouristCard from '@/components/TouristCard';
@@ -13,19 +13,39 @@ import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
 
 const allDestinations = [
-  // Andhra Pradesh
+  // Temples
   { id: 'tirumala-temple', name: 'Tirumala Temple', district: 'Tirupati', category: 'Temples', rating: 4.9, desc: 'World famous Hindu temple on the hills of Tirumala.' },
-  { id: 'sri-kalahasti', name: 'Sri Kalahasti', district: 'Tirupati', category: 'Temples', rating: 4.7, desc: 'Famous Shiva temple known for Vayu Linga.' },
-  { id: 'talakona-waterfalls', name: 'Talakona Waterfalls', district: 'Tirupati', category: 'Waterfalls', rating: 4.8, desc: 'Highest waterfall in Andhra Pradesh.' },
-  { id: 'vizag', name: 'Visakhapatnam', district: 'Vizag', category: 'Historical places', rating: 4.6, desc: 'A port city known for its beautiful beaches.' },
-  { id: 'rk-beach', name: 'RK Beach', district: 'Vizag', category: 'Resorts', rating: 4.5, desc: 'The most popular beach in Vizag.' },
+  { id: 'srisailam', name: 'Srisailam Temple', district: 'Nandyal', category: 'Temples', rating: 4.8, desc: 'Ancient Shiva temple and one of the 12 Jyotirlingas.' },
+  { id: 'simhachalam', name: 'Simhachalam Temple', district: 'Visakhapatnam', category: 'Temples', rating: 4.7, desc: 'Varaha Lakshmi Narasimha temple known for its unique architecture.' },
+  { id: 'kanaka-durga', name: 'Kanaka Durga Temple', district: 'NTR District', category: 'Temples', rating: 4.8, desc: 'Famous shrine of Goddess Durga on Indrakeeladri hill.' },
+  { id: 'annavaram', name: 'Annavaram Temple', district: 'Kakinada', category: 'Temples', rating: 4.7, desc: 'Sacred temple of Lord Satyanarayana Swami.' },
+  { id: 'lepakshi', name: 'Lepakshi Temple', district: 'Sri Sathya Sai', category: 'Temples', rating: 4.8, desc: 'Famous for its hanging pillar and Veerabhadra temple.' },
+  { id: 'ahobilam', name: 'Ahobilam Temple', district: 'Nandyal', category: 'Temples', rating: 4.7, desc: 'Navanarasimha Kshetram located amidst lush forests.' },
+  { id: 'mahanandi', name: 'Mahanandi Temple', district: 'Nandyal', category: 'Temples', rating: 4.6, desc: 'Ancient temple famous for its crystal clear water tank.' },
+  { id: 'yaganti', name: 'Yaganti Temple', district: 'Nandyal', category: 'Temples', rating: 4.7, desc: 'Famous for the growing stone crow.' },
+
+  // Beaches
+  { id: 'suryalanka', name: 'Suryalanka Beach', district: 'Bapatla', category: 'Beaches', rating: 4.5, desc: 'Popular weekend getaway with wide sandy shores.' },
+  { id: 'rk-beach', name: 'RK Beach', district: 'Visakhapatnam', category: 'Beaches', rating: 4.6, desc: 'The most popular urban beach in Visakhapatnam.' },
+  { id: 'rushikonda', name: 'Rushikonda Beach', district: 'Visakhapatnam', category: 'Beaches', rating: 4.7, desc: 'Blue Flag certified beach perfect for water sports.' },
+  { id: 'yarada-beach', name: 'Yarada Beach', district: 'Visakhapatnam', category: 'Beaches', rating: 4.8, desc: 'A serene and secluded beach surrounded by hills.' },
+  { id: 'manginapudi', name: 'Machilipatnam Beach', district: 'Krishna', category: 'Beaches', rating: 4.4, desc: 'Unique beach with black soil and historic port.' },
+  { id: 'mypadu', name: 'Mypadu Beach', district: 'SPSR Nellore', category: 'Beaches', rating: 4.5, desc: 'Pristine coastline with golden sands.' },
+
+  // Hill Stations
   { id: 'araku-valley', name: 'Araku Valley', district: 'ASR District', category: 'Hill stations', rating: 4.8, desc: 'Beautiful hill station with coffee plantations.' },
-  { id: 'charminar', name: 'Charminar', district: 'Hyderabad', category: 'Historical places', rating: 4.7, desc: 'Iconic 16th-century mosque and monument.' },
-  { id: 'golconda-fort', name: 'Golconda Fort', district: 'Hyderabad', category: 'Forts', rating: 4.8, desc: 'Historic citadel and former capital of the Qutb Shahi dynasty.' },
-  { id: 'ramappa-temple', name: 'Ramappa Temple', district: 'Warangal', category: 'Temples', rating: 4.9, desc: 'UNESCO World Heritage site known for its exquisite architecture.' },
-  { id: 'coringa-wildlife', name: 'Coringa Wildlife', district: 'Kakinada', category: 'Wildlife', rating: 4.7, desc: 'India\'s second-largest stretch of mangrove forests.' },
-  { id: 'konaseema', name: 'Konaseema Resorts', district: 'Konaseema', category: 'Resorts', rating: 4.7, desc: 'Lush green landscapes resembling Kerala backwaters.' },
-  { id: 'amaravati', name: 'Amaravati Stupa', district: 'Guntur', category: 'Historical places', rating: 4.4, desc: 'Ancient Buddhist center and spiritual capital.' },
+  { id: 'lambasingi', name: 'Lambasingi', district: 'ASR District', category: 'Hill stations', rating: 4.7, desc: 'Known as the Kashmir of Andhra Pradesh.' },
+  { id: 'madanapalle', name: 'Madanapalle', district: 'Annamayya', category: 'Hill stations', rating: 4.5, desc: 'Historic town known for its pleasant climate.' },
+
+  // Caves
+  { id: 'borra-caves', name: 'Borra Caves', district: 'ASR District', category: 'Caves', rating: 4.9, desc: 'Millions of years old limestone caves.' },
+  { id: 'belum-caves', name: 'Belum Caves', district: 'Nandyal', category: 'Caves', rating: 4.8, desc: 'Second largest cave system in the Indian subcontinent.' },
+  { id: 'undavalli-caves', name: 'Undavalli Caves', district: 'Guntur', category: 'Caves', rating: 4.7, desc: 'Monolithic rock-cut caves near Vijayawada.' },
+
+  // Waterfalls
+  { id: 'talakona-waterfalls', name: 'Talakona Waterfalls', district: 'Annamayya', category: 'Waterfalls', rating: 4.8, desc: 'Highest waterfall in Andhra Pradesh.' },
+  { id: 'ethipothala-falls', name: 'Ethipothala Falls', district: 'Palnadu', category: 'Waterfalls', rating: 4.6, desc: 'Beautiful cascade formed by three streams.' },
+  { id: 'katiki-falls', name: 'Katiki Waterfalls', district: 'ASR District', category: 'Waterfalls', rating: 4.7, desc: 'Stunning waterfall near Araku Valley.' },
 ];
 
 export default function DestinationsPage() {
@@ -36,11 +56,11 @@ export default function DestinationsPage() {
   const categories = [
     { name: 'All', icon: Sparkles },
     { name: 'Temples', icon: Landmark },
+    { name: 'Beaches', icon: Waves },
     { name: 'Waterfalls', icon: Waves },
-    { name: 'Forts', icon: Shield },
-    { name: 'Resorts', icon: Building2 },
-    { name: 'Wildlife', icon: Trees },
     { name: 'Hill stations', icon: Mountain },
+    { name: 'Caves', icon: Sparkles },
+    { name: 'Wildlife', icon: Trees },
     { name: 'Historical places', icon: History },
   ];
 
@@ -69,10 +89,10 @@ export default function DestinationsPage() {
     
     switch(dest.category.toLowerCase()) {
       case 'temples': return 'https://picsum.photos/seed/temple/600/400';
+      case 'beaches': return 'https://picsum.photos/seed/beach/600/400';
       case 'waterfalls': return 'https://picsum.photos/seed/waterfall/600/400';
-      case 'wildlife': return 'https://picsum.photos/seed/forest/600/400';
       case 'hill stations': return 'https://picsum.photos/seed/hills/600/400';
-      case 'forts': return 'https://picsum.photos/seed/fort/600/400';
+      case 'caves': return 'https://picsum.photos/seed/cave/600/400';
       default: return `https://picsum.photos/seed/${dest.id}/600/400`;
     }
   };
@@ -93,7 +113,7 @@ export default function DestinationsPage() {
       <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center text-center space-y-6">
         <div className="bg-primary/10 p-6 rounded-full"><Lock className="w-12 h-12 text-primary" /></div>
         <div className="space-y-2">
-          <h1 className="text-3xl font-black tracking-tight">Places Restricted</h1>
+          <h1 className="text-3xl font-black tracking-tight">Access Restricted</h1>
           <p className="text-muted-foreground max-w-md">Join TravelSphere to browse detailed landmark information, reviews, and interactive maps.</p>
         </div>
         <div className="flex gap-4">
@@ -111,7 +131,7 @@ export default function DestinationsPage() {
           <div className="space-y-2">
             <Badge className="bg-primary/10 text-primary border-none px-4 py-1 font-bold">Exploration Hub</Badge>
             <h1 className="text-4xl md:text-6xl font-black tracking-tight font-headline">Discover Places</h1>
-            <p className="text-muted-foreground text-lg font-medium">Browse by category or search for specific landmarks.</p>
+            <p className="text-muted-foreground text-lg font-medium">Browse 24+ top tourist destinations across Andhra Pradesh.</p>
           </div>
           
           <div className="relative w-full max-w-md group">

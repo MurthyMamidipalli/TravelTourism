@@ -13,7 +13,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, LogIn, Mail, Lock, UserRound, AlertCircle, Copy } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Mail, Lock, UserRound, AlertCircle, Copy, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const loginSchema = z.object({
@@ -27,6 +27,7 @@ export default function LoginPage() {
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [authError, setAuthError] = useState<{title: string, message: string, domain?: string} | null>(null);
   const [mounted, setMounted] = useState(false);
 
@@ -40,14 +41,24 @@ export default function LoginPage() {
   const getFriendlyErrorMessage = (error: any) => {
     const code = error?.code || 'unknown';
     const hostname = typeof window !== 'undefined' ? window.location.hostname : 'unknown';
+    
     switch (code) {
       case 'auth/unauthorized-domain':
-        return { title: 'Domain Not Authorized', message: `Add the hostname below in Firebase Console &gt; Authentication &gt; Settings &gt; Authorized Domains.`, domain: hostname };
+        return { 
+          title: 'Domain Not Authorized', 
+          message: `This domain is not authorized for Google Sign-In. Add the hostname below in your Firebase Console > Authentication > Settings > Authorized Domains.`, 
+          domain: hostname 
+        };
+      case 'auth/popup-blocked':
+        return { title: 'Popup Blocked', message: 'The Google login popup was blocked by your browser. Please allow popups for this site.' };
+      case 'auth/popup-closed-by-user':
+        return { title: 'Login Cancelled', message: 'The login window was closed before completing the process.' };
       case 'auth/wrong-password':
       case 'auth/user-not-found':
+      case 'auth/invalid-credential':
         return { title: 'Invalid Credentials', message: 'The email or password you entered is incorrect.' };
       default:
-        return { title: 'Authentication Error', message: error?.message || 'An unexpected error occurred.' };
+        return { title: 'Authentication Error', message: error?.message || 'An unexpected error occurred during login.' };
     }
   };
 
@@ -66,12 +77,17 @@ export default function LoginPage() {
   }
 
   const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true);
+    setAuthError(null);
     const provider = new GoogleAuthProvider();
     try {
       await signInWithPopup(auth, provider);
+      toast({ title: 'Success', description: 'Signed in with Google.' });
       router.push('/dashboard');
     } catch (error: any) {
       setAuthError(getFriendlyErrorMessage(error));
+    } finally {
+      setIsGoogleLoading(false);
     }
   };
 
@@ -132,9 +148,9 @@ export default function LoginPage() {
                   <FormMessage />
                 </FormItem>
               )} />
-              <Button type="submit" className="w-full h-12 text-lg rounded-xl font-bold shadow-lg shadow-primary/20" disabled={isLoading}>
-                {isLoading ? 'Signing in...' : 'Sign In'}
-                <LogIn className="ml-2 h-4 w-4" />
+              <Button type="submit" className="w-full h-12 text-lg rounded-xl font-bold shadow-lg shadow-primary/20" disabled={isLoading || isGoogleLoading}>
+                {isLoading ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : 'Sign In'}
+                {!isLoading && <LogIn className="ml-2 h-4 w-4" />}
               </Button>
             </form>
           </Form>
@@ -145,8 +161,13 @@ export default function LoginPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Button variant="outline" className="h-12 rounded-xl border-zinc-200 dark:border-zinc-800" onClick={handleGoogleLogin}>
-              Google
+            <Button 
+              variant="outline" 
+              className="h-12 rounded-xl border-zinc-200 dark:border-zinc-800" 
+              onClick={handleGoogleLogin}
+              disabled={isLoading || isGoogleLoading}
+            >
+              {isGoogleLoading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Google'}
             </Button>
             <Button variant="secondary" className="h-12 rounded-xl" onClick={() => signInAnonymously(auth).then(() => router.push('/dashboard'))}>
               <UserRound className="mr-2 h-4 w-4" /> Guest

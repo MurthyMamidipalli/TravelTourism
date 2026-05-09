@@ -1,34 +1,35 @@
-
 'use client';
 
 import { use, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Filter } from 'lucide-react';
+import { ArrowLeft, Filter, Lock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import TouristCard from '@/components/TouristCard';
+import { useUser } from '@/firebase';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const allDestinations = [
   // Temples
   { id: 'tirumala-temple', name: 'Tirumala Temple', districtId: 'tirupati', district: 'Tirupati', category: 'Temple', rating: 4.9, timings: '3AM-12PM', entryFee: '₹300', desc: 'World famous Hindu temple on the hills of Tirumala.' },
   { id: 'srisailam', name: 'Srisailam Mallikarjuna', districtId: 'nandyal', district: 'Nandyal', category: 'Temple', rating: 4.8, timings: '5AM-9PM', entryFee: 'Free', desc: 'Ancient Shiva temple and one of the 12 Jyotirlingas.' },
   { id: 'simhachalam', name: 'Simhachalam Temple', districtId: 'vizag', district: 'Visakhapatnam', category: 'Temple', rating: 4.7, timings: '6AM-9PM', entryFee: 'Free', desc: 'Varaha Lakshmi Narasimha temple known for its unique architecture.' },
-  { id: 'kanaka-durga', name: 'Kanaka Durga Temple', districtId: 'ntr', district: 'NTR', category: 'Temple', rating: 4.8, timings: '4AM-9PM', entryFee: 'Free', desc: 'Famous shrine of Goddess Durga on Indrakeeladri hill.' },
+  { id: 'kanaka-durga', name: 'Kanaka Durga Temple', districtId: 'ntr', district: 'NTR District', category: 'Temple', rating: 4.8, timings: '4AM-9PM', entryFee: 'Free', desc: 'Famous shrine of Goddess Durga on Indrakeeladri hill.' },
   { id: 'annavaram', name: 'Annavaram Satyanarayana', districtId: 'kakinada', district: 'Kakinada', category: 'Temple', rating: 4.7, timings: '5AM-9PM', entryFee: 'Free', desc: 'Sacred temple of Lord Satyanarayana Swami.' },
   { id: 'lepakshi', name: 'Lepakshi Temple', districtId: 'sss', district: 'Sri Sathya Sai', category: 'Temple', rating: 4.8, timings: '6AM-6PM', entryFee: 'Free', desc: 'Famous for its hanging pillar and Veerabhadra temple.' },
   { id: 'ahobilam', name: 'Ahobilam Temple', districtId: 'nandyal', district: 'Nandyal', category: 'Temple', rating: 4.7, timings: '6AM-5PM', entryFee: 'Free', desc: 'Navanarasimha Kshetram located amidst lush forests.' },
   { id: 'mahanandi', name: 'Mahanandi Temple', districtId: 'nandyal', district: 'Nandyal', category: 'Temple', rating: 4.6, timings: '5AM-9PM', entryFee: 'Free', desc: 'Ancient temple famous for its crystal clear water tank.' },
-  { id: 'yaganti', name: 'Yaganti Temple', districtId: 'nandyal', district: 'Nandyal', category: 'Temple', rating: 4.7, timings: '6AM-8PM', entryFee: 'Free', desc: 'Famous for the growing stone crow and Uma Maheswara temple.' },
+  { id: 'yaganti', name: 'Yaganti Temple', districtId: 'nandyal', district: 'Nandyal', category: 'Temple', rating: 4.7, timings: '6AM-8PM', entryFee: 'Free', desc: 'Famous for the growing stone crow.' },
   
   // Beaches
   { id: 'suryalanka', name: 'Suryalanka Beach', districtId: 'bapatla', district: 'Bapatla', category: 'Beach', rating: 4.5, timings: '24/7', entryFee: 'Free', desc: 'Popular weekend getaway known for its wide sandy shores.' },
   { id: 'rk-beach', name: 'RK Beach', districtId: 'vizag', district: 'Visakhapatnam', category: 'Beach', rating: 4.6, timings: '24/7', entryFee: 'Free', desc: 'The most popular urban beach in Visakhapatnam.' },
   { id: 'rushikonda', name: 'Rushikonda Beach', districtId: 'vizag', district: 'Visakhapatnam', category: 'Beach', rating: 4.7, timings: '24/7', entryFee: 'Free', desc: 'Blue Flag certified beach perfect for water sports.' },
   { id: 'yarada-beach', name: 'Yarada Beach', districtId: 'vizag', district: 'Visakhapatnam', category: 'Beach', rating: 4.8, timings: '24/7', entryFee: 'Free', desc: 'A serene and secluded beach surrounded by hills.' },
-  { id: 'manginapudi', name: 'Machilipatnam Beach', districtId: 'krishna', district: 'Krishna', category: 'Beach', rating: 4.4, timings: '24/7', entryFee: 'Free', desc: 'Unique beach with black soil and historic port connection.' },
-  { id: 'mypadu', name: 'Mypadu Beach', districtId: 'nellore', district: 'SPSR Nellore', category: 'Beach', rating: 4.5, timings: '24/7', entryFee: 'Free', desc: 'Pristine coastline with golden sands and calm waters.' },
+  { id: 'manginapudi', name: 'Machilipatnam Beach', districtId: 'krishna', district: 'Krishna', category: 'Beach', rating: 4.4, timings: '24/7', entryFee: 'Free', desc: 'Unique beach with black soil and historic port.' },
+  { id: 'mypadu', name: 'Mypadu Beach', districtId: 'nellore', district: 'SPSR Nellore', category: 'Beach', rating: 4.5, timings: '24/7', entryFee: 'Free', desc: 'Pristine coastline with golden sands.' },
 
   // Hill Stations
   { id: 'araku-valley', name: 'Araku Valley', districtId: 'asr', district: 'ASR District', category: 'Hill Station', rating: 4.8, timings: '24/7', entryFee: 'Free', desc: 'Beautiful hill station with coffee plantations.' },
@@ -37,7 +38,7 @@ const allDestinations = [
 
   // Caves
   { id: 'borra-caves', name: 'Borra Caves', districtId: 'asr', district: 'ASR District', category: 'Caves', rating: 4.9, timings: '10AM-5PM', entryFee: '₹60', desc: 'Millions of years old limestone caves.' },
-  { id: 'belum-caves', name: 'Belum Caves', districtId: 'nandyal', district: 'Nandyal', category: 'Caves', rating: 4.8, timings: '10AM-5PM', entryFee: '₹65', desc: 'Second largest cave system in the Indian subcontinent.' },
+  { id: 'belum-caves', name: 'Belum Caves', districtId: 'nandyal', district: 'Nandyal', category: 'Caves', rating: 4.8, timings: '10AM-5PM', entryFee: '₹65', desc: 'Second largest cave system in India.' },
   { id: 'undavalli-caves', name: 'Undavalli Caves', districtId: 'guntur', district: 'Guntur', category: 'Caves', rating: 4.7, timings: '9AM-6PM', entryFee: '₹25', desc: 'Monolithic rock-cut caves near Vijayawada.' },
 
   // Waterfalls
@@ -48,6 +49,7 @@ const allDestinations = [
 
 export default function DistrictPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  const { user, loading: authLoading } = useUser();
   const [activeCategory, setActiveCategory] = useState('All');
   
   const districtDestinations = useMemo(() => {
@@ -65,18 +67,42 @@ export default function DistrictPage({ params }: { params: Promise<{ id: string 
   }, [districtDestinations, activeCategory]);
 
   const districtName = useMemo(() => {
-    if (id === 'vizag') return 'Visakhapatnam';
-    if (id === 'asr') return 'Alluri Sitharama Raju';
-    if (id === 'sss') return 'Sri Sathya Sai';
-    if (id === 'nellore') return 'SPSR Nellore';
-    return id.charAt(0).toUpperCase() + id.slice(1).replace('-', ' ');
+    const names: Record<string, string> = {
+      vizag: 'Visakhapatnam',
+      asr: 'Alluri Sitharama Raju',
+      sss: 'Sri Sathya Sai',
+      nellore: 'SPSR Nellore',
+      ntr: 'NTR District',
+    };
+    return names[id] || id.charAt(0).toUpperCase() + id.slice(1).replace('-', ' ');
   }, [id]);
 
-  const getDestinationImage = (destId: string) => {
-    const found = PlaceHolderImages.find(img => img.id === destId);
-    if (found) return found.imageUrl;
-    return `https://picsum.photos/seed/${destId}/600/400`;
-  };
+  if (authLoading) {
+    return (
+      <div className="container mx-auto px-4 py-12 space-y-8">
+        <Skeleton className="h-12 w-64" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-64 rounded-3xl" />)}
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center text-center space-y-6">
+        <div className="bg-primary/10 p-6 rounded-full"><Lock className="w-12 h-12 text-primary" /></div>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-black tracking-tight">Access Restricted</h1>
+          <p className="text-muted-foreground max-w-md mx-auto">Please sign in to view the top landmarks and hidden gems of {districtName}.</p>
+        </div>
+        <div className="flex gap-4">
+          <Link href="/login"><Button size="lg" className="rounded-2xl h-12 px-8 font-bold shadow-lg shadow-primary/20">Sign In</Button></Link>
+          <Link href="/signup"><Button size="lg" variant="outline" className="rounded-2xl h-12 px-8 font-bold">Join Now</Button></Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
@@ -131,7 +157,7 @@ export default function DistrictPage({ params }: { params: Promise<{ id: string 
                   category={dest.category}
                   rating={dest.rating}
                   description={dest.desc}
-                  image={getDestinationImage(dest.id)}
+                  image={`https://picsum.photos/seed/${dest.id}/600/400`}
                   timings={dest.timings}
                   entryFee={dest.entryFee}
                 />
