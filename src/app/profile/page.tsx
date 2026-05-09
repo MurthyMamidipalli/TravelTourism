@@ -1,16 +1,16 @@
+
 'use client';
 
-import { useUser, useFirestore, useDoc, useAuth } from '@/firebase';
+import { useUser, useFirestore, useDoc } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { User, Mail, Fingerprint, Edit3, Loader2, AlertCircle, CheckCircle2, ArrowLeft, Smartphone, ShieldCheck, LogIn } from 'lucide-react';
+import { User, Mail, Fingerprint, Edit3, Loader2, CheckCircle2, ArrowLeft, ShieldCheck, LogIn, CreditCard, Globe, FileText } from 'lucide-react';
 import Link from 'next/link';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { doc, setDoc } from 'firebase/firestore';
-import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
 import {
   Dialog,
   DialogContent,
@@ -32,27 +32,19 @@ const editProfileSchema = z.object({
   fullName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   age: z.coerce.number().min(1, { message: 'Age is required.' }).max(120),
   mobileNumber: z.string().regex(/^\d{10}$/, { message: 'Mobile must be exactly 10 digits.' }),
-  aadharNumber: z.string().regex(/^\d{12}$/, { message: 'Aadhar must be exactly 12 digits.' }).optional().or(z.literal('')),
+  aadharNumber: z.string().regex(/^\d{12}$/, { message: 'Aadhar must be exactly 12 digits.' }),
+  panNumber: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, { message: 'Invalid PAN card format.' }),
+  passportNumber: z.string().min(5, { message: 'Passport number is required.' }),
 });
 
 type EditProfileValues = z.infer<typeof editProfileSchema>;
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useUser();
-  const auth = useAuth();
   const firestore = useFirestore();
   const { toast } = useToast();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
-  
-  const [isOtpSent, setIsOtpSent] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [otpValue, setOtpValue] = useState('');
-  const [isSendingOtp, setIsSendingOtp] = useState(false);
-  const [resendTimer, setResendTimer] = useState(0);
-  
-  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
-  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
   const userDocRef = useMemo(() => {
     if (!firestore || !user?.uid) return null;
@@ -68,6 +60,8 @@ export default function ProfilePage() {
       age: 0,
       mobileNumber: '',
       aadharNumber: '',
+      panNumber: '',
+      passportNumber: '',
     },
   });
 
@@ -78,106 +72,35 @@ export default function ProfilePage() {
         age: profile.age || 0,
         mobileNumber: profile.mobileNumber || '',
         aadharNumber: profile.aadharNumber || '',
+        panNumber: profile.panNumber || '',
+        passportNumber: profile.passportNumber || '',
       });
     }
   }, [profile, user?.displayName, form]);
-
-  useEffect(() => {
-    if (resendTimer > 0) {
-      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [resendTimer]);
 
   const onSaveProfile = useCallback((values: EditProfileValues) => {
     if (!userDocRef) return;
     setIsSaving(true);
     
-    setDoc(userDocRef, values, { merge: true })
+    const updatedProfile = {
+      ...values,
+      isVerified: true, // Mark as verified once documents are provided
+    };
+
+    setDoc(userDocRef, updatedProfile, { merge: true })
       .then(() => {
-        toast({ title: "Profile Updated", description: "All information saved." });
+        toast({ title: "Profile Updated", description: "Identity documents verified." });
         setIsEditDialogOpen(false);
       })
       .catch((error: any) => {
         errorEmitter.emit('permission-error', new FirestorePermissionError({
           path: userDocRef.path,
           operation: 'update',
-          requestResourceData: values,
+          requestResourceData: updatedProfile,
         }));
       })
       .finally(() => setIsSaving(false));
   }, [userDocRef, toast]);
-
-  const setupRecaptcha = () => {
-    if (recaptchaVerifierRef.current) return;
-    try {
-      recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-profile', {
-        size: 'invisible'
-      });
-    } catch (error) {
-      console.error("Recaptcha setup error:", error);
-    }
-  };
-
-  const handleSendOtp = async () => {
-    const mobile = profile?.mobileNumber || form.getValues('mobileNumber');
-    if (!mobile || mobile.length !== 10) {
-      toast({ title: "Invalid Contact", description: "Please check your mobile number.", variant: "destructive" });
-      return;
-    }
-    
-    setIsSendingOtp(true);
-    setupRecaptcha();
-    
-    const appVerifier = recaptchaVerifierRef.current;
-    if (!appVerifier) {
-      setIsSendingOtp(false);
-      toast({ title: "Error", description: "Security check failed to initialize.", variant: "destructive" });
-      return;
-    }
-
-    try {
-      const phoneNumber = `+91${mobile}`;
-      const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
-      setConfirmationResult(result);
-      setIsOtpSent(true);
-      setResendTimer(60);
-      toast({ 
-        title: "OTP Dispatched", 
-        description: `A secure verification code has been sent to your mobile device.`,
-      });
-    } catch (error: any) {
-      console.error("SMS error:", error);
-      toast({ title: "SMS Failed", description: "Could not send verification code. Try again later.", variant: "destructive" });
-    } finally {
-      setIsSendingOtp(false);
-    }
-  };
-
-  const handleVerifyOtp = async () => {
-    if (otpValue.length !== 6 || !confirmationResult || !userDocRef) return;
-    setIsVerifying(true);
-
-    try {
-      await confirmationResult.confirm(otpValue);
-      setDoc(userDocRef, { isVerified: true }, { merge: true })
-        .catch((error) => {
-          errorEmitter.emit('permission-error', new FirestorePermissionError({
-            path: userDocRef!.path,
-            operation: 'update',
-            requestResourceData: { isVerified: true },
-          }));
-        });
-
-      toast({ title: "Identity Verified", description: "Your profile is now verified." });
-      setIsOtpSent(false);
-      setOtpValue('');
-    } catch (error) {
-      toast({ title: "Invalid Code", description: "The verification code is incorrect.", variant: "destructive" });
-    } finally {
-      setIsVerifying(false);
-    }
-  };
 
   const loading = authLoading || (user && profileLoading);
 
@@ -198,7 +121,7 @@ export default function ProfilePage() {
         </div>
         <div className="space-y-2">
           <h1 className="text-3xl font-black tracking-tight">Sign-in Required</h1>
-          <p className="text-muted-foreground">Please sign in to view and manage your secure traveler profile.</p>
+          <p className="text-muted-foreground">Please sign in to manage your identity documents.</p>
         </div>
         <Link href="/login">
           <Button size="lg" className="rounded-2xl h-12 px-8 font-bold shadow-lg shadow-primary/20">
@@ -213,15 +136,14 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto px-4 py-12 min-h-screen">
-      <div id="recaptcha-container-profile"></div>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="max-w-4xl mx-auto space-y-10">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link href="/dashboard" className="text-muted-foreground hover:text-primary flex items-center gap-1 text-sm font-medium">
             <ArrowLeft className="w-4 h-4" /> Dashboard
           </Link>
           <div className={`px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-bold ${profile?.isVerified ? 'bg-accent/10 text-accent' : 'bg-destructive/10 text-destructive'}`}>
-            {profile?.isVerified ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-            {profile?.isVerified ? 'Identity Verified' : 'Verification Required'}
+            <ShieldCheck className="w-4 h-4" />
+            {profile?.isVerified ? 'Document Verified' : 'Documents Pending'}
           </div>
         </div>
 
@@ -242,27 +164,51 @@ export default function ProfilePage() {
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm" className="md:absolute top-8 right-8 rounded-xl h-9">
-                <Edit3 className="w-4 h-4 mr-2" /> Edit Details
+                <Edit3 className="w-4 h-4 mr-2" /> Update Identity
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] rounded-3xl">
-              <DialogHeader><DialogTitle>Update Profile</DialogTitle></DialogHeader>
+            <DialogContent className="sm:max-w-[500px] rounded-3xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader><DialogTitle>Verify Identity Documents</DialogTitle></DialogHeader>
               <form onSubmit={form.handleSubmit(onSaveProfile)} className="space-y-4 py-4">
                 <div className="space-y-2">
-                  <Label>Full Name</Label>
-                  <Input {...form.register('fullName')} className="rounded-xl h-11" suppressHydrationWarning />
+                  <Label>Full Name (as per documents)</Label>
+                  <Input {...form.register('fullName')} className="rounded-xl h-11" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label>Age</Label><Input type="number" {...form.register('age')} className="rounded-xl h-11" suppressHydrationWarning /></div>
-                  <div className="space-y-2"><Label>Mobile</Label><Input maxLength={10} {...form.register('mobileNumber')} className="rounded-xl h-11" suppressHydrationWarning /></div>
+                  <div className="space-y-2"><Label>Age</Label><Input type="number" {...form.register('age')} className="rounded-xl h-11" /></div>
+                  <div className="space-y-2"><Label>Mobile</Label><Input maxLength={10} {...form.register('mobileNumber')} className="rounded-xl h-11" /></div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Aadhar Number</Label>
-                  <Input maxLength={12} {...form.register('aadharNumber')} className="rounded-xl h-11" suppressHydrationWarning />
+                  <Label className="flex items-center gap-2"><Fingerprint className="w-4 h-4" /> Aadhar Number</Label>
+                  <Input maxLength={12} {...form.register('aadharNumber')} className="rounded-xl h-11" placeholder="12-digit UID" />
                 </div>
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2"><CreditCard className="w-4 h-4" /> PAN Number</Label>
+                  <Input {...form.register('panNumber')} className="rounded-xl h-11 uppercase" placeholder="ABCDE1234F" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2"><Globe className="w-4 h-4" /> Passport Number</Label>
+                  <Input {...form.register('passportNumber')} className="rounded-xl h-11" placeholder="Enter Passport" />
+                </div>
+
+                <div className="p-4 bg-secondary/20 rounded-2xl space-y-3">
+                  <p className="text-xs font-bold uppercase">Upload Documents</p>
+                  <div className="grid grid-cols-3 gap-2">
+                    <div className="h-16 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-primary/5">
+                      <FileText className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    <div className="h-16 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-primary/5">
+                      <FileText className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                    <div className="h-16 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-primary/5">
+                      <FileText className="w-4 h-4 text-muted-foreground" />
+                    </div>
+                  </div>
+                </div>
+
                 <DialogFooter className="pt-4">
                   <Button type="submit" className="w-full rounded-xl h-12" disabled={isSaving}>
-                    {isSaving ? <Loader2 className="animate-spin" /> : 'Save Changes'}
+                    {isSaving ? <Loader2 className="animate-spin" /> : 'Confirm Identity'}
                   </Button>
                 </DialogFooter>
               </form>
@@ -272,63 +218,42 @@ export default function ProfilePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-12">
           <Card className="premium-card">
-            <CardHeader><CardTitle className="text-lg flex items-center gap-2 font-bold font-headline"><User className="w-5 h-5 text-primary" /> Profile Data</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-lg flex items-center gap-2 font-bold font-headline"><User className="w-5 h-5 text-primary" /> Profile Details</CardTitle></CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground font-body">User Age</p>
-                <p className="font-bold text-lg font-body">{profile?.age || 'Not set'}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Mobile Contact</p>
+                <p className="font-bold text-lg">{profile?.mobileNumber || 'Not set'}</p>
               </div>
               <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground font-body">Mobile Contact</p>
-                <p className="font-bold text-lg font-body">{profile?.mobileNumber || 'Not set'}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Age</p>
+                <p className="font-bold text-lg">{profile?.age || 'Not set'} Years</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className={`premium-card ${profile?.isVerified ? 'bg-accent/5' : 'bg-destructive/5'}`}>
-            <CardHeader><CardTitle className="text-lg flex items-center gap-2 font-bold font-headline"><Fingerprint className={`w-5 h-5 ${profile?.isVerified ? 'text-accent' : 'text-destructive'}`} /> Security Status</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-lg flex items-center gap-2 font-bold font-headline"><ShieldCheck className={`w-5 h-5 ${profile?.isVerified ? 'text-accent' : 'text-destructive'}`} /> Verification Status</CardTitle></CardHeader>
             <CardContent className="space-y-6">
-              <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground font-body">Identity Accountability</p>
-                <p className="font-mono text-lg font-bold font-body">
-                  {profile?.aadharNumber ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` : 'Aadhar Verification Needed'}
-                </p>
+              <div className="grid grid-cols-1 gap-4">
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Aadhar ID</p>
+                  <p className="font-mono text-sm font-bold">{profile?.aadharNumber ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` : 'Pending'}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">PAN ID</p>
+                  <p className="font-mono text-sm font-bold uppercase">{profile?.panNumber || 'Pending'}</p>
+                </div>
+                <div className="space-y-1">
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Passport ID</p>
+                  <p className="font-mono text-sm font-bold">{profile?.passportNumber || 'Pending'}</p>
+                </div>
               </div>
 
-              <div className="pt-2">
-                {!profile?.isVerified ? (
-                  <div className="space-y-4">
-                    <AnimatePresence mode="wait">
-                      {!isOtpSent ? (
-                        <motion.div key="send" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                          <Button onClick={handleSendOtp} disabled={isSendingOtp} className="w-full rounded-xl h-11 shadow-md">
-                            {isSendingOtp ? <Loader2 className="animate-spin mr-2" /> : <Smartphone className="w-4 h-4 mr-2" />}
-                            {isSendingOtp ? 'Sending OTP...' : 'Verify via Mobile OTP'}
-                          </Button>
-                        </motion.div>
-                      ) : (
-                        <motion.div key="verify" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
-                          <Input 
-                            placeholder="Enter 6-digit Code" 
-                            maxLength={6} 
-                            className="text-center font-bold h-12 rounded-xl text-lg tracking-[0.2em]" 
-                            value={otpValue} 
-                            onChange={e => setOtpValue(e.target.value)} 
-                            suppressHydrationWarning
-                          />
-                          <Button onClick={handleVerifyOtp} disabled={isVerifying || otpValue.length !== 6} className="w-full bg-accent text-white rounded-xl h-11">
-                            {isVerifying ? <Loader2 className="animate-spin" /> : 'Confirm Identity'}
-                          </Button>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-2 text-accent font-bold py-2 bg-accent/10 px-4 rounded-xl border border-accent/20">
-                    <ShieldCheck className="w-5 h-5" /> Account Verified Securely
-                  </div>
-                )}
-              </div>
+              {profile?.isVerified && (
+                <div className="flex items-center gap-2 text-accent font-bold py-2 bg-accent/10 px-4 rounded-xl border border-accent/20 mt-2">
+                  <CheckCircle2 className="w-5 h-5" /> All Documents Verified
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

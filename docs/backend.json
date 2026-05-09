@@ -69,6 +69,7 @@
         "languages": { "type": "string" },
         "aadharNumber": { "type": "string" },
         "panNumber": { "type": "string" },
+        "passportNumber": { "type": "string" },
         "bio": { "type": "string" },
         "experience": { "type": "string", "description": "A list of places explored or shown to tourists, formatted as 'Place Name - X times' on separate lines." },
         "imageUrl": { "type": "string" },
@@ -89,6 +90,8 @@
         "email": { "type": "string" },
         "age": { "type": "number" },
         "aadharNumber": { "type": "string" },
+        "panNumber": { "type": "string" },
+        "passportNumber": { "type": "string" },
         "mobileNumber": { "type": "string" },
         "isVerified": { "type": "boolean" },
         "createdAt": { "type": "string", "format": "date-time" }
