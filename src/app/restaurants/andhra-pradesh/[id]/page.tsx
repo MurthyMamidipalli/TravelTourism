@@ -8,30 +8,20 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { ArrowLeft, MapPin, Clock, Search, Utensils, ArrowRight } from 'lucide-react';
+import { ArrowLeft, MapPin, Clock, Search, Utensils, ArrowRight, Navigation } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const restaurantData = [
-  { id: 'rest-1', name: 'Paradise Biryani', cityId: 'vizag', city: 'Visakhapatnam', cuisine: 'Famous Biryani', itinerary: '1 Day' },
-  { id: 'rest-2', name: 'Dharani Restaurant', cityId: 'ntr', city: 'Vijayawada', cuisine: 'South Indian Meals', itinerary: '1 Day' },
-  { id: 'rest-3', name: 'Sri Sairam Parlour', cityId: 'tirupati', city: 'Tirupati', cuisine: 'Tiffins & Dosa', itinerary: 'Half Day' },
-  { id: 'rest-4', name: 'Spicy Venue', cityId: 'vizag', city: 'Vizag', cuisine: 'Andhra Cuisine', itinerary: '1 Day' },
-  { id: 'rest-5', name: 'R&G Restaurant', cityId: 'guntur', city: 'Guntur', cuisine: 'Seafood', itinerary: '1 Day' },
-  { id: 'rest-6', name: 'Kritunga', cityId: 'ntr', city: 'Vijayawada', cuisine: 'Spicy Andhra Food', itinerary: '1 Day' },
-  { id: 'rest-7', name: 'Ulavacharu', cityId: 'vizag', city: 'Vizag', cuisine: 'Traditional Andhra', itinerary: '1 Day' },
-  { id: 'rest-8', name: 'Hotel Sarovar', cityId: 'kurnool', city: 'Kurnool', cuisine: 'Veg Meals', itinerary: 'Half Day' },
-  { id: 'rest-9', name: 'Aha Emi Ruchi', cityId: 'east-godavari', city: 'Rajahmundry', cuisine: 'Family Dining', itinerary: '1 Day' },
-  { id: 'rest-11', name: 'Mekong Restaurant', cityId: 'vizag', city: 'Vizag', cuisine: 'Asian Cuisine', itinerary: '1 Day' },
-  { id: 'rest-12', name: 'Food Ex', cityId: 'tirupati', city: 'Tirupati', cuisine: 'Fast Food', itinerary: 'Half Day' },
-  { id: 'rest-13', name: 'Abhiruchi Hotel', cityId: 'anantapur', city: 'Anantapur', cuisine: 'Andhra Meals', itinerary: '1 Day' },
-  { id: 'rest-14', name: 'Hotel Daspalla', cityId: 'vizag', city: 'Vizag', cuisine: 'Luxury Dining', itinerary: '2 Days' },
-  { id: 'rest-15', name: 'Barbeque Nation', cityId: 'ntr', city: 'Vijayawada', cuisine: 'Buffet', itinerary: '1 Day' },
-  { id: 'rest-16', name: 'The Square', cityId: 'guntur', city: 'Guntur', cuisine: 'Fine Dining', itinerary: '1 Day' },
-  { id: 'rest-18', name: 'Sai Priya Beach', cityId: 'vizag', city: 'Vizag', cuisine: 'Beachside Dining', itinerary: '2 Days' },
-  { id: 'rest-19', name: 'Ajantha Restaurant', cityId: 'nellore', city: 'Nellore', cuisine: 'Traditional Meals', itinerary: '1 Day' },
-  { id: 'rest-20', name: 'Rayalaseema Ruchulu', cityId: 'kurnool', city: 'Kurnool', cuisine: 'Rayalaseema Food', itinerary: '1 Day' },
-  { id: 'rest-21', name: 'Minerva Coffee Shop', cityId: 'tirupati', city: 'Tirupati', cuisine: 'Coffee & Snacks', itinerary: 'Half Day' },
-  { id: 'rest-22', name: 'Green Park', cityId: 'vizag', city: 'Vizag', cuisine: 'Luxury Dining', itinerary: '2 Days' },
+  { id: 'rest-1', name: 'Paradise Biryani', cityId: 'vizag', city: 'Visakhapatnam', cuisine: 'Famous Biryani', timings: '11AM-11PM', lat: 17.7231, lng: 83.3013 },
+  { id: 'rest-2', name: 'Dharani Restaurant', cityId: 'ntr', city: 'Vijayawada', cuisine: 'South Indian Meals', timings: '7AM-10PM', lat: 16.5062, lng: 80.6480 },
+  { id: 'rest-3', name: 'Sri Sairam Parlour', cityId: 'tirupati', city: 'Tirupati', cuisine: 'Tiffins & Dosa', timings: '6AM-10PM', lat: 13.6285, lng: 79.4192 },
+  { id: 'rest-4', name: 'Spicy Venue', cityId: 'vizag', city: 'Vizag', cuisine: 'Andhra Cuisine', timings: '12PM-10PM', lat: 17.6868, lng: 83.2185 },
+  { id: 'rest-5', name: 'R&G Restaurant', cityId: 'guntur', city: 'Guntur', cuisine: 'Seafood', timings: '11AM-11PM', lat: 16.3067, lng: 80.4365 },
+  { id: 'rest-6', name: 'Kritunga', cityId: 'ntr', city: 'Vijayawada', cuisine: 'Spicy Andhra Food', timings: '12PM-11PM', lat: 16.5062, lng: 80.6480 },
+  { id: 'rest-7', name: 'Ulavacharu', cityId: 'vizag', city: 'Vizag', cuisine: 'Traditional Andhra', timings: '11AM-11PM', lat: 17.7231, lng: 83.3013 },
+  { id: 'rest-8', name: 'Hotel Sarovar', cityId: 'kurnool', city: 'Kurnool', cuisine: 'Veg Meals', timings: '7AM-10PM', lat: 15.8281, lng: 78.0373 },
+  { id: 'rest-9', name: 'Aha Emi Ruchi', cityId: 'east-godavari', city: 'Rajahmundry', cuisine: 'Family Dining', timings: '12PM-10PM', lat: 17.0005, lng: 81.7835 },
+  { id: 'rest-11', name: 'Mekong Restaurant', cityId: 'vizag', city: 'Vizag', cuisine: 'Asian Cuisine', timings: '12PM-11PM', lat: 17.7231, lng: 83.3013 },
 ];
 
 export default function DistrictRestaurantsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -63,7 +53,7 @@ export default function DistrictRestaurantsPage({ params }: { params: Promise<{ 
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
             <h1 className="text-4xl md:text-6xl font-bold font-headline">Dining in {districtName}</h1>
-            <p className="text-muted-foreground text-xl">Top-rated culinary spots selected for you.</p>
+            <p className="text-muted-foreground text-xl">Discover top culinary spots with interactive maps.</p>
           </div>
           <div className="relative group w-full md:max-w-xs">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4 group-focus-within:text-primary" />
@@ -87,35 +77,39 @@ export default function DistrictRestaurantsPage({ params }: { params: Promise<{ 
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.15, delay: idx * 0.05 }}
               >
-                <Card className="premium-card group h-full overflow-hidden flex flex-col">
-                  <div className="relative h-48">
-                    <Image 
-                      src={`https://picsum.photos/seed/${rest.id}/600/400`} 
-                      alt={rest.name} 
-                      fill 
-                      priority={idx < 4}
-                      className="object-cover group-hover:scale-105 transition-transform duration-500" 
-                    />
-                    <div className="absolute top-2 right-2">
-                      <Badge className="bg-white/90 text-primary border-none font-bold">{rest.cuisine}</Badge>
-                    </div>
-                  </div>
-                  <CardContent className="p-5 flex-grow flex flex-col justify-between">
-                    <div className="space-y-2">
-                      <h3 className="font-headline text-lg font-bold mb-1 line-clamp-1">{rest.name}</h3>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <MapPin className="w-3.5 h-3.5 text-accent" /> {rest.city}
-                      </div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <Clock className="w-3.5 h-3.5 text-primary" /> {rest.itinerary}
+                <Link href={`/restaurants/details/${rest.id}`}>
+                  <Card className="premium-card group h-full overflow-hidden flex flex-col shadow-lg hover:shadow-2xl transition-all border-none">
+                    <div className="relative h-48">
+                      <Image 
+                        src={`https://picsum.photos/seed/${rest.id}/600/400`} 
+                        alt={rest.name} 
+                        fill 
+                        priority={idx < 4}
+                        className="object-cover group-hover:scale-105 transition-transform duration-500" 
+                      />
+                      <div className="absolute top-2 right-2">
+                        <Badge className="bg-white/90 text-primary border-none font-bold shadow-sm">{rest.cuisine}</Badge>
                       </div>
                     </div>
-                    <div className="pt-4 border-t mt-4 flex items-center justify-between text-primary font-bold">
-                      <span className="text-xs uppercase tracking-widest font-black">View Menu</span>
-                      <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                    </div>
-                  </CardContent>
-                </Card>
+                    <CardContent className="p-5 flex-grow flex flex-col justify-between bg-white dark:bg-zinc-900">
+                      <div className="space-y-2">
+                        <h3 className="font-headline text-lg font-bold mb-1 line-clamp-1 group-hover:text-primary transition-colors">{rest.name}</h3>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <MapPin className="w-3.5 h-3.5 text-accent" /> {rest.city}
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <Clock className="w-3.5 h-3.5 text-primary" /> {rest.timings}
+                        </div>
+                      </div>
+                      <div className="pt-4 border-t mt-4 flex items-center justify-between text-primary font-bold">
+                        <span className="text-[10px] uppercase tracking-widest font-black flex items-center gap-1">
+                          <Navigation className="w-3 h-3" /> View on Map
+                        </span>
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               </motion.div>
             ))
           ) : (
