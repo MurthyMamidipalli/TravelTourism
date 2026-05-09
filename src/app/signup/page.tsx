@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -39,7 +38,6 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  // Defer rendering interactive form until mounted to avoid hydration errors
   useEffect(() => { setMounted(true); }, []);
 
   const form = useForm<z.infer<typeof signupSchema>>({
@@ -104,7 +102,7 @@ export default function SignupPage() {
       <Card className="w-full max-w-md border-none shadow-2xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
         <CardHeader className="space-y-1 text-center bg-primary/5 py-8">
           <CardTitle className="text-3xl font-black tracking-tight text-primary uppercase">TravelSphere</CardTitle>
-          <CardDescription className="text-base font-medium text-muted-foreground">Start your journey today</CardDescription>
+          <CardDescription className="text-base font-medium text-muted-foreground">Join our explorer community</CardDescription>
         </CardHeader>
         <CardContent className="p-8 pt-10">
           <Form {...form}>
@@ -189,15 +187,8 @@ export default function SignupPage() {
                 </FormItem>
               )} />
 
-              <div className="bg-accent/5 p-4 rounded-2xl border border-accent/20 flex gap-3">
-                <ShieldCheck className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-                <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Join now and verify your identity documentation in your profile later to gain verified status.
-                </p>
-              </div>
-
               <Button type="submit" className="w-full h-14 text-lg rounded-2xl mt-2 font-bold shadow-xl shadow-primary/20 hover:scale-[1.01] transition-transform" disabled={isLoading}>
-                {isLoading ? <Loader2 className="animate-spin mr-2" /> : 'Join TravelSphere'}
+                {isLoading ? <Loader2 className="animate-spin mr-2" /> : 'Create Account'}
                 {!isLoading && <UserPlus className="ml-2 h-5 w-5" />}
               </Button>
             </form>

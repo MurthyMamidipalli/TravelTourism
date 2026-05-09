@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -43,7 +42,6 @@ export default function LoginPage() {
   const [authError, setAuthError] = useState<{title: string, message: string, domain?: string} | null>(null);
   const [mounted, setMounted] = useState(false);
 
-  // Defer rendering until mounted to prevent hydration errors from browser extensions
   useEffect(() => { setMounted(true); }, []);
 
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -59,19 +57,19 @@ export default function LoginPage() {
       case 'auth/unauthorized-domain':
         return { 
           title: 'Domain Not Authorized', 
-          message: `Your Google Login popup is blank because this domain is not authorized in Firebase. Copy the hostname below and add it to "Authorized Domains" in your Firebase Console Settings.`, 
+          message: `The Google Login popup failed because this domain is not authorized. Copy the hostname below and add it to "Authorized Domains" in your Firebase Console Settings.`, 
           domain: hostname 
         };
       case 'auth/popup-blocked':
-        return { title: 'Popup Blocked', message: 'The Google login popup was blocked by your browser. Please allow popups for this site.' };
+        return { title: 'Popup Blocked', message: 'The Google login popup was blocked. Please allow popups for this site.' };
       case 'auth/popup-closed-by-user':
-        return { title: 'Login Cancelled', message: 'The login window was closed before completing the process.' };
-      case 'auth/wrong-password':
-      case 'auth/user-not-found':
-      case 'auth/invalid-credential':
-        return { title: 'Invalid Credentials', message: 'The email or password you entered is incorrect.' };
+        return { 
+          title: 'Login Cancelled', 
+          message: 'If the Google window was blank, your domain might not be authorized. Copy the hostname below to fix it.',
+          domain: hostname
+        };
       default:
-        return { title: 'Authentication Error', message: error?.message || 'An unexpected error occurred during login.' };
+        return { title: 'Authentication Error', message: error?.message || 'An unexpected error occurred.', domain: hostname };
     }
   };
 
@@ -99,14 +97,6 @@ export default function LoginPage() {
       router.push('/dashboard');
     } catch (error: any) {
       setAuthError(getFriendlyErrorMessage(error));
-      // If error code is missing (common with domain issues), provide a fallback hint
-      if (!error.code) {
-        setAuthError({
-          title: 'Connection Issue',
-          message: 'If the Google popup appeared blank or closed immediately, your current domain might not be authorized.',
-          domain: typeof window !== 'undefined' ? window.location.hostname : 'unknown'
-        });
-      }
     } finally {
       setIsGoogleLoading(false);
     }
@@ -115,21 +105,13 @@ export default function LoginPage() {
   const handleForgotPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!resetEmail) return;
-    
     setIsResetLoading(true);
     try {
       await sendPasswordResetEmail(auth, resetEmail);
-      toast({ 
-        title: 'Reset Link Sent', 
-        description: 'Check your email inbox for instructions to reset your password.' 
-      });
+      toast({ title: 'Reset Link Sent', description: 'Check your email for reset instructions.' });
       setIsResetDialogOpen(false);
     } catch (error: any) {
-      toast({ 
-        variant: 'destructive',
-        title: 'Error', 
-        description: error.message || 'Could not send reset email.' 
-      });
+      toast({ variant: 'destructive', title: 'Error', description: error.message });
     } finally {
       setIsResetLoading(false);
     }
@@ -148,7 +130,7 @@ export default function LoginPage() {
         </CardHeader>
         <CardContent className="p-8 pt-10 space-y-6">
           {authError && (
-            <Alert variant="destructive" className="rounded-2xl bg-destructive/5 border-destructive/20 animate-in fade-in slide-in-from-top-1">
+            <Alert variant="destructive" className="rounded-2xl bg-destructive/5 border-destructive/20">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle className="font-bold">{authError.title}</AlertTitle>
               <AlertDescription className="space-y-3">
@@ -202,26 +184,15 @@ export default function LoginPage() {
                           <DialogTitle className="flex items-center gap-2">
                             <KeyRound className="w-5 h-5 text-primary" /> Reset Password
                           </DialogTitle>
-                          <DialogDescription>
-                            Enter your email address and we&apos;ll send you a link to reset your password.
-                          </DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleForgotPassword} className="space-y-4 py-4">
                           <div className="space-y-2">
                             <Label htmlFor="reset-email">Email Address</Label>
-                            <Input 
-                              id="reset-email" 
-                              type="email" 
-                              placeholder="name@example.com"
-                              className="rounded-xl h-11"
-                              value={resetEmail}
-                              onChange={(e) => setResetEmail(e.target.value)}
-                              required
-                            />
+                            <Input id="reset-email" type="email" placeholder="name@example.com" className="rounded-xl h-11" value={resetEmail} onChange={(e) => setResetEmail(e.target.value)} required />
                           </div>
                           <DialogFooter>
                             <Button type="submit" className="w-full rounded-xl h-11 font-bold" disabled={isResetLoading}>
-                              {isResetLoading ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : 'Send Reset Link'}
+                              {isResetLoading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Send Reset Link'}
                             </Button>
                           </DialogFooter>
                         </form>
@@ -241,7 +212,7 @@ export default function LoginPage() {
                 </FormItem>
               )} />
               <Button type="submit" className="w-full h-12 text-lg rounded-xl font-bold shadow-lg shadow-primary/20 mt-2" disabled={isLoading || isGoogleLoading}>
-                {isLoading ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : 'Sign In'}
+                {isLoading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Sign In'}
                 {!isLoading && <LogIn className="ml-2 h-4 w-4" />}
               </Button>
             </form>
@@ -253,13 +224,8 @@ export default function LoginPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Button 
-              variant="outline" 
-              className="h-12 rounded-xl border-zinc-200 dark:border-zinc-800 font-bold" 
-              onClick={handleGoogleLogin}
-              disabled={isLoading || isGoogleLoading}
-            >
-              {isGoogleLoading ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : 'Google'}
+            <Button variant="outline" className="h-12 rounded-xl border-zinc-200 font-bold" onClick={handleGoogleLogin} disabled={isLoading || isGoogleLoading}>
+              {isGoogleLoading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Google'}
             </Button>
             <Button variant="secondary" className="h-12 rounded-xl font-bold" onClick={() => signInAnonymously(auth).then(() => router.push('/dashboard'))}>
               <UserRound className="mr-2 h-4 w-4" /> Guest
@@ -267,9 +233,7 @@ export default function LoginPage() {
           </div>
         </CardContent>
         <CardFooter className="flex justify-center p-8 bg-secondary/10 border-t">
-          <p className="text-sm text-muted-foreground font-medium">
-            New traveler? <Link href="/signup" className="text-primary font-bold hover:underline">Join Now</Link>
-          </p>
+          <p className="text-sm text-muted-foreground font-medium">New traveler? <Link href="/signup" className="text-primary font-bold hover:underline">Join Now</Link></p>
         </CardFooter>
       </Card>
     </div>
