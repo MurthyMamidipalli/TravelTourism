@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -217,7 +216,7 @@ export default function GuideRegistrationPage() {
                     <FormItem><FormLabel>Primary Operational City</FormLabel><FormControl><Input placeholder="e.g. Tirupati" className="rounded-xl h-11" {...field} suppressHydrationWarning /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="languages" render={({ field }) => (
-                    <FormItem><FormLabel>Languages Spoken</FormLabel><FormControl><Input placeholder="e.g. Telugu, English, Hindi" className="rounded-xl h-11" {...field} suppressHydrationWarning /></FormControl><FormMessage /></FormMessage>
+                    <FormItem><FormLabel>Languages Spoken</FormLabel><FormControl><Input placeholder="e.g. Telugu, English, Hindi" className="rounded-xl h-11" {...field} suppressHydrationWarning /></FormControl><FormMessage /></FormItem>
                   )} />
                 </div>
 
