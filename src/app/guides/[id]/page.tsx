@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useMemo } from 'react';
@@ -27,7 +26,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
 
   const experienceList = useMemo(() => {
     if (!guide?.experience) return [];
-    return guide.experience
+    return String(guide.experience)
       .split('\n')
       .map((line: string) => {
         const parts = line.split('-').map(s => s.trim());
@@ -63,7 +62,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
           <Card className="border-none shadow-sm overflow-hidden bg-white dark:bg-zinc-900">
             <div className="relative h-80">
               <Image 
-                src={guide.imageUrl || `https://picsum.photos/seed/${guide.id}/400/400`} 
+                src={guide.imageUrl || `https://picsum.photos/seed/${id}/400/400`} 
                 alt={guide.fullName || 'Guide'} 
                 fill 
                 priority
@@ -154,7 +153,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
                   <h3 className="font-headline text-2xl font-bold flex items-center gap-2">
                     <ShieldCheck className="w-6 h-6 text-accent" /> Government Verification
                   </h3>
-                  <p className="text-muted-foreground">Identity documents verified for traveler safety and trust.</p>
+                  <p className="text-muted-foreground">Certified documentation ensuring safety and trust.</p>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -201,7 +200,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
 
                 <div className="bg-accent/5 p-6 rounded-2xl border border-accent/20 flex gap-4">
                    <Info className="w-5 h-5 text-accent flex-shrink-0" />
-                   <p className="text-sm text-muted-foreground">Full ID details are visible to confirmed tourists to verify the authenticity of the local expert.</p>
+                   <p className="text-sm text-muted-foreground">Full ID details are provided to confirmed travelers to verify authenticity of local expertise.</p>
                 </div>
               </Card>
             </TabsContent>
@@ -225,7 +224,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
               </h3>
               <div className="space-y-4">
                 <div className="grid grid-cols-2 text-[10px] font-black uppercase tracking-widest text-muted-foreground border-b pb-2">
-                  <span>Places Explored / Shown</span>
+                  <span>Places Explored</span>
                   <span className="text-right">Frequency</span>
                 </div>
                 <div className="divide-y divide-secondary/30">
@@ -238,7 +237,7 @@ export default function GuideProfilePage({ params }: { params: Promise<{ id: str
                     </div>
                   ))}
                   {experienceList.length === 0 && (
-                    <p className="text-sm text-muted-foreground py-4 italic">No specific experience details listed.</p>
+                    <p className="text-sm text-muted-foreground py-4 italic">No specific experience details provided.</p>
                   )}
                 </div>
               </div>
