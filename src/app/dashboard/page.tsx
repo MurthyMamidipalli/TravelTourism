@@ -1,14 +1,15 @@
+
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Compass, Star, History, Calendar, Settings, User, Phone, Fingerprint, ShieldAlert, LogIn } from 'lucide-react';
+import { Compass, Star, History, Calendar, Settings, User, Phone, Fingerprint, ShieldAlert, LogIn, CreditCard, Globe } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { doc } from 'firebase/firestore';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function DashboardPage() {
@@ -22,8 +23,18 @@ export default function DashboardPage() {
 
   const { data: profile, loading: profileLoading } = useDoc(userDocRef);
 
-  // Optimize loading check: don't stop loading until both auth and profile are resolved if a user is expected
-  const isActuallyLoading = authLoading || (user && profileLoading && !profile);
+  // Performance Optimization: Stabilized loading check to prevent layout shift
+  const [isActuallyLoading, setIsActuallyLoading] = useState(true);
+
+  useEffect(() => {
+    if (!authLoading) {
+      if (!user) {
+        setIsActuallyLoading(false);
+      } else if (!profileLoading) {
+        setIsActuallyLoading(false);
+      }
+    }
+  }, [authLoading, profileLoading, user]);
 
   if (isActuallyLoading) {
     return (
@@ -45,7 +56,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!user && !authLoading) {
+  if (!user) {
     return (
       <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center text-center space-y-6 min-h-[60vh]">
         <div className="bg-primary/10 p-6 rounded-full">
@@ -64,25 +75,19 @@ export default function DashboardPage() {
     );
   }
 
-  const isAnonymous = user?.isAnonymous;
   const firstName = profile?.fullName?.split(' ')[0] || user?.displayName?.split(' ')[0] || 'Traveler';
 
   return (
-    <div className="container mx-auto px-4 py-12 space-y-12 min-h-screen [scrollbar-gutter:stable]">
+    <div className="container mx-auto px-4 py-12 space-y-12 min-h-screen">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-2">
-          <motion.h1 
-            initial={{ opacity: 0, x: -10 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.3 }}
-            className="text-4xl md:text-5xl font-black tracking-tight"
-          >
+          <motion.h1 initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} className="text-4xl md:text-5xl font-black tracking-tight">
             Welcome, {firstName}!
           </motion.h1>
           <p className="text-muted-foreground text-lg">Your personalized journey through the wonders of India starts here.</p>
         </div>
         <div className="flex gap-3">
-          <Link href="/destinations">
+          <Link href="/locations">
             <Button className="rounded-2xl h-12 px-6 bg-primary shadow-lg shadow-primary/20">
               <Compass className="w-4 h-4 mr-2" /> Start Exploring
             </Button>
@@ -95,7 +100,7 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {isAnonymous && (
+      {user.isAnonymous && (
         <Alert className="rounded-2xl bg-primary/5 border-primary/20">
           <ShieldAlert className="h-5 w-5 text-primary" />
           <AlertTitle className="font-bold">Guest Mode</AlertTitle>
@@ -112,42 +117,52 @@ export default function DashboardPage() {
               <User className="w-6 h-6 text-primary" />
               <CardTitle>{profile?.isVerified ? 'Verified Profile' : 'Traveler Profile'}</CardTitle>
             </div>
-            <CardDescription>Your secure travel identity</CardDescription>
+            <CardDescription>Your secure travel identity and documentation</CardDescription>
           </CardHeader>
-          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
+          <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-6">
               <div className="flex items-center gap-3">
-                <User className="w-5 h-5 text-muted-foreground" />
+                <div className="bg-white p-2 rounded-lg shadow-sm"><User className="w-4 h-4 text-primary" /></div>
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Full Name</p>
-                  <p className="font-bold">{profile?.fullName || user?.displayName || 'Traveler'}</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Legal Name</p>
+                  <p className="font-bold text-sm">{profile?.fullName || user?.displayName || 'Traveler'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Calendar className="w-5 h-5 text-muted-foreground" />
+                <div className="bg-white p-2 rounded-lg shadow-sm"><Fingerprint className="w-4 h-4 text-primary" /></div>
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Age</p>
-                  <p className="font-bold">{profile?.age ? `${profile.age} Years` : 'N/A'}</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Aadhar ID</p>
+                  <p className="font-mono text-sm font-bold">{profile?.aadharNumber ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` : 'Pending'}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="bg-white p-2 rounded-lg shadow-sm"><CreditCard className="w-4 h-4 text-primary" /></div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">PAN Card</p>
+                  <p className="font-mono text-sm font-bold uppercase">{profile?.panNumber || 'Pending'}</p>
                 </div>
               </div>
             </div>
-            <div className="space-y-4">
+            <div className="space-y-6">
               <div className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-muted-foreground" />
+                <div className="bg-white p-2 rounded-lg shadow-sm"><Phone className="w-4 h-4 text-primary" /></div>
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Mobile Number</p>
-                  <p className="font-bold">{profile?.mobileNumber || 'N/A'}</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Mobile Contact</p>
+                  <p className="font-bold text-sm">{profile?.mobileNumber || 'N/A'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <Fingerprint className="w-5 h-5 text-muted-foreground" />
+                <div className="bg-white p-2 rounded-lg shadow-sm"><Globe className="w-4 h-4 text-primary" /></div>
                 <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Aadhar Verification</p>
-                  <p className="font-bold">
-                    {profile?.aadharNumber 
-                      ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` 
-                      : 'Not Verified'}
-                  </p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Passport ID</p>
+                  <p className="font-mono text-sm font-bold uppercase">{profile?.passportNumber || 'Pending'}</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <div className="bg-white p-2 rounded-lg shadow-sm"><Calendar className="w-4 h-4 text-primary" /></div>
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Age</p>
+                  <p className="font-bold text-sm">{profile?.age ? `${profile.age} Years` : 'N/A'}</p>
                 </div>
               </div>
             </div>
@@ -158,10 +173,10 @@ export default function DashboardPage() {
           <CardHeader>
             <Star className="w-8 h-8 text-primary mb-2" />
             <CardTitle>Saved Places</CardTitle>
-            <CardDescription>Your favorite destinations</CardDescription>
+            <CardDescription>Destinations available for offline access</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground italic">Save attractions to see them here.</p>
+            <p className="text-sm text-muted-foreground italic">Your saved offline landmarks will appear here.</p>
           </CardContent>
         </Card>
       </div>
@@ -170,11 +185,13 @@ export default function DashboardPage() {
         <Card className="premium-card bg-accent/5 border-accent/20">
           <CardHeader>
             <Calendar className="w-8 h-8 text-accent mb-2" />
-            <CardTitle>Upcoming Trips</CardTitle>
-            <CardDescription>Plan your next adventure</CardDescription>
+            <CardTitle>Trip Planning</CardTitle>
+            <CardDescription>Personalized AI Itineraries</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground italic">No trips planned yet.</p>
+            <Link href="/trip-planner">
+              <Button variant="link" className="p-0 h-auto font-bold text-accent">Open AI Planner <Compass className="w-3 h-3 ml-1" /></Button>
+            </Link>
           </CardContent>
         </Card>
 
@@ -195,9 +212,9 @@ export default function DashboardPage() {
             <CardTitle>Quick Links</CardTitle>
           </CardHeader>
           <CardContent className="flex flex-col gap-2">
-            <Link href="/locations/andhra-pradesh" className="text-sm font-bold text-primary hover:underline">Andhra Pradesh Districts</Link>
+            <Link href="/locations/andhra-pradesh" className="text-sm font-bold text-primary hover:underline">AP Districts</Link>
             <Link href="/locations/telangana" className="text-sm font-bold text-primary hover:underline">Telangana Districts</Link>
-            <Link href="/guides" className="text-sm font-bold text-primary hover:underline">Find Verified Guides</Link>
+            <Link href="/guides" className="text-sm font-bold text-primary hover:underline">Verified Guides</Link>
           </CardContent>
         </Card>
       </div>

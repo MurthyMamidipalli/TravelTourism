@@ -2,27 +2,25 @@
 'use client';
 
 import { use, useMemo, useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
-import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, MapPin, Calendar, ArrowRight, Sparkles, Filter } from 'lucide-react';
+import { ArrowLeft, Filter } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import TouristCard from '@/components/TouristCard';
 
 const allDestinations = [
-  { id: 'tirumala-temple', name: 'Tirumala Temple', districtId: 'tirupati', district: 'Tirupati', category: 'Pilgrimage', rating: 4.9, timings: '3AM-12PM', entryFee: '₹300 (Special)', desc: 'World famous Hindu temple on the hills of Tirumala.' },
-  { id: 'sri-kalahasti', name: 'Sri Kalahasti', districtId: 'tirupati', district: 'Tirupati', category: 'Pilgrimage', rating: 4.7, timings: '6AM-9PM', entryFee: 'Free', desc: 'Famous Shiva temple known for Vayu Linga.' },
-  { id: 'talakona-waterfalls', name: 'Talakona Waterfalls', districtId: 'tirupati', district: 'Tirupati', category: 'Nature', rating: 4.8, timings: '6AM-6PM', entryFee: '₹50', desc: 'Highest waterfall in Andhra Pradesh.' },
-  { id: 'chandragiri-fort', name: 'Chandragiri Fort', districtId: 'tirupati', district: 'Tirupati', category: 'Heritage', rating: 4.5, timings: '9AM-5PM', entryFee: '₹20', desc: '11th century fort and archaeological museum.' },
-  { id: 'vizag', name: 'Visakhapatnam', districtId: 'vizag', district: 'Vizag', category: 'City', rating: 4.6, timings: '24/7', entryFee: 'Free', desc: 'A port city known for its beautiful beaches.' },
-  { id: 'rk-beach', name: 'RK Beach', districtId: 'vizag', district: 'Vizag', category: 'Beach', rating: 4.5, timings: '24/7', entryFee: 'Free', desc: 'The most popular urban beach in Vizag.' },
-  { id: 'kailasagiri', name: 'Kailasagiri', districtId: 'vizag', district: 'Vizag', category: 'Park', rating: 4.7, timings: '10AM-8PM', entryFee: '₹10', desc: 'Hilltop park with panoramic views of the coast.' },
-  { id: 'ins-kurusura', name: 'INS Kurusura Museum', districtId: 'vizag', district: 'Vizag', category: 'Museum', rating: 4.8, timings: '2PM-8PM', entryFee: '₹40', desc: 'Submarine museum established in a decommissioned sub.' },
-  { id: 'araku-valley', name: 'Araku Valley', districtId: 'asr', district: 'ASR District', category: 'Hill Station', rating: 4.8, timings: '24/7', entryFee: 'Free', desc: 'Beautiful hill station with coffee plantations.' },
-  { id: 'borra-caves', name: 'Borra Caves', districtId: 'asr', district: 'Araku', category: 'Nature', rating: 4.9, timings: '10AM-5PM', entryFee: '₹60', desc: 'Millions of years old limestone caves.' },
+  { id: 'tirumala-temple', name: 'Tirumala Temple', districtId: 'tirupati', district: 'Tirupati', category: 'Temples', rating: 4.9, timings: '3AM-12PM', entryFee: '₹300 (Special)', desc: 'World famous Hindu temple on the hills of Tirumala.' },
+  { id: 'sri-kalahasti', name: 'Sri Kalahasti', districtId: 'tirupati', district: 'Tirupati', category: 'Temples', rating: 4.7, timings: '6AM-9PM', entryFee: 'Free', desc: 'Famous Shiva temple known for Vayu Linga.' },
+  { id: 'talakona-waterfalls', name: 'Talakona Waterfalls', districtId: 'tirupati', district: 'Tirupati', category: 'Waterfalls', rating: 4.8, timings: '6AM-6PM', entryFee: '₹50', desc: 'Highest waterfall in Andhra Pradesh.' },
+  { id: 'chandragiri-fort', name: 'Chandragiri Fort', districtId: 'tirupati', district: 'Tirupati', category: 'Forts', rating: 4.5, timings: '9AM-5PM', entryFee: '₹20', desc: '11th century fort and archaeological museum.' },
+  { id: 'vizag', name: 'Visakhapatnam', districtId: 'vizag', district: 'Vizag', category: 'Historical places', rating: 4.6, timings: '24/7', entryFee: 'Free', desc: 'A port city known for its beautiful beaches.' },
+  { id: 'rk-beach', name: 'RK Beach', districtId: 'vizag', district: 'Vizag', category: 'Resorts', rating: 4.5, timings: '24/7', entryFee: 'Free', desc: 'The most popular urban beach in Vizag.' },
+  { id: 'kailasagiri', name: 'Kailasagiri', districtId: 'vizag', district: 'Vizag', category: 'Hill stations', rating: 4.7, timings: '10AM-8PM', entryFee: '₹10', desc: 'Hilltop park with panoramic views of the coast.' },
+  { id: 'ins-kurusura', name: 'INS Kurusura Museum', districtId: 'vizag', district: 'Vizag', category: 'Historical places', rating: 4.8, timings: '2PM-8PM', entryFee: '₹40', desc: 'Submarine museum established in a decommissioned sub.' },
+  { id: 'araku-valley', name: 'Araku Valley', districtId: 'asr', district: 'ASR District', category: 'Hill stations', rating: 4.8, timings: '24/7', entryFee: 'Free', desc: 'Beautiful hill station with coffee plantations.' },
+  { id: 'borra-caves', name: 'Borra Caves', districtId: 'asr', district: 'Araku', category: 'Wildlife', rating: 4.9, timings: '10AM-5PM', entryFee: '₹60', desc: 'Millions of years old limestone caves.' },
   { id: 'konaseema', name: 'Konaseema', districtId: 'konaseema', district: 'Konaseema', category: 'Resorts', rating: 4.7, timings: '24/7', entryFee: 'Varies', desc: 'Lush green landscapes resembling backwaters.' },
 ];
 
@@ -35,9 +33,9 @@ export default function DistrictPage({ params }: { params: Promise<{ id: string 
   }, [id]);
 
   const categories = useMemo(() => {
-    const cats = new Set(districtDestinations.map(d => d.category));
+    const cats = new Set(allDestinations.map(d => d.category));
     return ['All', ...Array.from(cats)];
-  }, [districtDestinations]);
+  }, []);
 
   const filteredDestinations = useMemo(() => {
     if (activeCategory === 'All') return districtDestinations;
@@ -48,10 +46,10 @@ export default function DistrictPage({ params }: { params: Promise<{ id: string 
     return id.charAt(0).toUpperCase() + id.slice(1).replace('-', ' ');
   }, [id]);
 
-  const getDestinationImage = (dest: any) => {
-    const found = PlaceHolderImages.find(img => img.id === dest.id);
+  const getDestinationImage = (destId: string) => {
+    const found = PlaceHolderImages.find(img => img.id === destId);
     if (found) return found.imageUrl;
-    return `https://picsum.photos/seed/${dest.id}/600/400`;
+    return `https://picsum.photos/seed/${destId}/600/400`;
   };
 
   return (
@@ -70,17 +68,16 @@ export default function DistrictPage({ params }: { params: Promise<{ id: string 
           </Link>
         </div>
 
-        {/* Category Filter Option Below */}
         <div className="flex flex-wrap items-center gap-2 pt-4 border-t">
           <div className="flex items-center gap-2 mr-4 text-xs font-black uppercase tracking-widest text-muted-foreground">
-            <Filter className="w-3.5 h-3.5" /> Filter by
+            <Filter className="w-3.5 h-3.5" /> Filter by Category
           </div>
           {categories.map((cat) => (
             <Button
               key={cat}
               variant={activeCategory === cat ? 'default' : 'outline'}
               size="sm"
-              className={`rounded-full px-4 h-9 font-bold transition-all ${activeCategory === cat ? 'shadow-md' : ''}`}
+              className={`rounded-full px-4 h-9 font-bold transition-all ${activeCategory === cat ? 'shadow-md shadow-primary/20' : ''}`}
               onClick={() => setActiveCategory(cat)}
             >
               {cat}
@@ -99,7 +96,7 @@ export default function DistrictPage({ params }: { params: Promise<{ id: string 
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.15, delay: idx * 0.05 }}
+                transition={{ duration: 0.2, delay: idx * 0.05 }}
               >
                 <TouristCard 
                   id={dest.id}
@@ -108,7 +105,7 @@ export default function DistrictPage({ params }: { params: Promise<{ id: string 
                   category={dest.category}
                   rating={dest.rating}
                   description={dest.desc}
-                  image={getDestinationImage(dest)}
+                  image={getDestinationImage(dest.id)}
                   timings={dest.timings}
                   entryFee={dest.entryFee}
                 />
@@ -116,8 +113,8 @@ export default function DistrictPage({ params }: { params: Promise<{ id: string 
             ))
           ) : (
             <div className="col-span-full py-24 text-center bg-secondary/10 rounded-3xl border border-dashed">
-              <p className="text-muted-foreground">No destinations match the selected category in this district.</p>
-              <Button variant="link" onClick={() => setActiveCategory('All')}>Clear Filters</Button>
+              <p className="text-muted-foreground">No destinations match "{activeCategory}" in this district yet.</p>
+              <Button variant="link" onClick={() => setActiveCategory('All')} className="text-primary font-bold">Clear Filters</Button>
             </div>
           )}
         </AnimatePresence>

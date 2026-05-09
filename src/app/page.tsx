@@ -17,7 +17,7 @@ export default function Home() {
           Your portal to the wonders of the heart of India.
         </p>
         <div className="pt-4">
-          <Link href="/destinations">
+          <Link href="/locations">
             <Button size="lg" className="rounded-2xl h-16 px-12 text-xl font-bold shadow-2xl shadow-primary/30 hover:scale-105 transition-transform">
               Start Exploring
             </Button>

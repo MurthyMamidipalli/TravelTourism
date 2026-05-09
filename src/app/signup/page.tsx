@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -14,7 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, UserPlus, Mail, Lock, User, Phone, Calendar, Fingerprint, CreditCard, Globe, FileText } from 'lucide-react';
+import { Eye, EyeOff, UserPlus, Mail, Lock, Fingerprint, CreditCard, Globe, FileText, Calendar, Phone } from 'lucide-react';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -27,7 +28,7 @@ const signupSchema = z.object({
   mobileNumber: z.string().regex(/^\d{10}$/, { message: 'Mobile must be exactly 10 digits.' }),
   aadharNumber: z.string().regex(/^\d{12}$/, { message: '12-digit Aadhar number is mandatory.' }),
   panNumber: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, { message: 'Invalid PAN card format.' }),
-  passportNumber: z.string().min(5, { message: 'Passport number is required for international compliance.' }),
+  passportNumber: z.string().min(5, { message: 'Passport number is required.' }),
 });
 
 export default function SignupPage() {
@@ -64,9 +65,7 @@ export default function SignupPage() {
       const { user } = await createUserWithEmailAndPassword(auth, values.email, values.password);
       
       const fullName = `${values.firstName} ${values.lastName}`;
-      await updateProfile(user, {
-        displayName: fullName,
-      });
+      await updateProfile(user, { displayName: fullName });
 
       const userDocRef = doc(firestore, 'users', user.uid);
       const profileData = {
@@ -90,11 +89,7 @@ export default function SignupPage() {
           }));
         });
 
-      toast({ 
-        title: 'Account Created', 
-        description: `Welcome, ${values.firstName}! Your identity has been verified.` 
-      });
-      
+      toast({ title: 'Account Created', description: `Welcome, ${values.firstName}! Identity verified.` });
       router.push('/dashboard');
     } catch (error: any) {
       toast({
@@ -160,13 +155,15 @@ export default function SignupPage() {
                           {...field}
                           suppressHydrationWarning
                         />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
-                        >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
+                        {mounted && (
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        )}
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -183,9 +180,9 @@ export default function SignupPage() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField control={form.control} name="aadharNumber" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Aadhar Number</FormLabel>
+                      <FormLabel>Aadhar (12-digit UID)</FormLabel>
                       <FormControl>
-                        <Input maxLength={12} className="rounded-xl h-11" placeholder="12-digit UID" {...field} />
+                        <Input maxLength={12} className="rounded-xl h-11" placeholder="XXXX-XXXX-XXXX" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -213,20 +210,14 @@ export default function SignupPage() {
                 )} />
 
                 <div className="space-y-4 pt-4 border-t">
-                  <p className="text-xs font-bold text-muted-foreground uppercase">Upload ID Proofs (Soft Copies)</p>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl hover:bg-primary/5 transition-colors cursor-pointer group">
-                      <FileText className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-2" />
-                      <span className="text-[10px] font-bold">Aadhar</span>
-                    </div>
-                    <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl hover:bg-primary/5 transition-colors cursor-pointer group">
-                      <FileText className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-2" />
-                      <span className="text-[10px] font-bold">PAN Card</span>
-                    </div>
-                    <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl hover:bg-primary/5 transition-colors cursor-pointer group">
-                      <FileText className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-2" />
-                      <span className="text-[10px] font-bold">Passport</span>
-                    </div>
+                  <p className="text-xs font-bold text-muted-foreground uppercase">Upload Proofs (Soft Copies)</p>
+                  <div className="grid grid-cols-3 gap-4">
+                    {['Aadhar', 'PAN', 'Passport'].map((label) => (
+                      <div key={label} className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl hover:bg-primary/5 transition-colors cursor-pointer group">
+                        <FileText className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-1" />
+                        <span className="text-[10px] font-bold">{label}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
               </div>
@@ -234,16 +225,16 @@ export default function SignupPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField control={form.control} name="age" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Age</FormLabel>
+                    <FormLabel><Calendar className="w-3 h-3 inline mr-1" /> Age</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="25" className="h-11 rounded-xl" {...field} suppressHydrationWarning />
+                      <Input type="number" className="h-11 rounded-xl" {...field} suppressHydrationWarning />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
                 <FormField control={form.control} name="mobileNumber" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Mobile Number</FormLabel>
+                    <FormLabel><Phone className="w-3 h-3 inline mr-1" /> Mobile</FormLabel>
                     <FormControl>
                       <Input placeholder="10-digit number" maxLength={10} className="h-11 rounded-xl" {...field} suppressHydrationWarning />
                     </FormControl>
@@ -252,23 +243,16 @@ export default function SignupPage() {
                 )} />
               </div>
 
-              <Button 
-                type="submit" 
-                className="w-full h-12 text-lg rounded-xl mt-4 font-bold shadow-xl shadow-primary/20" 
-                disabled={isLoading}
-              >
+              <Button type="submit" className="w-full h-14 text-lg rounded-2xl mt-4 font-bold shadow-xl shadow-primary/20" disabled={isLoading}>
                 {isLoading ? 'Creating Verified Account...' : 'Complete Registration'}
-                <UserPlus className="ml-2 h-4 w-4" />
+                <UserPlus className="ml-2 h-5 w-5" />
               </Button>
             </form>
           </Form>
         </CardContent>
         <CardFooter className="flex justify-center p-8 bg-secondary/10 border-t">
-          <p className="text-sm text-muted-foreground">
-            Already have an account?{' '}
-            <Link href="/login" className="text-primary font-bold hover:underline">
-              Sign in
-            </Link>
+          <p className="text-sm text-muted-foreground font-medium">
+            Already have an account? <Link href="/login" className="text-primary font-bold hover:underline">Sign in</Link>
           </p>
         </CardFooter>
       </Card>
