@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
@@ -46,7 +45,14 @@ export default function ProfilePage() {
 
   const form = useForm<z.infer<typeof editProfileSchema>>({
     resolver: zodResolver(editProfileSchema),
-    defaultValues: { fullName: '', age: 0, mobileNumber: '', aadharNumber: '', panNumber: '', passportNumber: '' },
+    defaultValues: {
+      fullName: '',
+      age: 0,
+      mobileNumber: '',
+      aadharNumber: '',
+      panNumber: '',
+      passportNumber: ''
+    },
   });
 
   useEffect(() => {
@@ -137,21 +143,47 @@ export default function ProfilePage() {
             <DialogContent className="sm:max-w-[500px] rounded-3xl max-h-[90vh] overflow-y-auto">
               <DialogHeader><DialogTitle>Verify Identity Documents</DialogTitle></DialogHeader>
               <form onSubmit={form.handleSubmit(onSaveProfile)} className="space-y-4 py-4">
-                <div className="space-y-2"><Label>Full Name (as per documents)</Label><Input {...form.register('fullName')} className="rounded-xl h-11" /></div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2"><Label>Age</Label><Input type="number" {...form.register('age')} className="rounded-xl h-11" /></div>
-                  <div className="space-y-2"><Label>Mobile</Label><Input maxLength={10} {...form.register('mobileNumber')} className="rounded-xl h-11" /></div>
+                <div className="space-y-2">
+                  <Label>Full Name (as per documents)</Label>
+                  <Input {...form.register('fullName')} className="rounded-xl h-11" />
                 </div>
-                <div className="space-y-2"><Label className="flex items-center gap-2"><Fingerprint className="w-4 h-4" /> Aadhar UID</Label><Input maxLength={12} {...form.register('aadharNumber')} className="rounded-xl h-11" placeholder="12-digit UID" /></div>
-                <div className="space-y-2"><Label className="flex items-center gap-2"><CreditCard className="w-4 h-4" /> PAN Number</Label><Input {...form.register('panNumber')} className="rounded-xl h-11 uppercase" placeholder="ABCDE1234F" /></div>
-                <div className="space-y-2"><Label className="flex items-center gap-2"><Globe className="w-4 h-4" /> Passport ID</Label><Input {...form.register('passportNumber')} className="rounded-xl h-11" placeholder="Enter Passport" /></div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Age</Label>
+                    <Input type="number" {...form.register('age')} className="rounded-xl h-11" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Mobile</Label>
+                    <Input maxLength={10} {...form.register('mobileNumber')} className="rounded-xl h-11" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2"><Fingerprint className="w-4 h-4" /> Aadhar UID</Label>
+                  <Input maxLength={12} {...form.register('aadharNumber')} className="rounded-xl h-11" placeholder="12-digit UID" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2"><CreditCard className="w-4 h-4" /> PAN Number</Label>
+                  <Input {...form.register('panNumber')} className="rounded-xl h-11 uppercase" placeholder="ABCDE1234F" />
+                </div>
+                <div className="space-y-2">
+                  <Label className="flex items-center gap-2"><Globe className="w-4 h-4" /> Passport ID</Label>
+                  <Input {...form.register('passportNumber')} className="rounded-xl h-11" placeholder="Enter Passport" />
+                </div>
                 <div className="p-4 bg-secondary/20 rounded-2xl space-y-3">
                   <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Upload Proofs</p>
                   <div className="grid grid-cols-3 gap-2">
-                    {[1, 2, 3].map(i => <div key={i} className="h-16 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-primary/5 transition-colors"><FileText className="w-4 h-4 text-muted-foreground opacity-30" /></div>)}
+                    {[1, 2, 3].map(i => (
+                      <div key={i} className="h-16 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-primary/5 transition-colors">
+                        <FileText className="w-4 h-4 text-muted-foreground opacity-30" />
+                      </div>
+                    ))}
                   </div>
                 </div>
-                <DialogFooter className="pt-4"><Button type="submit" className="w-full rounded-xl h-12 font-bold" disabled={isSaving}>{isSaving ? <Loader2 className="animate-spin" /> : 'Confirm Identity Verification'}</Button></DialogFooter>
+                <DialogFooter className="pt-4">
+                  <Button type="submit" className="w-full rounded-xl h-12 font-bold" disabled={isSaving}>
+                    {isSaving ? <Loader2 className="animate-spin" /> : 'Confirm Identity Verification'}
+                  </Button>
+                </DialogFooter>
               </form>
             </DialogContent>
           </Dialog>
@@ -180,7 +212,11 @@ export default function ProfilePage() {
                 <div className="flex justify-between border-b pb-2"><span className="text-xs text-muted-foreground">PAN Tax ID</span><span className="font-mono text-xs font-bold uppercase">{profile?.panNumber || 'Pending'}</span></div>
                 <div className="flex justify-between pb-2"><span className="text-xs text-muted-foreground">Passport ID</span><span className="font-mono text-xs font-bold uppercase">{profile?.passportNumber || 'Pending'}</span></div>
               </div>
-              {profile?.isVerified && <div className="flex items-center gap-2 text-accent font-bold py-2 bg-accent/10 px-4 rounded-xl border border-accent/20"><CheckCircle2 className="w-5 h-5" /> Documents Fully Verified</div>}
+              {profile?.isVerified && (
+                <div className="flex items-center gap-2 text-accent font-bold py-2 bg-accent/10 px-4 rounded-xl border border-accent/20">
+                  <CheckCircle2 className="w-5 h-5" /> Documents Fully Verified
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>

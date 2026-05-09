@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, UserPlus, Mail, Lock, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, UserPlus, ShieldCheck } from 'lucide-react';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -90,6 +90,8 @@ export default function SignupPage() {
 
   return (
     <div className="container mx-auto px-4 py-12 flex justify-center items-center min-h-[80vh]">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-primary/5 rounded-full blur-[120px] -z-10 pointer-events-none" />
+      
       <Card className="w-full max-w-md border-none shadow-2xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
         <CardHeader className="space-y-1 text-center bg-primary/5 py-8">
           <CardTitle className="text-3xl font-black tracking-tight text-primary uppercase">TravelSphere</CardTitle>
@@ -159,7 +161,7 @@ export default function SignupPage() {
               <div className="bg-accent/5 p-4 rounded-2xl border border-accent/20 flex gap-3">
                 <ShieldCheck className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Identity documentation (Aadhar/Passport) can be uploaded later in your profile to gain verified status.
+                  Identity documentation (Aadhar/Passport) can be verified later in your profile to gain verified status.
                 </p>
               </div>
 
