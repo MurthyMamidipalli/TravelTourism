@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
@@ -32,6 +31,7 @@ const editProfileSchema = z.object({
   fullName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
   age: z.coerce.number().min(1, { message: 'Age is required.' }).max(120),
   mobileNumber: z.string().regex(/^\d{10}$/, { message: 'Mobile must be exactly 10 digits.' }),
+  aadharNumber: z.string().regex(/^\d{12}$/, { message: 'Aadhar must be exactly 12 digits.' }).optional().or(z.literal('')),
 });
 
 type EditProfileValues = z.infer<typeof editProfileSchema>;
@@ -61,6 +61,7 @@ export default function ProfilePage() {
       fullName: '',
       age: 0,
       mobileNumber: '',
+      aadharNumber: '',
     },
   });
 
@@ -70,6 +71,7 @@ export default function ProfilePage() {
         fullName: profile.fullName || user?.displayName || '',
         age: profile.age || 0,
         mobileNumber: profile.mobileNumber || '',
+        aadharNumber: profile.aadharNumber || '',
       });
     }
   }, [profile, user?.displayName, form]);
@@ -98,7 +100,7 @@ export default function ProfilePage() {
 
   const handleSendOtp = async () => {
     if (!profile?.aadharNumber) {
-      toast({ title: "Aadhar Missing", description: "Please ensure your Aadhar number is provided in profile.", variant: "destructive" });
+      toast({ title: "Aadhar Missing", description: "Please provide your 12-digit Aadhar number first.", variant: "destructive" });
       return;
     }
     setIsSendingOtp(true);
@@ -191,6 +193,10 @@ export default function ProfilePage() {
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2"><Label>Age</Label><Input type="number" {...form.register('age')} className="rounded-xl h-11" /></div>
                   <div className="space-y-2"><Label>Mobile</Label><Input maxLength={10} {...form.register('mobileNumber')} className="rounded-xl h-11" /></div>
+                </div>
+                <div className="space-y-2">
+                  <Label>Aadhar Number (12 Digits)</Label>
+                  <Input maxLength={12} {...form.register('aadharNumber')} placeholder="XXXX-XXXX-XXXX" className="rounded-xl h-11" />
                 </div>
                 <DialogFooter className="pt-4">
                   <Button type="submit" className="w-full rounded-xl h-12 text-lg font-bold" disabled={isSaving}>

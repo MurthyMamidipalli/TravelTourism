@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -15,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, UserPlus, Mail, Lock, User, Fingerprint, Phone, Calendar, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, UserPlus, Mail, Lock, User, Phone, Calendar, Loader2 } from 'lucide-react';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -25,7 +24,6 @@ const signupSchema = z.object({
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
   age: z.coerce.number().min(1, { message: 'Age is required.' }).max(120),
-  aadharNumber: z.string().regex(/^\d{12}$/, { message: 'Aadhar must be exactly 12 digits.' }),
   mobileNumber: z.string().regex(/^\d{10}$/, { message: 'Mobile must be exactly 10 digits.' }),
 });
 
@@ -45,7 +43,6 @@ export default function SignupPage() {
       email: '',
       password: '',
       age: 0,
-      aadharNumber: '',
       mobileNumber: '',
     },
   });
@@ -65,9 +62,8 @@ export default function SignupPage() {
         fullName,
         email: values.email,
         age: values.age,
-        aadharNumber: values.aadharNumber,
         mobileNumber: values.mobileNumber,
-        isVerified: false, // Verification happens in profile now
+        isVerified: false,
         createdAt: serverTimestamp(),
       };
 
@@ -82,7 +78,7 @@ export default function SignupPage() {
 
       toast({ 
         title: 'Account Created', 
-        description: `Welcome, ${values.firstName}! Please verify your Aadhar in your profile.` 
+        description: `Welcome, ${values.firstName}! You can verify your identity in your profile.` 
       });
       
       router.push('/dashboard');
@@ -173,28 +169,6 @@ export default function SignupPage() {
                   )}
                 />
               </div>
-
-              <FormField
-                control={form.control}
-                name="aadharNumber"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="flex items-center gap-2">
-                      <Fingerprint className="w-4 h-4 text-primary" /> Aadhar Number
-                    </FormLabel>
-                    <FormControl>
-                      <Input 
-                        placeholder="12-digit numeric ID" 
-                        maxLength={12} 
-                        className="h-11 rounded-xl" 
-                        {...field} 
-                      />
-                    </FormControl>
-                    <FormDescription className="text-[10px]">Verification via OTP will be required in your profile.</FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
 
               <FormField
                 control={form.control}
