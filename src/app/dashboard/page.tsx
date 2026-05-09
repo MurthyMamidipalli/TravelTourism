@@ -45,8 +45,9 @@ export default function DashboardPage() {
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
         <div className="space-y-2">
           <motion.h1 
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.3 }}
             className="text-4xl md:text-5xl font-black tracking-tight"
           >
             Welcome, {profile?.fullName?.split(' ')[0] || user?.displayName?.split(' ')[0] || 'Traveler'}!
@@ -76,7 +77,6 @@ export default function DashboardPage() {
       )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Tourist Profile Details */}
         <Card className="premium-card bg-primary/5 border-primary/20 lg:col-span-2">
           <CardHeader>
             <div className="flex items-center gap-2">
@@ -125,7 +125,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
 
-        {/* Saved Places Placeholder */}
         <Card className="premium-card">
           <CardHeader>
             <Star className="w-8 h-8 text-primary mb-2" />
@@ -146,7 +145,7 @@ export default function DashboardPage() {
             <CardDescription>Plan your next adventure</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground italic">No trips planned yet. Explore our 32 wonders to get started!</p>
+            <p className="text-sm text-muted-foreground italic">No trips planned yet.</p>
           </CardContent>
         </Card>
 
@@ -173,23 +172,6 @@ export default function DashboardPage() {
           </CardContent>
         </Card>
       </div>
-
-      <section className="bg-secondary/20 rounded-3xl p-8 md:p-12 border border-dashed border-muted-foreground/30 text-center space-y-6">
-        <div className="bg-white dark:bg-zinc-800 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto shadow-xl">
-           <MapPin className="w-8 h-8 text-accent" />
-        </div>
-        <div className="max-w-xl mx-auto space-y-2">
-          <h2 className="text-2xl font-bold">Ready for a Guided Tour?</h2>
-          <p className="text-muted-foreground">
-            Connect with certified local guides to unlock the secrets of historical landmarks like Tirumala or Araku Valley.
-          </p>
-        </div>
-        <Link href="/guides">
-          <Button variant="outline" className="rounded-xl px-8 h-12 border-primary text-primary hover:bg-primary hover:text-white transition-all">
-            Find a Local Expert
-          </Button>
-        </Link>
-      </section>
     </div>
   );
 }

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
@@ -104,31 +105,32 @@ export default function ProfilePage() {
       return;
     }
     setIsSendingOtp(true);
-    await new Promise(r => setTimeout(r, 50));
-    setIsSendingOtp(false);
-    setIsOtpSent(true);
-    toast({ title: "OTP Sent", description: "Verification code sent to your linked mobile number." });
+    setTimeout(() => {
+      setIsSendingOtp(false);
+      setIsOtpSent(true);
+      toast({ title: "OTP Sent", description: "Verification code sent." });
+    }, 100);
   };
 
   const handleVerifyOtp = async () => {
     if (otpValue.length !== 6 || !userDocRef) return;
     setIsVerifying(true);
-    await new Promise(r => setTimeout(r, 50));
-    setIsVerifying(false);
-    
-    if (otpValue === '123456') {
-      setDoc(userDocRef, { isVerified: true }, { merge: true })
-        .then(() => {
-          toast({ title: "Identity Verified", description: "Your account is now fully verified." });
-          setIsOtpSent(false);
-          setOtpValue('');
-        })
-        .catch(() => {
-          toast({ title: "Error", description: "Failed to update verification status.", variant: "destructive" });
-        });
-    } else {
-      toast({ title: "Invalid OTP", description: "The verification code you entered is incorrect. Please try again.", variant: "destructive" });
-    }
+    setTimeout(() => {
+      setIsVerifying(false);
+      if (otpValue === '123456') {
+        setDoc(userDocRef, { isVerified: true }, { merge: true })
+          .then(() => {
+            toast({ title: "Identity Verified", description: "Authenticated via Aadhaar." });
+            setIsOtpSent(false);
+            setOtpValue('');
+          })
+          .catch(() => {
+            toast({ title: "Error", variant: "destructive" });
+          });
+      } else {
+        toast({ title: "Invalid OTP", variant: "destructive" });
+      }
+    }, 100);
   };
 
   if (loading) {
@@ -144,7 +146,6 @@ export default function ProfilePage() {
     return (
       <div className="container mx-auto px-4 py-20 text-center space-y-4">
         <h1 className="text-3xl font-bold">Sign-in Required</h1>
-        <p className="text-muted-foreground">Please sign in to view your profile.</p>
         <Link href="/login"><Button className="rounded-xl">Sign In</Button></Link>
       </div>
     );
@@ -154,14 +155,14 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto space-y-10">
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="max-w-4xl mx-auto space-y-10">
         <div className="flex items-center justify-between">
           <Link href="/dashboard" className="text-muted-foreground hover:text-primary flex items-center gap-1 text-sm font-medium">
-            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+            <ArrowLeft className="w-4 h-4" /> Back
           </Link>
           <div className={`px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-bold ${profile?.isVerified ? 'bg-accent/10 text-accent' : 'bg-destructive/10 text-destructive'}`}>
             {profile?.isVerified ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-            {profile?.isVerified ? 'Verified Identity' : 'Pending Verification'}
+            {profile?.isVerified ? 'Verified' : 'Pending'}
           </div>
         </div>
 
@@ -195,11 +196,11 @@ export default function ProfilePage() {
                   <div className="space-y-2"><Label>Mobile</Label><Input maxLength={10} {...form.register('mobileNumber')} className="rounded-xl h-11" /></div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Aadhar Number (12 Digits)</Label>
-                  <Input maxLength={12} {...form.register('aadharNumber')} placeholder="XXXX-XXXX-XXXX" className="rounded-xl h-11" />
+                  <Label>Aadhar Number</Label>
+                  <Input maxLength={12} {...form.register('aadharNumber')} className="rounded-xl h-11" />
                 </div>
                 <DialogFooter className="pt-4">
-                  <Button type="submit" className="w-full rounded-xl h-12 text-lg font-bold" disabled={isSaving}>
+                  <Button type="submit" className="w-full rounded-xl h-12" disabled={isSaving}>
                     {isSaving ? <Loader2 className="animate-spin" /> : 'Save Changes'}
                   </Button>
                 </DialogFooter>
@@ -209,22 +210,22 @@ export default function ProfilePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <Card className="premium-card bg-white dark:bg-zinc-900 border-none shadow-lg">
-            <CardHeader><CardTitle className="text-lg flex items-center gap-2"><User className="w-5 h-5 text-primary" /> Profile Details</CardTitle></CardHeader>
+          <Card className="premium-card">
+            <CardHeader><CardTitle className="text-lg flex items-center gap-2"><User className="w-5 h-5 text-primary" /> Details</CardTitle></CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-1">
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Age</p>
-                <p className="font-bold flex items-center gap-2"><Calendar className="w-4 h-4 text-accent" /> {profile?.age || 'N/A'} Years</p>
+                <p className="font-bold">{profile?.age || 'N/A'} Years</p>
               </div>
               <div className="space-y-1">
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Phone</p>
-                <p className="font-bold flex items-center gap-2"><Phone className="w-4 h-4 text-accent" /> {profile?.mobileNumber || 'N/A'}</p>
+                <p className="font-bold">{profile?.mobileNumber || 'N/A'}</p>
               </div>
             </CardContent>
           </Card>
 
-          <Card className={`premium-card border-none shadow-lg ${profile?.isVerified ? 'bg-accent/5' : 'bg-destructive/5'}`}>
-            <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Fingerprint className={`w-5 h-5 ${profile?.isVerified ? 'text-accent' : 'text-destructive'}`} /> Identity Verification</CardTitle></CardHeader>
+          <Card className={`premium-card ${profile?.isVerified ? 'bg-accent/5' : 'bg-destructive/5'}`}>
+            <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Fingerprint className={`w-5 h-5 ${profile?.isVerified ? 'text-accent' : 'text-destructive'}`} /> Identity</CardTitle></CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-1">
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Aadhar Number</p>
@@ -234,44 +235,26 @@ export default function ProfilePage() {
               </div>
 
               <div className="pt-2">
-                {!profile?.isVerified ? (
+                {!profile?.isVerified && (
                   <div className="space-y-4">
-                    <p className="text-xs text-destructive font-medium">Identity verification required via Aadhaar OTP to secure your account.</p>
                     {!isOtpSent ? (
-                      <Button onClick={handleSendOtp} disabled={isSendingOtp} className="w-full bg-destructive hover:bg-destructive/90 rounded-xl h-11">
-                        {isSendingOtp ? <Loader2 className="animate-spin mr-2" /> : 'Get OTP on Mobile'}
+                      <Button onClick={handleSendOtp} disabled={isSendingOtp} className="w-full rounded-xl h-11">
+                        {isSendingOtp ? <Loader2 className="animate-spin" /> : 'Get OTP'}
                       </Button>
                     ) : (
-                      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
-                        <Input placeholder="Enter 6-digit OTP" maxLength={6} className="text-center font-bold tracking-widest h-11 rounded-xl" value={otpValue} onChange={e => setOtpValue(e.target.value)} />
+                      <div className="space-y-3">
+                        <Input placeholder="Enter OTP" maxLength={6} className="text-center font-bold h-11 rounded-xl" value={otpValue} onChange={e => setOtpValue(e.target.value)} />
                         <Button onClick={handleVerifyOtp} disabled={isVerifying || otpValue.length !== 6} className="w-full bg-accent text-white rounded-xl h-11">
-                          {isVerifying ? <Loader2 className="animate-spin" /> : 'Verify Identity'}
+                          {isVerifying ? <Loader2 className="animate-spin" /> : 'Verify'}
                         </Button>
-                      </motion.div>
+                      </div>
                     )}
-                  </div>
-                ) : (
-                  <div className="p-4 bg-accent/10 border border-accent/20 rounded-2xl flex items-center gap-3">
-                    <ShieldCheck className="w-6 h-6 text-accent" />
-                    <div>
-                      <p className="text-sm font-bold text-accent">Account Verified</p>
-                      <p className="text-[10px] text-muted-foreground">Identity successfully authenticated via Aadhaar.</p>
-                    </div>
                   </div>
                 )}
               </div>
             </CardContent>
           </Card>
         </div>
-
-        <section className="bg-primary/5 rounded-3xl p-10 border-2 border-dashed border-primary/20 text-center space-y-6">
-          <div className="bg-primary/10 w-16 h-16 rounded-2xl flex items-center justify-center mx-auto"><MapPin className="w-8 h-8 text-primary" /></div>
-          <div className="space-y-2">
-            <h3 className="text-2xl font-black">Ready for your next journey?</h3>
-            <p className="text-muted-foreground max-w-sm mx-auto">Explore historical landmarks and connect with verified local experts.</p>
-          </div>
-          <Link href="/destinations"><Button className="rounded-xl h-14 px-10 text-lg shadow-xl shadow-primary/20">Start Exploring</Button></Link>
-        </section>
       </motion.div>
     </div>
   );
