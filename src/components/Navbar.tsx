@@ -62,7 +62,7 @@ export default function Navbar() {
 
   const navItems = [
     { name: 'Home', href: '/', icon: Compass },
-    { name: 'Explore', href: '/destinations', icon: Globe },
+    { name: 'Explore', href: '/locations', icon: Globe },
     { name: 'AI Planner', href: '/trip-planner', icon: Sparkles },
     { name: 'Dining', href: '/restaurants', icon: Utensils },
     { name: 'Emergency', href: '/emergency', icon: LifeBuoy },
