@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, MapPin, Sparkles, Filter, X, Landmark, Waves, Shield, Building2, Trees, Mountain, History } from 'lucide-react';
+import { Search, MapPin, Sparkles, Filter, X, Landmark, Waves, Shield, Building2, Trees, Mountain, History, ArrowRight } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import TouristCard from '@/components/TouristCard';
@@ -49,11 +50,20 @@ export default function DestinationsPage() {
     });
   }, [searchTerm, activeCategory]);
 
+  const groupedDestinations = useMemo(() => {
+    if (activeCategory !== 'All') return null;
+    const groups: Record<string, typeof allDestinations> = {};
+    filteredDestinations.forEach(dest => {
+      if (!groups[dest.category]) groups[dest.category] = [];
+      groups[dest.category].push(dest);
+    });
+    return groups;
+  }, [filteredDestinations, activeCategory]);
+
   const getDestinationImage = (dest: any) => {
     const found = PlaceHolderImages.find(img => img.id === dest.id);
     if (found) return found.imageUrl;
     
-    // Category Fallbacks
     switch(dest.category.toLowerCase()) {
       case 'temples': return 'https://picsum.photos/seed/temple/600/400';
       case 'waterfalls': return 'https://picsum.photos/seed/waterfall/600/400';
@@ -65,29 +75,19 @@ export default function DestinationsPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-12 space-y-12 min-h-screen">
-      <header className="text-center space-y-6 max-w-4xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="space-y-4"
-        >
-          <Badge className="bg-primary/10 text-primary border-none px-4 py-1 flex items-center gap-1.5 mx-auto w-fit font-bold">
-            <Sparkles className="w-3.5 h-3.5" /> Curated Wonders
-          </Badge>
-          <h1 className="font-headline text-5xl md:text-7xl font-black text-zinc-900 dark:text-white tracking-tight">
-            Explore <span className="text-primary">Regional</span> Treasures
-          </h1>
-          <p className="text-muted-foreground text-xl font-medium">
-            From the misty hill stations to ancient monolithic forts.
-          </p>
-        </motion.div>
-
-        <div className="flex flex-col md:flex-row gap-4 items-center justify-center pt-6">
-          <div className="relative w-full max-w-lg group">
+    <div className="container mx-auto px-4 py-12 space-y-12 min-h-screen [scrollbar-gutter:stable]">
+      <header className="space-y-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div className="space-y-2">
+            <Badge className="bg-primary/10 text-primary border-none px-4 py-1 font-bold">Exploration Hub</Badge>
+            <h1 className="text-4xl md:text-6xl font-black tracking-tight font-headline">Discover Places</h1>
+            <p className="text-muted-foreground text-lg font-medium">Browse by category or search for specific landmarks.</p>
+          </div>
+          
+          <div className="relative w-full max-w-md group">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground group-focus-within:text-primary transition-colors" />
             <Input 
-              placeholder="Search by name or region..." 
+              placeholder="Search by name or district..." 
               className="pl-12 h-14 bg-white dark:bg-zinc-900 rounded-2xl shadow-xl border-none text-lg focus-visible:ring-primary/20"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -103,7 +103,7 @@ export default function DestinationsPage() {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-center gap-2 pt-8">
+        <div className="flex flex-wrap items-center gap-2 pt-2">
           {categories.map((cat) => (
             <Button
               key={cat.name}
@@ -118,47 +118,89 @@ export default function DestinationsPage() {
         </div>
       </header>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+      <div className="space-y-16">
         <AnimatePresence mode="popLayout">
-          {filteredDestinations.map((dest, idx) => (
-            <motion.div
-              key={dest.id}
-              layout
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.3, delay: idx * 0.05 }}
+          {groupedDestinations ? (
+            Object.entries(groupedDestinations).map(([category, items]) => (
+              <motion.section 
+                key={category}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="space-y-6"
+              >
+                <div className="flex items-center gap-4">
+                  <h2 className="text-3xl font-black font-headline text-zinc-900 dark:text-white uppercase tracking-tighter">{category}</h2>
+                  <div className="h-px bg-zinc-200 dark:bg-zinc-800 flex-grow" />
+                  <Badge variant="outline" className="text-xs uppercase font-black">{items.length} Places</Badge>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+                  {items.map((dest, idx) => (
+                    <motion.div
+                      key={dest.id}
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      transition={{ delay: idx * 0.05 }}
+                    >
+                      <TouristCard 
+                        id={dest.id}
+                        name={dest.name}
+                        location={dest.district}
+                        category={dest.category}
+                        rating={dest.rating}
+                        description={dest.desc}
+                        image={getDestinationImage(dest)}
+                      />
+                    </motion.div>
+                  ))}
+                </div>
+              </motion.section>
+            ))
+          ) : (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8"
             >
-              <TouristCard 
-                id={dest.id}
-                name={dest.name}
-                location={dest.district}
-                category={dest.category}
-                rating={dest.rating}
-                description={dest.desc}
-                image={getDestinationImage(dest)}
-              />
+              {filteredDestinations.map((dest, idx) => (
+                <motion.div
+                  key={dest.id}
+                  layout
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.3, delay: idx * 0.05 }}
+                >
+                  <TouristCard 
+                    id={dest.id}
+                    name={dest.name}
+                    location={dest.district}
+                    category={dest.category}
+                    rating={dest.rating}
+                    description={dest.desc}
+                    image={getDestinationImage(dest)}
+                  />
+                </motion.div>
+              ))}
             </motion.div>
-          ))}
+          )}
         </AnimatePresence>
-      </div>
 
-      {filteredDestinations.length === 0 && (
-        <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="text-center py-32 bg-secondary/10 rounded-[2.5rem] border border-dashed border-primary/20"
-        >
-          <div className="bg-primary/5 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Search className="w-10 h-10 text-primary opacity-20" />
-          </div>
-          <h3 className="text-2xl font-black font-headline">No matching places found</h3>
-          <p className="text-muted-foreground mt-2 font-medium">Try adjusting your search or filters to find more gems.</p>
-          <Button variant="link" className="mt-4 text-primary font-bold" onClick={() => { setSearchTerm(''); setActiveCategory('All'); }}>
-            Reset Filters
-          </Button>
-        </motion.div>
-      )}
+        {filteredDestinations.length === 0 && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-32 bg-secondary/10 rounded-[2.5rem] border border-dashed border-primary/20"
+          >
+            <div className="bg-primary/5 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-6">
+              <Search className="w-10 h-10 text-primary opacity-20" />
+            </div>
+            <h3 className="text-2xl font-black font-headline">No matching places found</h3>
+            <p className="text-muted-foreground mt-2 font-medium">Try adjusting your filters or search query.</p>
+            <Button variant="link" className="mt-4 text-primary font-bold" onClick={() => { setSearchTerm(''); setActiveCategory('All'); }}>
+              Reset All Filters
+            </Button>
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 }

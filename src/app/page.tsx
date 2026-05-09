@@ -6,25 +6,20 @@ import { Compass } from 'lucide-react';
 export default function Home() {
   return (
     <div className="flex flex-col min-h-[80vh] items-center justify-center text-center px-4">
-      <div className="space-y-6 max-w-3xl">
-        <div className="bg-primary/10 w-20 h-20 rounded-3xl flex items-center justify-center mx-auto mb-8 animate-bounce">
-          <Compass className="w-10 h-10 text-primary" />
+      <div className="space-y-8 max-w-xl">
+        <div className="bg-primary/10 w-24 h-24 rounded-3xl flex items-center justify-center mx-auto mb-4">
+          <Compass className="w-12 h-12 text-primary animate-pulse" />
         </div>
-        <h1 className="font-headline text-5xl md:text-7xl font-bold text-primary tracking-tighter">
-          Explore <span className="text-accent">World Wide</span>
+        <h1 className="font-headline text-5xl md:text-7xl font-black tracking-tighter">
+          Voyage <span className="text-primary">Compass</span>
         </h1>
         <p className="text-xl text-muted-foreground font-medium">
-          Discover the wonders of the world and connect with verified local guides.
+          Your portal to the wonders of the heart of India.
         </p>
-        <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
-          <Link href="/locations">
-            <Button size="lg" className="rounded-full h-14 px-8 text-lg">
-              Explore Destinations
-            </Button>
-          </Link>
-          <Link href="/guides">
-            <Button size="lg" variant="outline" className="rounded-full h-14 px-8 text-lg">
-              Find Local Guides
+        <div className="pt-4">
+          <Link href="/destinations">
+            <Button size="lg" className="rounded-2xl h-16 px-12 text-xl font-bold shadow-2xl shadow-primary/30 hover:scale-105 transition-transform">
+              Start Exploring
             </Button>
           </Link>
         </div>
