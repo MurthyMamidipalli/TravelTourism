@@ -5,7 +5,7 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Star, MapPin, ArrowRight, ExternalLink } from 'lucide-react';
+import { Star, MapPin, ArrowRight, ExternalLink, Clock, Wallet } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 
@@ -17,9 +17,11 @@ interface TouristCardProps {
   description: string;
   location: string;
   category: string;
+  timings?: string;
+  entryFee?: string;
 }
 
-export default function TouristCard({ id, name, image, rating, description, location, category }: TouristCardProps) {
+export default function TouristCard({ id, name, image, rating, description, location, category, timings, entryFee }: TouristCardProps) {
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name} ${location}`)}`;
 
   return (
@@ -62,6 +64,15 @@ export default function TouristCard({ id, name, image, rating, description, loca
             </p>
           </div>
           
+          <div className="grid grid-cols-2 gap-2 mb-4">
+            <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              <Clock className="w-3 h-3 text-primary" /> {timings || 'Varies'}
+            </div>
+            <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
+              <Wallet className="w-3 h-3 text-primary" /> {entryFee || 'Free'}
+            </div>
+          </div>
+
           <p className="text-muted-foreground text-sm line-clamp-2 leading-relaxed mb-6 flex-grow font-body">
             {description}
           </p>
