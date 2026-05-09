@@ -87,15 +87,18 @@ export default function GuideRegistrationPage() {
       imageUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/400/400`,
     };
 
+    // Optimistic write: redirect and toast immediately
     addDoc(guidesRef, guideData)
-      .then(() => {
-        toast({ title: "Registration Complete", description: "Welcome to our network of verified local experts." });
-        router.push('/guides');
-      })
       .catch((error) => {
-        errorEmitter.emit('permission-error', new FirestorePermissionError({ path: guidesRef.path, operation: 'create', requestResourceData: guideData }));
-        setSubmitting(false);
+        errorEmitter.emit('permission-error', new FirestorePermissionError({ 
+          path: guidesRef.path, 
+          operation: 'create', 
+          requestResourceData: guideData 
+        }));
       });
+
+    toast({ title: "Registration Staged", description: "Welcome! Your expert profile is being activated." });
+    router.push('/guides');
   };
 
   const handleSimulatedUpload = (type: 'aadhar' | 'pan' | 'passport') => {
@@ -207,7 +210,6 @@ export default function GuideRegistrationPage() {
                        <p className="text-[9px] text-destructive italic font-bold">* Aadhar and PAN required</p>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      {/* Aadhar Upload Box */}
                       <div 
                         onClick={() => handleSimulatedUpload('aadhar')}
                         className={`flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl transition-all cursor-pointer group ${aadharUploaded ? 'border-accent bg-accent/5' : 'border-primary/20 hover:bg-primary/5'}`}
@@ -215,7 +217,6 @@ export default function GuideRegistrationPage() {
                         {aadharUploaded ? <Check className="w-6 h-6 text-accent" /> : <Upload className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-2" />}
                         <span className="text-[10px] font-bold text-center">Aadhar *</span>
                       </div>
-                      {/* PAN Upload Box */}
                       <div 
                         onClick={() => handleSimulatedUpload('pan')}
                         className={`flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl transition-all cursor-pointer group ${panUploaded ? 'border-accent bg-accent/5' : 'border-primary/20 hover:bg-primary/5'}`}
@@ -223,7 +224,6 @@ export default function GuideRegistrationPage() {
                         {panUploaded ? <Check className="w-6 h-6 text-accent" /> : <Upload className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-2" />}
                         <span className="text-[10px] font-bold text-center">PAN *</span>
                       </div>
-                      {/* Passport Upload Box (Optional) */}
                       <div 
                         onClick={() => handleSimulatedUpload('passport')}
                         className={`flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl transition-all cursor-pointer group opacity-60 ${passportUploaded ? 'border-accent bg-accent/5' : 'border-zinc-200 hover:bg-zinc-100'}`}
@@ -271,7 +271,7 @@ export default function GuideRegistrationPage() {
                   disabled={submitting || !aadharUploaded || !panUploaded} 
                   className="w-full h-14 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20"
                 >
-                  {submitting ? <Loader2 className="animate-spin mr-2" /> : 'Register as Verified Guide'}
+                  {submitting ? <><Loader2 className="animate-spin mr-2" /> Initializing...</> : 'Register as Verified Guide'}
                 </Button>
                 {(!aadharUploaded || !panUploaded) && (
                   <p className="text-center text-[10px] text-destructive font-bold">Please upload mandatory documents to enable registration.</p>

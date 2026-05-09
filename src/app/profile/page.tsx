@@ -8,7 +8,7 @@ import { User, Mail, Fingerprint, Edit3, Loader2, CheckCircle2, ArrowLeft, Shiel
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { doc, setDoc } from 'firebase/firestore';
-import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
+import { useMemo, useState, useEffect, useCallback } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -71,7 +71,6 @@ export default function ProfilePage() {
         panNumber: profile.panNumber || '',
         passportNumber: profile.passportNumber || '',
       });
-      // Set initial upload states if they exist in DB (simulated)
       if (profile.isVerified) {
         setAadharUploaded(true);
         setPanUploaded(true);
@@ -96,20 +95,22 @@ export default function ProfilePage() {
       updatedAt: new Date().toISOString()
     };
     
+    // Optimistic write: Close dialog and show toast instantly
     setDoc(userDocRef, updatedProfile, { merge: true })
-      .then(() => {
-        toast({ title: "Profile Updated", description: "Identity documents verified successfully." });
-        setIsEditDialogOpen(false);
-      })
       .catch((error: any) => {
-        errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef.path, operation: 'update', requestResourceData: updatedProfile }));
-      })
-      .finally(() => setIsSaving(false));
+        errorEmitter.emit('permission-error', new FirestorePermissionError({ 
+          path: userDocRef.path, 
+          operation: 'update', 
+          requestResourceData: updatedProfile 
+        }));
+      });
+    
+    toast({ title: "Profile Updated", description: "Identity documents verified successfully." });
+    setIsEditDialogOpen(false);
+    setIsSaving(false);
   }, [userDocRef, user?.email, toast, aadharUploaded, panUploaded]);
 
-  // Simulated Upload Handlers
   const handleSimulatedUpload = (type: 'aadhar' | 'pan' | 'passport') => {
-    // In a real app, this would trigger an <input type="file" />
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*,application/pdf';
@@ -205,8 +206,8 @@ export default function ProfilePage() {
                   <Input {...form.register('panNumber')} className="rounded-xl h-11 uppercase" placeholder="ABCDE1234F" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-2 font-medium opacity-70"><Globe className="w-4 h-4" /> Passport ID (Temporary / Optional)</Label>
-                  <Input {...form.register('passportNumber')} className="rounded-xl h-11" placeholder="Optional for domestic travelers" />
+                  <Label className="flex items-center gap-2 font-medium opacity-70"><Globe className="w-4 h-4" /> Passport ID (Optional)</Label>
+                  <Input {...form.register('passportNumber')} className="rounded-xl h-11" placeholder="Optional" />
                 </div>
 
                 <div className="p-4 bg-secondary/20 rounded-2xl space-y-4">
@@ -215,7 +216,6 @@ export default function ProfilePage() {
                     <Badge variant="outline" className="text-[9px] h-4 bg-white">Aadhar & PAN Mandatory</Badge>
                   </div>
                   <div className="grid grid-cols-3 gap-3">
-                    {/* Aadhar Upload */}
                     <div 
                       onClick={() => handleSimulatedUpload('aadhar')}
                       className={`h-20 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all ${aadharUploaded ? 'border-accent bg-accent/5' : 'border-primary/20 hover:bg-primary/5'}`}
@@ -223,7 +223,6 @@ export default function ProfilePage() {
                       {aadharUploaded ? <Check className="w-5 h-5 text-accent" /> : <Upload className="w-5 h-5 text-muted-foreground opacity-50" />}
                       <span className="text-[9px] font-bold mt-1 text-center px-1">Aadhar *</span>
                     </div>
-                    {/* PAN Upload */}
                     <div 
                       onClick={() => handleSimulatedUpload('pan')}
                       className={`h-20 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all ${panUploaded ? 'border-accent bg-accent/5' : 'border-primary/20 hover:bg-primary/5'}`}
@@ -231,7 +230,6 @@ export default function ProfilePage() {
                       {panUploaded ? <Check className="w-5 h-5 text-accent" /> : <Upload className="w-5 h-5 text-muted-foreground opacity-50" />}
                       <span className="text-[9px] font-bold mt-1 text-center px-1">PAN *</span>
                     </div>
-                    {/* Passport Upload (Optional) */}
                     <div 
                       onClick={() => handleSimulatedUpload('passport')}
                       className={`h-20 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all opacity-60 ${passportUploaded ? 'border-accent bg-accent/5' : 'border-zinc-200 hover:bg-zinc-50'}`}
@@ -241,7 +239,7 @@ export default function ProfilePage() {
                     </div>
                   </div>
                   {(!aadharUploaded || !panUploaded) && (
-                    <p className="text-[9px] text-destructive font-bold">* Aadhar and PAN soft copies are mandatory for verification.</p>
+                    <p className="text-[9px] text-destructive font-bold">* Aadhar and PAN soft copies are mandatory.</p>
                   )}
                 </div>
 
