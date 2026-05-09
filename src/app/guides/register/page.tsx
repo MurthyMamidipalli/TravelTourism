@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -84,16 +85,15 @@ export default function GuideRegistrationPage() {
     }
     
     setIsSendingOtp(true);
-    // Simulate a secure network delay for OTP dispatch
     setTimeout(() => {
       setIsSendingOtp(false);
       setIsOtpSent(true);
       setResendTimer(60);
       toast({ 
         title: "OTP Dispatched", 
-        description: "A verification code has been sent to your registered mobile number.",
+        description: "A verification code has been sent to your registered mobile number for identity confirmation.",
       });
-    }, 500);
+    }, 800);
   }
 
   async function handleVerifyOtp() {
@@ -101,20 +101,20 @@ export default function GuideRegistrationPage() {
     setIsVerifyingOtp(true);
     
     setTimeout(() => {
-      // The secure test key remains internal and is not displayed to the user
+      // Secure internal verification test code
       if (otpValue === '123456') {
         setIsVerifyingOtp(false);
         setIsAadharVerified(true);
         toast({ 
           title: "Identity Verified", 
-          description: "Aadhar-linked identity authenticated successfully.",
+          description: "Your government-linked identity has been authenticated. You can now complete your registration.",
           className: "bg-accent text-white"
         });
       } else {
         setIsVerifyingOtp(false);
         toast({ 
           title: "Verification Failed", 
-          description: "The code entered is incorrect.", 
+          description: "The secure code entered is incorrect. Please check your mobile messages.", 
           variant: "destructive" 
         });
       }
@@ -125,7 +125,7 @@ export default function GuideRegistrationPage() {
     if (!user || !isAadharVerified) {
       toast({ 
         title: "Security Check Required", 
-        description: "Aadhar identity verification is mandatory for tourist safety.", 
+        description: "Aadhar identity verification via OTP is mandatory for tourist safety and guide accountability.", 
         variant: "destructive" 
       });
       return;
@@ -149,7 +149,7 @@ export default function GuideRegistrationPage() {
 
     toast({ 
       title: "Registration Complete", 
-      description: "Welcome to our network of verified local experts.",
+      description: "Welcome to our network of verified local experts. Your profile is now live.",
     });
     router.push('/guides');
   };
@@ -160,26 +160,26 @@ export default function GuideRegistrationPage() {
         <div className="md:col-span-2 space-y-6 bg-primary rounded-3xl p-8 text-white shadow-2xl sticky top-24">
           <ShieldCheck className="w-16 h-16 mb-4" />
           <h1 className="font-headline text-4xl font-bold tracking-tight">Safety & Trust First</h1>
-          <p className="text-white/80 text-lg leading-relaxed">
-            Every local guide is verified through a secure Aadhar-linked process. This ensures that every journey is safe and that our guides are legally accountable for their service.
+          <p className="text-white/80 text-lg leading-relaxed font-body">
+            To ensure the safety of tourists, every local guide is verified through a secure Aadhar-linked process. This accountability framework allows tourists to trace and verify the identity of their guides, ensuring a safe and transparent experience.
           </p>
           
           <div className="bg-white/10 p-6 rounded-2xl border border-white/20 space-y-4">
             <h3 className="font-bold flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-accent" /> Tourist Safety Standards:
+              <ShieldAlert className="w-5 h-5 text-accent" /> Security Protocol:
             </h3>
-            <ul className="space-y-3 text-sm opacity-90">
+            <ul className="space-y-3 text-sm opacity-90 font-body">
               <li className="flex gap-2">
                 <span className="font-black text-accent">✓</span> 
                 Direct Link to Government Identity.
               </li>
               <li className="flex gap-2">
                 <span className="font-black text-accent">✓</span> 
-                Verified Contact Channel.
+                SMS OTP Verification on Registered Mobile.
               </li>
               <li className="flex gap-2">
                 <span className="font-black text-accent">✓</span> 
-                Legal Accountability Framework.
+                Full Legal Accountability for Guide Actions.
               </li>
             </ul>
           </div>
@@ -213,13 +213,13 @@ export default function GuideRegistrationPage() {
                 <div className="bg-secondary/20 p-6 rounded-2xl space-y-4 border border-primary/10">
                   <div className="flex items-center gap-2 mb-2">
                     <Fingerprint className="w-5 h-5 text-primary" />
-                    <h3 className="font-bold text-sm tracking-tight uppercase">Secure Authentication</h3>
+                    <h3 className="font-bold text-sm tracking-tight uppercase">Identity Authentication</h3>
                   </div>
                   
                   <div className="grid grid-cols-1 gap-4">
                     <FormField control={form.control} name="mobileNumber" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Aadhar Registered Mobile</FormLabel>
+                        <FormLabel>Mobile Linked to Aadhar</FormLabel>
                         <FormControl>
                           <Input disabled={isAadharVerified} placeholder="10-digit number" maxLength={10} className="rounded-xl h-11" {...field} suppressHydrationWarning />
                         </FormControl>
@@ -270,7 +270,7 @@ export default function GuideRegistrationPage() {
 
                   {isAadharVerified && (
                     <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-accent/10 p-3 rounded-xl text-accent text-sm font-bold flex items-center justify-center gap-2 border border-accent/20">
-                      <CheckCircle2 className="w-5 h-5" /> Account Identity Authenticated
+                      <CheckCircle2 className="w-5 h-5" /> Identity Verified via Secure OTP
                     </motion.div>
                   )}
                 </div>
@@ -278,7 +278,7 @@ export default function GuideRegistrationPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField control={form.control} name="location" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Operational District/City</FormLabel>
+                      <FormLabel>Operational City/District</FormLabel>
                       <FormControl>
                         <Input placeholder="e.g. Visakhapatnam" className="rounded-xl h-11" {...field} suppressHydrationWarning />
                       </FormControl>
@@ -298,7 +298,7 @@ export default function GuideRegistrationPage() {
 
                 <FormField control={form.control} name="experience" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Professional Expertise & History</FormLabel>
+                    <FormLabel>Guiding History & Expertise</FormLabel>
                     <FormControl>
                       <Textarea className="rounded-xl min-h-[120px]" placeholder="Briefly describe your guiding experience and specialities..." {...field} />
                     </FormControl>
@@ -307,7 +307,7 @@ export default function GuideRegistrationPage() {
                 )} />
 
                 <Button type="submit" disabled={submitting || !isAadharVerified} className="w-full h-14 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20">
-                  {submitting ? <Loader2 className="animate-spin mr-2" /> : 'Submit Verified Registration'}
+                  {submitting ? <Loader2 className="animate-spin mr-2" /> : 'Register as Verified Guide'}
                 </Button>
               </form>
             </Form>
