@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
@@ -89,6 +88,7 @@ export default function ProfilePage() {
     if (!userDocRef) return;
     setIsSaving(true);
     
+    // Optimistic UI: update local cache immediately
     setDoc(userDocRef, values, { merge: true })
       .then(() => {
         toast({ title: "Profile Updated", description: "All information saved." });
@@ -127,7 +127,9 @@ export default function ProfilePage() {
     if (otpValue.length !== 6 || !userDocRef) return;
     setIsVerifying(true);
 
+    // Simulation logic
     if (otpValue === '123456') {
+      // Optimistic update
       setDoc(userDocRef, { isVerified: true }, { merge: true })
         .catch((error) => {
           errorEmitter.emit('permission-error', new FirestorePermissionError({

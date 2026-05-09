@@ -1,11 +1,10 @@
-
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Compass, MapPin, Star, History, Calendar, Settings, User, Phone, Fingerprint, ShieldAlert, LogIn } from 'lucide-react';
+import { Compass, Star, History, Calendar, Settings, User, Phone, Fingerprint, ShieldAlert, LogIn } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { doc } from 'firebase/firestore';
@@ -28,11 +27,18 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-12 space-y-8 min-h-screen">
-        <Skeleton className="h-12 w-64 rounded-xl" />
+        <div className="flex justify-between items-center">
+          <Skeleton className="h-12 w-64 rounded-xl" />
+          <Skeleton className="h-12 w-12 rounded-full" />
+        </div>
         <div className="grid gap-6 md:grid-cols-3">
+          <Skeleton className="h-48 rounded-3xl md:col-span-2" />
           <Skeleton className="h-48 rounded-3xl" />
-          <Skeleton className="h-48 rounded-3xl" />
-          <Skeleton className="h-48 rounded-3xl" />
+        </div>
+        <div className="grid gap-6 md:grid-cols-3">
+          <Skeleton className="h-40 rounded-3xl" />
+          <Skeleton className="h-40 rounded-3xl" />
+          <Skeleton className="h-40 rounded-3xl" />
         </div>
       </div>
     );

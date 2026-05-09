@@ -7,7 +7,7 @@ import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
   title: 'Voyage Compass - Andhra Pradesh Tourism',
-  description: 'Explore 32 breathtaking wonders of Andhra Pradesh and connect with verified local guides.',
+  description: 'Explore breathtaking wonders of Andhra Pradesh and connect with verified local guides.',
 };
 
 export default function RootLayout({
