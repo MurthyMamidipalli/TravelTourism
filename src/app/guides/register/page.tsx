@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -100,7 +101,6 @@ export default function GuideRegistrationPage() {
     setIsVerifyingOtp(true);
     
     setTimeout(() => {
-      // Prototype internal key: 123456
       if (otpValue === '123456') {
         setIsVerifyingOtp(false);
         setIsAadharVerified(true);
@@ -140,7 +140,6 @@ export default function GuideRegistrationPage() {
       imageUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/400/400`,
     };
 
-    // Optimistic UI: redirect before completion for a snappier feel
     addDoc(guidesRef, guideData)
       .then(() => {
         toast({ 
