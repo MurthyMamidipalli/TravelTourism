@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -14,42 +15,36 @@ import { Button } from '@/components/ui/button';
 import { Skeleton } from '@/components/ui/skeleton';
 
 const allData = [
+  // Telangana Spreadsheet Locations
+  { id: 'charminar', name: 'Charminar', district: 'Hyderabad', type: 'Historical' },
+  { id: 'golconda-fort', name: 'Golconda Fort', district: 'Hyderabad', type: 'Historical' },
+  { id: 'ramoji-film-city', name: 'Ramoji Film City', district: 'Ranga Reddy', type: 'Entertainment' },
+  { id: 'birla-mandir', name: 'Birla Mandir', district: 'Hyderabad', type: 'Temple' },
+  { id: 'yadadri-temple', name: 'Yadadri Temple', district: 'Yadadri Bhuvanagiri', type: 'Temple' },
+  { id: 'basara-temple', name: 'Basara Saraswati Temple', district: 'Nirmal', type: 'Temple' },
+  { id: 'keesaragutta', name: 'Keesaragutta Temple', district: 'Medchal-Malkajgiri', type: 'Temple' },
+  { id: 'ramappa-temple', name: 'Ramappa Temple', district: 'Mulugu', type: 'Temple' },
+  { id: 'thousand-pillar', name: 'Thousand Pillar Temple', district: 'Hanamkonda', type: 'Temple' },
+  { id: 'bhadrachalam', name: 'Bhadrachalam Temple', district: 'Bhadradri Kothagudem', type: 'Temple' },
+  { id: 'ananthagiri-hills', name: 'Ananthagiri Hills', district: 'Vikarabad', type: 'Hill Station' },
+  { id: 'bogatha-falls', name: 'Bogatha Waterfalls', district: 'Mulugu', type: 'Waterfall' },
+  { id: 'kuntala-falls', name: 'Kuntala Waterfalls', district: 'Nirmal', type: 'Waterfall' },
+  { id: 'pochera-falls', name: 'Pochera Waterfalls', district: 'Nirmal', type: 'Waterfall' },
+  { id: 'ethipothala-falls-ts', name: 'Ethipothala Waterfalls', district: 'Suryapet', type: 'Waterfall' },
+  { id: 'nagarjuna-sagar-dam', name: 'Nagarjuna Sagar Dam', district: 'Nalgonda', type: 'Dam' },
+  { id: 'hussain-sagar', name: 'Hussain Sagar Lake', district: 'Hyderabad', type: 'Lake' },
+  { id: 'durgam-cheruvu', name: 'Durgam Cheruvu', district: 'Hyderabad', type: 'Lake' },
+  { id: 'laknavaram-lake', name: 'Laknavaram Lake', district: 'Mulugu', type: 'Lake' },
+  { id: 'pakhal-lake', name: 'Pakhal Lake', district: 'Warangal', type: 'Lake' },
+  { id: 'warangal-fort', name: 'Warangal Fort', district: 'Hanamkonda', type: 'Historical' },
+  { id: 'bhongir-fort', name: 'Bhongir Fort', district: 'Yadadri Bhuvanagiri', type: 'Historical' },
+  { id: 'elgandal-fort', name: 'Elgandal Fort', district: 'Karimnagar', type: 'Historical' },
+  { id: 'medak-fort', name: 'Medak Fort', district: 'Medak', type: 'Historical' },
+  
+  // Andhra Pradesh Locations
   { id: 'tirumala-temple', name: 'Tirumala Temple', district: 'Tirupati', type: 'Pilgrimage' },
-  { id: 'sri-kalahasti', name: 'Sri Kalahasti', district: 'Tirupati', type: 'Pilgrimage' },
-  { id: 'talakona-waterfalls', name: 'Talakona Waterfalls', district: 'Tirupati', type: 'Nature' },
-  { id: 'chandragiri-fort', name: 'Chandragiri Fort', district: 'Tirupati', type: 'Heritage' },
-  { id: 'vizag', name: 'Visakhapatnam (Vizag)', district: 'Visakhapatnam', type: 'City' },
   { id: 'rk-beach', name: 'RK Beach', district: 'Vizag', type: 'Beach' },
-  { id: 'kailasagiri', name: 'Kailasagiri', district: 'Vizag', type: 'Park' },
-  { id: 'ins-kurusura', name: 'INS Kurusura Museum', district: 'Vizag', type: 'Museum' },
-  { id: 'yarada-beach', name: 'Yarada Beach', district: 'Vizag', type: 'Beach' },
-  { id: 'simhachalam-temple', name: 'Simhachalam Temple', district: 'Vizag', type: 'Pilgrimage' },
-  { id: 'araku-valley', name: 'Araku Valley', district: 'Araku', type: 'Hill Station' },
-  { id: 'borra-caves', name: 'Borra Caves', district: 'Araku', type: 'Nature' },
-  { id: 'ananthagiri-hills', name: 'Ananthagiri Hills', district: 'Vizag Region', type: 'Nature' },
-  { id: 'lambasingi', name: 'Lambasingi', district: 'ASR District', type: 'Hill Station' },
-  { id: 'katiki-waterfalls', name: 'Katiki Waterfalls', district: 'Araku', type: 'Nature' },
-  { id: 'papikondalu', name: 'Papikondalu', district: 'East Godavari', type: 'Nature' },
-  { id: 'rajahmundry', name: 'Rajahmundry', district: 'East Godavari', type: 'City' },
-  { id: 'konaseema', name: 'Konaseema', district: 'Konaseema', type: 'Backwaters' },
-  { id: 'maredumilli', name: 'Maredumilli', district: 'East Godavari', type: 'Forest' },
-  { id: 'antarvedi', name: 'Antarvedi', district: 'Konaseema', type: 'Beach' },
-  { id: 'draksharamam', name: 'Draksharamam Temple', district: 'East Godavari', type: 'Pilgrimage' },
-  { id: 'annavaram', name: 'Annavaram Temple', district: 'Kakinada', type: 'Pilgrimage' },
-  { id: 'kakinada-beach', name: 'Kakinada Beach', district: 'Kakinada', type: 'Beach' },
-  { id: 'coringa-wildlife', name: 'Coringa Wildlife Sanctuary', district: 'Kakinada', type: 'Wildlife' },
-  { id: 'vijayawada', name: 'Vijayawada', district: 'NTR District', type: 'City' },
-  { id: 'kanaka-durga', name: 'Kanaka Durga Temple', district: 'Vijayawada', type: 'Pilgrimage' },
-  { id: 'bhavani-island', name: 'Bhavani Island', district: 'Vijayawada', type: 'Island' },
-  { id: 'undavalli-caves', name: 'Undavalli Caves', district: 'Guntur', type: 'Heritage' },
-  { id: 'amaravati', name: 'Amaravati', district: 'Guntur', type: 'Heritage' },
-  { id: 'nagarjuna-sagar', name: 'Nagarjuna Sagar', district: 'Palnadu', type: 'Dam' },
-  { id: 'srisailam', name: 'Srisailam', district: 'Nandyal', type: 'Pilgrimage' },
-  { id: 'srisailam-dam', name: 'Srisailam Dam', district: 'Nandyal', type: 'Dam' },
-  { id: 'charminar', name: 'Charminar', district: 'Hyderabad', type: 'Heritage' },
-  { id: 'golconda-fort', name: 'Golconda Fort', district: 'Hyderabad', type: 'Heritage' },
-  { id: 'kuntala-falls', name: 'Kuntala Falls', district: 'Adilabad', type: 'Nature' },
-  { id: 'ramappa-temple', name: 'Ramappa Temple', district: 'Warangal', type: 'Heritage' },
+  { id: 'borra-caves', name: 'Borra Caves', district: 'ASR District', type: 'Nature' },
 ];
 
 export default function SearchPage() {
@@ -69,14 +64,7 @@ export default function SearchPage() {
   const getCategoryImage = (item: any) => {
     const found = PlaceHolderImages.find(img => img.id === item.id);
     if (found) return { url: found.imageUrl, hint: found.imageHint };
-    
-    switch(item.type.toLowerCase()) {
-      case 'pilgrimage': return { url: 'https://picsum.photos/seed/search-temple/200/200', hint: 'Hindu Temple' };
-      case 'beach': return { url: 'https://picsum.photos/seed/search-beach/200/200', hint: 'Ocean Beach' };
-      case 'nature': return { url: 'https://picsum.photos/seed/search-nature/200/200', hint: 'Waterfall Nature' };
-      case 'heritage': return { url: 'https://picsum.photos/seed/search-fort/200/200', hint: 'Historic Landmark' };
-      default: return { url: `https://picsum.photos/seed/${item.id}/200/200`, hint: 'Tourist Place' };
-    }
+    return { url: `https://picsum.photos/seed/${item.id}/200/200`, hint: 'Tourist Place' };
   };
 
   if (authLoading) {
@@ -97,7 +85,7 @@ export default function SearchPage() {
         <div className="bg-primary/10 p-6 rounded-full"><Lock className="w-12 h-12 text-primary" /></div>
         <div className="space-y-2">
           <h1 className="text-3xl font-black tracking-tight">Search Restricted</h1>
-          <p className="text-muted-foreground max-w-md mx-auto">Discover the perfect spot for your next trip. Please sign in to search and filter global wonders.</p>
+          <p className="text-muted-foreground max-w-md mx-auto">Please sign in to search and discover landmarks across the heart of India.</p>
         </div>
         <div className="flex gap-4">
           <Link href="/login"><Button size="lg" className="rounded-2xl h-12 px-8 font-bold">Sign In</Button></Link>
@@ -113,7 +101,7 @@ export default function SearchPage() {
         <div className="text-center space-y-4">
           <Badge className="bg-primary/10 text-primary border-none">Global Discovery</Badge>
           <h1 className="text-4xl md:text-6xl font-bold">Search Local Places</h1>
-          <p className="text-muted-foreground text-lg">Find the best tourist spots across the heart of India.</p>
+          <p className="text-muted-foreground text-lg">Find the best tourist spots across AP and Telangana.</p>
         </div>
 
         <div className="relative group max-w-2xl mx-auto">
@@ -148,7 +136,6 @@ export default function SearchPage() {
                             fill 
                             className="object-cover"
                             sizes="96px"
-                            data-ai-hint={imgData.hint}
                           />
                         </div>
                         <div className="flex-grow space-y-1">
@@ -171,12 +158,6 @@ export default function SearchPage() {
             })}
           </AnimatePresence>
         </div>
-
-        {results.length === 0 && (
-          <div className="text-center py-20 bg-secondary/10 rounded-3xl border border-dashed">
-            <p className="text-muted-foreground text-lg">No results found for "{query}"</p>
-          </div>
-        )}
       </div>
     </div>
   );

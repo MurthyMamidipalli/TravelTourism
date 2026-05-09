@@ -10,9 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
-  MapPin, Info, ArrowLeft, Calendar, Clock, Navigation, 
-  Loader2, CloudSun, CloudRain, Star, Wallet, Sparkles, 
-  MessageCircle, PartyPopper, Zap, Download
+  MapPin, Info, ArrowLeft, Clock, Navigation, 
+  Loader2, CloudSun, CloudRain, Star, Wallet, Zap, Download,
+  MessageCircle, PartyPopper, Calendar
 } from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import TouristCard from '@/components/TouristCard';
@@ -20,7 +20,6 @@ import DestinationReviews from '@/components/DestinationReviews';
 import LocalEvents from '@/components/LocalEvents';
 import PersonalizedRecommendations from '@/components/PersonalizedRecommendations';
 
-// Import map component dynamically to avoid SSR issues with Leaflet
 const DestinationMap = dynamic(() => import('@/components/DestinationMap'), {
   ssr: false,
   loading: () => (
@@ -32,32 +31,23 @@ const DestinationMap = dynamic(() => import('@/components/DestinationMap'), {
 });
 
 const mockDestinations: Record<string, any> = {
-  // New Destinations from list
-  'tirumala-temple': { id: 'tirumala-temple', name: 'Tirumala Temple', districtId: 'tirupati', district: 'Tirupati', category: 'Temple', timings: '3AM-12PM', entryFee: '₹300', desc: 'World famous Hindu temple on the hills of Tirumala.', lat: 13.6833, lng: 79.3476 },
-  'srisailam': { id: 'srisailam', name: 'Srisailam Temple', districtId: 'nandyal', district: 'Nandyal', category: 'Temple', timings: '5AM-9PM', entryFee: 'Free', desc: 'Ancient Shiva temple and one of the 12 Jyotirlingas.', lat: 16.0728, lng: 78.8687 },
-  'simhachalam': { id: 'simhachalam', name: 'Simhachalam Temple', districtId: 'vizag', district: 'Visakhapatnam', category: 'Temple', timings: '6AM-9PM', entryFee: 'Free', desc: 'Varaha Lakshmi Narasimha temple.', lat: 17.7669, lng: 83.2506 },
-  'kanaka-durga': { id: 'kanaka-durga', name: 'Kanaka Durga Temple', districtId: 'ntr', district: 'NTR', category: 'Temple', timings: '4AM-9PM', entryFee: 'Free', desc: 'Famous shrine of Goddess Durga.', lat: 16.5083, lng: 80.648 },
-  'annavaram': { id: 'annavaram', name: 'Annavaram Temple', districtId: 'kakinada', district: 'Kakinada', category: 'Temple', timings: '5AM-9PM', entryFee: 'Free', desc: 'Sacred temple of Lord Satyanarayana Swami.', lat: 17.2815, lng: 82.4011 },
-  'lepakshi': { id: 'lepakshi', name: 'Lepakshi Temple', districtId: 'sss', district: 'Sri Sathya Sai', category: 'Temple', timings: '6AM-6PM', entryFee: 'Free', desc: 'Famous for its hanging pillar.', lat: 13.8, lng: 77.609 },
-  'ahobilam': { id: 'ahobilam', name: 'Ahobilam Temple', districtId: 'nandyal', district: 'Nandyal', category: 'Temple', timings: '6AM-5PM', entryFee: 'Free', desc: 'Navanarasimha Kshetram.', lat: 15.1333, lng: 78.7167 },
-  'mahanandi': { id: 'mahanandi', name: 'Mahanandi Temple', districtId: 'nandyal', district: 'Nandyal', category: 'Temple', timings: '5AM-9PM', entryFee: 'Free', desc: 'Ancient temple with crystal clear water.', lat: 15.4868, lng: 78.6164 },
-  'yaganti': { id: 'yaganti', name: 'Yaganti Temple', districtId: 'nandyal', district: 'Nandyal', category: 'Temple', timings: '6AM-8PM', entryFee: 'Free', desc: 'Famous for the growing stone crow.', lat: 15.1685, lng: 78.2262 },
-  'suryalanka': { id: 'suryalanka', name: 'Suryalanka Beach', districtId: 'bapatla', district: 'Bapatla', category: 'Beach', timings: '24/7', entryFee: 'Free', desc: 'Popular weekend getaway.', lat: 15.8452, lng: 80.537 },
-  'rk-beach': { id: 'rk-beach', name: 'RK Beach', districtId: 'vizag', district: 'Visakhapatnam', category: 'Beach', timings: '24/7', entryFee: 'Free', desc: 'The most popular urban beach.', lat: 17.782, lng: 83.385 },
-  'rushikonda': { id: 'rushikonda', name: 'Rushikonda Beach', districtId: 'vizag', district: 'Visakhapatnam', category: 'Beach', timings: '24/7', entryFee: 'Free', desc: 'Blue Flag certified beach.', lat: 17.7149, lng: 83.3237 },
-  'yarada-beach': { id: 'yarada-beach', name: 'Yarada Beach', districtId: 'vizag', district: 'Visakhapatnam', category: 'Beach', timings: '24/7', entryFee: 'Free', desc: 'Secluded beach surrounded by hills.', lat: 17.6588, lng: 83.2747 },
-  'manginapudi': { id: 'manginapudi', name: 'Machilipatnam Beach', districtId: 'krishna', district: 'Krishna', category: 'Beach', timings: '24/7', entryFee: 'Free', desc: 'Unique beach with black soil.', lat: 16.1723, lng: 81.1389 },
-  'mypadu': { id: 'mypadu', name: 'Mypadu Beach', districtId: 'nellore', district: 'SPSR Nellore', category: 'Beach', timings: '24/7', entryFee: 'Free', desc: 'Pristine coastline with golden sands.', lat: 14.4421, lng: 80.0352 },
-  'araku-valley': { id: 'araku-valley', name: 'Araku Valley', districtId: 'asr', district: 'ASR District', category: 'Hill Station', timings: '24/7', entryFee: 'Free', desc: 'Beautiful hill station with coffee plantations.', lat: 18.327, lng: 82.8806 },
-  'lambasingi': { id: 'lambasingi', name: 'Lambasingi', districtId: 'asr', district: 'ASR District', category: 'Hill Station', timings: '24/7', entryFee: 'Free', desc: 'Known as the Kashmir of Andhra Pradesh.', lat: 17.9994, lng: 82.7268 },
-  'madanapalle': { id: 'madanapalle', name: 'Madanapalle', districtId: 'annamayya', district: 'Annamayya', category: 'Hill Station', timings: '24/7', entryFee: 'Free', desc: 'Pleasant climate hill station.', lat: 13.658, lng: 78.392 },
-  'borra-caves': { id: 'borra-caves', name: 'Borra Caves', districtId: 'asr', district: 'ASR District', category: 'Caves', timings: '10AM-5PM', entryFee: '₹60', desc: 'Millions of years old limestone caves.', lat: 18.2797, lng: 83.0416 },
-  'belum-caves': { id: 'belum-caves', name: 'Belum Caves', districtId: 'nandyal', district: 'Nandyal', category: 'Caves', timings: '10AM-5PM', entryFee: '₹65', desc: 'Second largest cave system in India.', lat: 15.1075, lng: 78.1108 },
-  'undavalli-caves': { id: 'undavalli-caves', name: 'Undavalli Caves', districtId: 'guntur', district: 'Guntur', category: 'Caves', timings: '9AM-6PM', entryFee: '₹25', desc: 'Monolithic rock-cut caves.', lat: 16.4955, lng: 80.5807 },
-  'talakona-waterfalls': { id: 'talakona-waterfalls', name: 'Talakona Waterfalls', districtId: 'annamayya', district: 'Annamayya', category: 'Waterfall', timings: '6AM-6PM', entryFee: '₹50', desc: 'Highest waterfall in Andhra Pradesh.', lat: 13.8156, lng: 79.2177 },
-  'ethipothala-falls': { id: 'ethipothala-falls', name: 'Ethipothala Falls', districtId: 'palnadu', district: 'Palnadu', category: 'Waterfall', timings: '6AM-6PM', entryFee: '₹20', desc: 'Beautiful cascade formed by three streams.', lat: 16.2062, lng: 79.3174 },
-  'katiki-falls': { id: 'katiki-falls', name: 'Katiki Waterfalls', districtId: 'asr', district: 'ASR District', category: 'Waterfall', timings: '6AM-5PM', entryFee: 'Free', desc: 'Stunning waterfall near Araku.', lat: 18.252, lng: 82.973 },
-  'charminar': { id: 'charminar', name: 'Charminar', districtId: 'hyderabad', district: 'Hyderabad', category: 'Heritage', timings: '9AM-5:30PM', entryFee: '₹25', desc: 'Iconic 16th-century mosque.', lat: 17.3616, lng: 78.4747 },
+  // Telangana Spreadsheet Integration
+  'charminar': { id: 'charminar', name: 'Charminar', districtId: 'hyderabad', district: 'Hyderabad', category: 'Historical', timings: '9AM-5:30PM', entryFee: '₹25', desc: 'Iconic 16th-century mosque and global landmark of Hyderabad.', lat: 17.3616, lng: 78.4747 },
+  'golconda-fort': { id: 'golconda-fort', name: 'Golconda Fort', districtId: 'hyderabad', district: 'Hyderabad', category: 'Historical', timings: '9AM-5PM', entryFee: '₹25', desc: 'Historic citadel and former capital of the Qutb Shahis.', lat: 17.3833, lng: 78.4011 },
+  'ramoji-film-city': { id: 'ramoji-film-city', name: 'Ramoji Film City', districtId: 'ranga-reddy', district: 'Ranga Reddy', category: 'Entertainment', timings: '9AM-5:30PM', entryFee: '₹1150', desc: 'World\'s largest film studio complex and theme park.', lat: 17.2543, lng: 78.6808 },
+  'birla-mandir': { id: 'birla-mandir', name: 'Birla Mandir', districtId: 'hyderabad', district: 'Hyderabad', category: 'Temple', timings: '7AM-9PM', entryFee: 'Free', desc: 'Exquisite white marble temple on Naubath Pahad.', lat: 17.4062, lng: 78.4691 },
+  'yadadri-temple': { id: 'yadadri-temple', name: 'Yadadri Temple', districtId: 'yadadri', district: 'Yadadri Bhuvanagiri', category: 'Temple', timings: '5AM-9PM', entryFee: 'Free', desc: 'Renovated architectural marvel dedicated to Lord Narasimha.', lat: 17.59, lng: 78.943 },
+  'basara-temple': { id: 'basara-temple', name: 'Basara Saraswati Temple', districtId: 'nirmal', district: 'Nirmal', category: 'Temple', timings: '4AM-8PM', entryFee: 'Free', desc: 'Sacred temple of the Goddess of Knowledge.', lat: 18.88, lng: 77.97 },
+  'keesaragutta': { id: 'keesaragutta', name: 'Keesaragutta Temple', districtId: 'medchal', district: 'Medchal-Malkajgiri', category: 'Temple', timings: '6AM-8PM', entryFee: 'Free', desc: 'Ancient hill temple dedicated to Lord Shiva.', lat: 17.5288, lng: 78.6826 },
+  'ramappa-temple': { id: 'ramappa-temple', name: 'Ramappa Temple', districtId: 'mulugu', district: 'Mulugu', category: 'Temple', timings: '6AM-6PM', entryFee: 'Free', desc: 'UNESCO Heritage site known for its intricate carvings.', lat: 18.2591, lng: 79.9431 },
+  'thousand-pillar': { id: 'thousand-pillar', name: 'Thousand Pillar Temple', districtId: 'hanamkonda', district: 'Hanamkonda', category: 'Temple', timings: '6AM-8PM', entryFee: 'Free', desc: 'Masterpiece of Kakatiya architecture.', lat: 18.0036, lng: 79.5747 },
+  'bhadrachalam': { id: 'bhadrachalam', name: 'Bhadrachalam Temple', districtId: 'bhadradri', district: 'Bhadradri Kothagudem', category: 'Temple', timings: '4AM-9PM', entryFee: 'Free', desc: 'Major pilgrimage site on the Godavari River.', lat: 17.6688, lng: 80.888 },
+  'bogatha-falls': { id: 'bogatha-falls', name: 'Bogatha Waterfalls', districtId: 'mulugu', district: 'Mulugu', category: 'Waterfall', timings: '9AM-5PM', entryFee: '₹50', desc: 'Breathtaking waterfall amidst lush forests.', lat: 17.9575, lng: 80.825 },
+  'kuntala-falls': { id: 'kuntala-falls', name: 'Kuntala Waterfalls', districtId: 'nirmal', district: 'Nirmal', category: 'Waterfall', timings: '6AM-6PM', entryFee: '₹20', desc: 'Highest waterfall in the state of Telangana.', lat: 19.2167, lng: 78.5167 },
+  'nagarjuna-sagar-dam': { id: 'nagarjuna-sagar-dam', name: 'Nagarjuna Sagar Dam', districtId: 'nalgonda', district: 'Nalgonda', category: 'Dam', timings: '9AM-6PM', entryFee: '₹20', desc: 'Engineering marvel and major tourist hub.', lat: 16.5756, lng: 79.312 },
+  'hussain-sagar': { id: 'hussain-sagar', name: 'Hussain Sagar Lake', districtId: 'hyderabad', district: 'Hyderabad', category: 'Lake', timings: '24/7', entryFee: 'Free', desc: 'Scenic lake connecting the twin cities.', lat: 17.4239, lng: 78.4738 },
+  'laknavaram-lake': { id: 'laknavaram-lake', name: 'Laknavaram Lake', districtId: 'mulugu', district: 'Mulugu', category: 'Lake', timings: '8AM-6PM', entryFee: '₹50', desc: 'Beautiful lake with a unique hanging bridge.', lat: 18.2, lng: 80.0167 },
+  'bhongir-fort': { id: 'bhongir-fort', name: 'Bhongir Fort', districtId: 'yadadri', district: 'Yadadri Bhuvanagiri', category: 'Historical', timings: '10AM-5PM', entryFee: '₹10', desc: 'Massive monolithic fort offering spectacular views.', lat: 17.515, lng: 78.885 },
 };
 
 export default function DestinationDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -69,22 +59,15 @@ export default function DestinationDetailPage({ params }: { params: Promise<{ id
       name: id.replace('-', ' ').toUpperCase(), 
       district: 'Unknown', 
       districtId: 'unknown',
-      category: 'Travel', 
+      category: 'Landmark', 
       timings: '9AM-6PM',
       entryFee: '₹50',
-      lang: 'English', 
       desc: 'Explore this breathtaking destination with local experts.', 
-      lat: 17.0, 
-      lng: 78.0,
-      weather: { temp: '27°C', rain: '10%', bestTime: 'Year round' }
+      lat: 17.3850, 
+      lng: 78.4867,
+      weather: { temp: '28°C', rain: '5%', bestTime: 'Oct to Mar' }
     };
   }, [id]);
-
-  const nearbyRecommendations = useMemo(() => {
-    return Object.entries(mockDestinations)
-      .filter(([key, val]) => val.districtId === dest.districtId && key !== id)
-      .slice(0, 4);
-  }, [id, dest.districtId]);
 
   const getDestinationImage = (idKey: string) => {
     const found = PlaceHolderImages.find(img => img.id === idKey);
@@ -113,15 +96,13 @@ export default function DestinationDetailPage({ params }: { params: Promise<{ id
       <div className="container mx-auto px-4 py-12 -mt-20 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
           <div className="lg:col-span-2 space-y-12">
-            <Card className="border-none shadow-lg p-8 bg-white dark:bg-zinc-900 rounded-[2.5rem]">
+            <Card className="border-none shadow-xl p-8 bg-white dark:bg-zinc-900 rounded-[2.5rem]">
               <div className="flex flex-col md:flex-row justify-between gap-6 mb-8 border-b pb-8">
                 <div className="space-y-4 flex-grow">
                   <div className="flex items-center gap-2 text-primary font-bold uppercase tracking-widest text-xs">
                     <Info className="w-4 h-4 text-accent" /> Destination Overview
                   </div>
-                  <p className="text-xl text-muted-foreground leading-relaxed font-body">
-                    {dest.desc}
-                  </p>
+                  <p className="text-xl text-muted-foreground leading-relaxed font-body">{dest.desc}</p>
                   
                   <div className="grid grid-cols-2 gap-4 pt-4">
                     <div className="bg-secondary/30 p-4 rounded-2xl flex items-center gap-3">
@@ -143,18 +124,8 @@ export default function DestinationDetailPage({ params }: { params: Promise<{ id
                 
                 <div className="bg-primary/5 border border-primary/10 p-6 rounded-3xl min-w-[220px] flex flex-col items-center justify-center text-center">
                   <CloudSun className="w-10 h-10 text-primary mb-2" />
-                  <p className="text-3xl font-black">{dest.weather?.temp || '27°C'}</p>
+                  <p className="text-3xl font-black">{dest.weather?.temp || '28°C'}</p>
                   <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Current Weather</p>
-                  <div className="flex items-center gap-4 mt-6 w-full justify-center">
-                    <div className="text-xs">
-                      <p className="font-bold flex items-center gap-1 text-primary"><CloudRain className="w-3 h-3" /> {dest.weather?.rain || '10%'}</p>
-                      <p className="text-[8px] text-muted-foreground uppercase">Rain</p>
-                    </div>
-                    <div className="text-xs border-l pl-4">
-                      <p className="font-bold flex items-center gap-1 text-primary"><Calendar className="w-3 h-3" /> {dest.weather?.bestTime?.split(' ')[0] || 'Year'}</p>
-                      <p className="text-[8px] text-muted-foreground uppercase">Best Time</p>
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -174,9 +145,6 @@ export default function DestinationDetailPage({ params }: { params: Promise<{ id
                 <TabsTrigger value="events" className="rounded-xl flex-1 py-3 flex gap-2">
                   <PartyPopper className="w-4 h-4" /> Nearby Events
                 </TabsTrigger>
-                <TabsTrigger value="nearby" className="rounded-xl flex-1 py-3 flex gap-2">
-                  <MapPin className="w-4 h-4" /> Nearby Spots
-                </TabsTrigger>
               </TabsList>
               
               <TabsContent value="reviews">
@@ -185,30 +153,6 @@ export default function DestinationDetailPage({ params }: { params: Promise<{ id
 
               <TabsContent value="events">
                 <LocalEvents location={dest.district} />
-              </TabsContent>
-
-              <TabsContent value="nearby">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {nearbyRecommendations.map(([key, val]) => (
-                    <TouristCard
-                      key={key}
-                      id={key}
-                      name={val.name}
-                      location={val.district}
-                      category={val.category}
-                      rating={4.8}
-                      description={val.desc}
-                      image={getDestinationImage(key)}
-                      timings={val.timings}
-                      entryFee={val.entryFee}
-                    />
-                  ))}
-                  {nearbyRecommendations.length === 0 && (
-                    <div className="col-span-full py-20 text-center bg-secondary/5 rounded-3xl border border-dashed">
-                      <p className="text-muted-foreground italic">No other nearby spots mapped for this district yet.</p>
-                    </div>
-                  )}
-                </div>
               </TabsContent>
             </Tabs>
           </div>
