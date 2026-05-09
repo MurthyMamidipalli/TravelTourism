@@ -2,11 +2,22 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Card, CardContent } from '@/components/ui/card';
+import dynamic from 'next/dynamic';
+import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Info, ArrowLeft, Compass, Globe, Calendar, Clock, Navigation } from 'lucide-react';
-import DestinationMap from '@/components/DestinationMap';
+import { MapPin, Info, ArrowLeft, Compass, Globe, Calendar, Clock, Navigation, Loader2 } from 'lucide-react';
+
+// Import map component dynamically to avoid SSR issues with Leaflet
+const DestinationMap = dynamic(() => import('@/components/DestinationMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[400px] rounded-3xl bg-secondary/10 animate-pulse flex flex-col items-center justify-center space-y-4">
+      <Loader2 className="w-10 h-10 text-muted-foreground animate-spin" />
+      <p className="text-sm text-muted-foreground">Loading interactive map...</p>
+    </div>
+  ),
+});
 
 const mockDestinations: Record<string, any> = {
   'tirumala-temple': { name: 'Tirumala Temple', district: 'Tirupati', itinerary: '2 Days', category: 'Pilgrimage', lang: 'Telugu, English', desc: 'World famous Hindu temple on the hills of Tirumala. A spiritual hub of millions.', lat: 13.6833, lng: 79.3500 },

@@ -2,9 +2,10 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { Loader } from '@googlemaps/js-api-loader';
 import { Card } from '@/components/ui/card';
 import { MapPin, Loader2 } from 'lucide-react';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 interface DestinationMapProps {
   name: string;
@@ -14,106 +15,73 @@ interface DestinationMapProps {
 
 export default function DestinationMap({ name, lat, lng }: DestinationMapProps) {
   const mapRef = useRef<HTMLDivElement>(null);
+  const mapInstanceRef = useRef<L.Map | null>(null);
   const [loading, setLoading] = useState(true);
-  const [apiError, setApiError] = useState(false);
 
   useEffect(() => {
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || '';
-    
-    if (!apiKey) {
+    if (typeof window === 'undefined' || !mapRef.current) return;
+
+    // Initialize map if it doesn't exist
+    if (!mapInstanceRef.current) {
+      // Fix Leaflet's default marker icon issue in Next.js
+      const DefaultIcon = L.icon({
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        shadowSize: [41, 41]
+      });
+      L.Marker.prototype.options.icon = DefaultIcon;
+
+      // Create map instance
+      mapInstanceRef.current = L.map(mapRef.current, {
+        zoomControl: true,
+        scrollWheelZoom: false,
+      }).setView([lat, lng], 14);
+
+      // Add OpenStreetMap tile layer
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      }).addTo(mapInstanceRef.current);
+
+      // Add marker
+      L.marker([lat, lng])
+        .addTo(mapInstanceRef.current)
+        .bindPopup(`
+          <div class="p-2">
+            <h4 class="font-bold text-sm mb-1">${name}</h4>
+            <p class="text-xs text-muted-foreground">Tourist Destination</p>
+            <a href="https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}" target="_blank" class="text-[10px] text-primary font-bold hover:underline block mt-2">Get Directions</a>
+          </div>
+        `)
+        .openPopup();
+
       setLoading(false);
-      setApiError(true);
-      return;
+    } else {
+      // Update view if props change
+      mapInstanceRef.current.setView([lat, lng], 14);
     }
 
-    const loader = new Loader({
-      apiKey,
-      version: 'weekly',
-    });
-
-    loader.load().then(async () => {
-      if (!mapRef.current) return;
-
-      const { Map } = (await google.maps.importLibrary('maps')) as google.maps.MapsLibrary;
-      const { AdvancedMarkerElement } = (await google.maps.importLibrary('marker')) as google.maps.MarkerLibrary;
-
-      const position = { lat, lng };
-      const map = new Map(mapRef.current, {
-        center: position,
-        zoom: 14,
-        mapId: 'DEMO_MAP_ID', // Replace with your Map ID for advanced markers
-        disableDefaultUI: false,
-        zoomControl: true,
-        styles: [
-          {
-            "featureType": "all",
-            "elementType": "geometry.fill",
-            "stylers": [{ "weight": "2.00" }]
-          },
-          {
-            "featureType": "all",
-            "elementType": "geometry.stroke",
-            "stylers": [{ "color": "#9c9c9c" }]
-          },
-          {
-            "featureType": "landscape",
-            "elementType": "all",
-            "stylers": [{ "color": "#f2f2f2" }]
-          },
-          {
-            "featureType": "poi",
-            "elementType": "all",
-            "stylers": [{ "visibility": "off" }]
-          },
-          {
-            "featureType": "road",
-            "elementType": "all",
-            "stylers": [{ "saturation": -100 }, { "lightness": 45 }]
-          }
-        ]
-      });
-
-      new AdvancedMarkerElement({
-        map,
-        position,
-        title: name,
-      });
-
-      setLoading(false);
-    }).catch((e) => {
-      console.error("Google Maps failed to load", e);
-      setLoading(false);
-      setApiError(true);
-    });
+    // Cleanup function
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
   }, [lat, lng, name]);
 
   return (
     <Card className="relative w-full h-[400px] rounded-3xl overflow-hidden border-none shadow-lg bg-secondary/10">
       {loading && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/50 backdrop-blur-sm z-10">
+        <div className="absolute inset-0 flex flex-col items-center justify-center bg-background/50 backdrop-blur-sm z-[1000]">
           <Loader2 className="w-10 h-10 text-primary animate-spin mb-2" />
-          <p className="text-sm font-medium text-muted-foreground">Loading Location Map...</p>
+          <p className="text-sm font-medium text-muted-foreground">Initializing OpenStreetMap...</p>
         </div>
       )}
-      
-      {apiError ? (
-        <div className="absolute inset-0 flex flex-col items-center justify-center p-8 text-center space-y-4">
-          <div className="bg-primary/10 p-4 rounded-full">
-            <MapPin className="w-10 h-10 text-primary" />
-          </div>
-          <div className="space-y-1">
-            <p className="font-bold text-lg">Interactive Map Preview</p>
-            <p className="text-sm text-muted-foreground max-w-xs">
-              Maps are ready for {name}. Please configure your NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to enable live tracking.
-            </p>
-          </div>
-          <div className="text-[10px] font-mono bg-secondary px-3 py-1 rounded text-muted-foreground">
-            Coordinates: {lat}, {lng}
-          </div>
-        </div>
-      ) : (
-        <div ref={mapRef} className="w-full h-full" />
-      )}
+      <div ref={mapRef} className="w-full h-full z-0" />
     </Card>
   );
 }
