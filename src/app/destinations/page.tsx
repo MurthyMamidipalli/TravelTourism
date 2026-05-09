@@ -1,14 +1,16 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, MapPin, Sparkles, Filter, X, Landmark, Waves, Shield, Building2, Trees, Mountain, History, ArrowRight } from 'lucide-react';
+import { Search, MapPin, Sparkles, Filter, X, Landmark, Waves, Shield, Building2, Trees, Mountain, History, ArrowRight, Lock, LogIn } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import TouristCard from '@/components/TouristCard';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useUser } from '@/firebase';
+import { Skeleton } from '@/components/ui/skeleton';
+import Link from 'next/link';
 
 const allDestinations = [
   // Andhra Pradesh
@@ -27,6 +29,7 @@ const allDestinations = [
 ];
 
 export default function DestinationsPage() {
+  const { user, loading: authLoading } = useUser();
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
@@ -73,6 +76,33 @@ export default function DestinationsPage() {
       default: return `https://picsum.photos/seed/${dest.id}/600/400`;
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="container mx-auto px-4 py-12 space-y-12">
+        <Skeleton className="h-20 w-3/4" />
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          {[1, 2, 3, 4].map(i => <Skeleton key={i} className="h-64 rounded-2xl" />)}
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center text-center space-y-6">
+        <div className="bg-primary/10 p-6 rounded-full"><Lock className="w-12 h-12 text-primary" /></div>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-black tracking-tight">Places Restricted</h1>
+          <p className="text-muted-foreground max-w-md">Join TravelSphere to browse detailed landmark information, reviews, and interactive maps.</p>
+        </div>
+        <div className="flex gap-4">
+          <Link href="/login"><Button size="lg" className="rounded-2xl h-12 px-8 font-bold shadow-lg shadow-primary/20">Sign In</Button></Link>
+          <Link href="/signup"><Button size="lg" variant="outline" className="rounded-2xl h-12 px-8 font-bold">Create Account</Button></Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-12 min-h-screen [scrollbar-gutter:stable]">

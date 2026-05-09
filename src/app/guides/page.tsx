@@ -6,12 +6,14 @@ import Link from 'next/link';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, MapPin, Star, ShieldCheck, Users, Loader2 } from 'lucide-react';
+import { Search, MapPin, Star, ShieldCheck, Users, Loader2, Lock, LogIn } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
-import { useFirestore, useCollection } from '@/firebase';
+import { useFirestore, useCollection, useUser } from '@/firebase';
 import { collection } from 'firebase/firestore';
+import { Skeleton } from '@/components/ui/skeleton';
 
 export default function GuidesPage() {
+  const { user, loading: authLoading } = useUser();
   const [search, setSearch] = useState('');
   const firestore = useFirestore();
 
@@ -31,6 +33,33 @@ export default function GuidesPage() {
       guide.fullName?.toLowerCase().includes(lower)
     );
   }, [guides, search]);
+
+  if (authLoading) {
+    return (
+      <div className="container mx-auto px-4 py-12 space-y-12">
+        <Skeleton className="h-40 w-full rounded-3xl" />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {[1, 2, 3].map(i => <Skeleton key={i} className="h-80 rounded-3xl" />)}
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center text-center space-y-6">
+        <div className="bg-primary/10 p-6 rounded-full"><Lock className="w-12 h-12 text-primary" /></div>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-black tracking-tight">Experts Directory Restricted</h1>
+          <p className="text-muted-foreground max-w-md mx-auto">Connect with verified local guides and expert explorers. Sign in to view full profiles and book your experience.</p>
+        </div>
+        <div className="flex gap-4">
+          <Link href="/login"><Button size="lg" className="rounded-2xl h-12 px-8 font-bold">Sign In</Button></Link>
+          <Link href="/signup"><Button size="lg" variant="outline" className="rounded-2xl h-12 px-8 font-bold">Create Profile</Button></Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">

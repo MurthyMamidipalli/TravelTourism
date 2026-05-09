@@ -1,11 +1,13 @@
-
 'use client';
 
 import { motion } from 'framer-motion';
-import { Shield, Activity, Phone, LifeBuoy, MapPin, ExternalLink, Siren, HeartPulse, Info } from 'lucide-react';
+import { Shield, Activity, Phone, LifeBuoy, MapPin, ExternalLink, Siren, HeartPulse, Info, Lock, LogIn } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useUser } from '@/firebase';
+import { Skeleton } from '@/components/ui/skeleton';
+import Link from 'next/link';
 
 const emergencyContacts = [
   {
@@ -34,9 +36,39 @@ const emergencyContacts = [
 ];
 
 export default function EmergencyPage() {
+  const { user, loading } = useUser();
+
   const findNearbyHospitals = () => {
     window.open('https://www.google.com/maps/search/hospitals+near+me', '_blank');
   };
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 space-y-12">
+        <Skeleton className="h-16 w-3/4 mx-auto" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <Skeleton className="h-64 rounded-3xl" />
+          <Skeleton className="h-64 rounded-3xl" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center text-center space-y-6">
+        <div className="bg-destructive/10 p-6 rounded-full"><Lock className="w-12 h-12 text-destructive" /></div>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-black tracking-tight">Safety Hub Locked</h1>
+          <p className="text-muted-foreground max-w-md mx-auto">Please sign in to access emergency helplines, nearby hospital finders, and safety protocols for your journey.</p>
+        </div>
+        <div className="flex gap-4">
+          <Link href="/login"><Button size="lg" className="rounded-2xl h-12 px-8 font-bold">Sign In</Button></Link>
+          <Link href="/signup"><Button size="lg" variant="outline" className="rounded-2xl h-12 px-8 font-bold">Register</Button></Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-12 min-h-screen">

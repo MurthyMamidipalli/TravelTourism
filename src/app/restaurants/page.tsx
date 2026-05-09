@@ -1,4 +1,3 @@
-
 'use client';
 
 import { motion } from 'framer-motion';
@@ -6,7 +5,10 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Globe, ArrowRight, Utensils } from 'lucide-react';
+import { Globe, ArrowRight, Utensils, Lock, LogIn } from 'lucide-react';
+import { useUser } from '@/firebase';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const states = [
   {
@@ -28,6 +30,36 @@ const states = [
 ];
 
 export default function RestaurantsLandingPage() {
+  const { user, loading } = useUser();
+
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 py-12 space-y-12">
+        <Skeleton className="h-12 w-64 mx-auto" />
+        <div className="grid grid-cols-1 gap-8 max-w-4xl mx-auto">
+          <Skeleton className="h-[300px] w-full rounded-3xl" />
+          <Skeleton className="h-[300px] w-full rounded-3xl" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center text-center space-y-6">
+        <div className="bg-primary/10 p-6 rounded-full"><Lock className="w-12 h-12 text-primary" /></div>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-black tracking-tight">Dining Map Restricted</h1>
+          <p className="text-muted-foreground max-w-md mx-auto">Access our curated culinary guide and interactive dining maps by signing in to your account.</p>
+        </div>
+        <div className="flex gap-4">
+          <Link href="/login"><Button size="lg" className="rounded-2xl h-12 px-8 font-bold shadow-lg shadow-primary/20">Sign In Now</Button></Link>
+          <Link href="/signup"><Button size="lg" variant="outline" className="rounded-2xl h-12 px-8 font-bold">Join TravelSphere</Button></Link>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
       <div className="flex flex-col items-center text-center space-y-6 max-w-3xl mx-auto">

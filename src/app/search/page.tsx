@@ -1,15 +1,17 @@
-
 'use client';
 
 import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Search as SearchIcon, MapPin, Sparkles } from 'lucide-react';
+import { Search as SearchIcon, MapPin, Sparkles, Lock, LogIn } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { useUser } from '@/firebase';
+import { Button } from '@/components/ui/button';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const allData = [
   { id: 'tirumala-temple', name: 'Tirumala Temple', district: 'Tirupati', type: 'Pilgrimage' },
@@ -51,6 +53,7 @@ const allData = [
 ];
 
 export default function SearchPage() {
+  const { user, loading: authLoading } = useUser();
   const [query, setQuery] = useState('');
 
   const results = useMemo(() => {
@@ -75,6 +78,34 @@ export default function SearchPage() {
       default: return { url: `https://picsum.photos/seed/${item.id}/200/200`, hint: 'Tourist Place' };
     }
   };
+
+  if (authLoading) {
+    return (
+      <div className="container mx-auto px-4 py-12 max-w-5xl">
+        <Skeleton className="h-16 w-full rounded-2xl mb-8" />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <Skeleton className="h-32 rounded-3xl" />
+          <Skeleton className="h-32 rounded-3xl" />
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center text-center space-y-6">
+        <div className="bg-primary/10 p-6 rounded-full"><Lock className="w-12 h-12 text-primary" /></div>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-black tracking-tight">Search Restricted</h1>
+          <p className="text-muted-foreground max-w-md mx-auto">Discover the perfect spot for your next trip. Please sign in to search and filter global wonders.</p>
+        </div>
+        <div className="flex gap-4">
+          <Link href="/login"><Button size="lg" className="rounded-2xl h-12 px-8 font-bold">Sign In</Button></Link>
+          <Link href="/signup"><Button size="lg" variant="outline" className="rounded-2xl h-12 px-8 font-bold">Join Now</Button></Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 py-12 max-w-5xl [scrollbar-gutter:stable]">
