@@ -22,18 +22,17 @@ export default function DashboardPage() {
 
   const { data: profile, loading: profileLoading } = useDoc(userDocRef);
 
-  // Performance Optimization: Stabilized loading check to prevent layout shift
   const [isActuallyLoading, setIsActuallyLoading] = useState(true);
 
   useEffect(() => {
     if (!authLoading) {
       if (!user) {
         setIsActuallyLoading(false);
-      } else if (!profileLoading) {
+      } else if (!profileLoading || profile) {
         setIsActuallyLoading(false);
       }
     }
-  }, [authLoading, profileLoading, user]);
+  }, [authLoading, profileLoading, user, profile]);
 
   if (isActuallyLoading) {
     return (
@@ -45,11 +44,6 @@ export default function DashboardPage() {
         <div className="grid gap-6 md:grid-cols-3">
           <Skeleton className="h-64 rounded-3xl md:col-span-2" />
           <Skeleton className="h-64 rounded-3xl" />
-        </div>
-        <div className="grid gap-6 md:grid-cols-3">
-          <Skeleton className="h-40 rounded-3xl" />
-          <Skeleton className="h-40 rounded-3xl" />
-          <Skeleton className="h-40 rounded-3xl" />
         </div>
       </div>
     );
@@ -65,11 +59,14 @@ export default function DashboardPage() {
           <h1 className="text-3xl font-black tracking-tight">Access Restricted</h1>
           <p className="text-muted-foreground">Please sign in to view your personalized dashboard and travel history.</p>
         </div>
-        <Link href="/login">
-          <Button size="lg" className="rounded-2xl h-12 px-8 font-bold shadow-lg shadow-primary/20">
-            Sign In Now
-          </Button>
-        </Link>
+        <div className="flex gap-4">
+          <Link href="/login">
+            <Button size="lg" className="rounded-2xl h-12 px-8 font-bold shadow-lg shadow-primary/20">Sign In Now</Button>
+          </Link>
+          <Link href="/signup">
+            <Button size="lg" variant="outline" className="rounded-2xl h-12 px-8 font-bold">Register</Button>
+          </Link>
+        </div>
       </div>
     );
   }
@@ -131,14 +128,7 @@ export default function DashboardPage() {
                 <div className="bg-white p-2 rounded-lg shadow-sm"><Fingerprint className="w-4 h-4 text-primary" /></div>
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Aadhar ID</p>
-                  <p className="font-mono text-sm font-bold">{profile?.aadharNumber ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` : 'Pending'}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="bg-white p-2 rounded-lg shadow-sm"><CreditCard className="w-4 h-4 text-primary" /></div>
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">PAN Card</p>
-                  <p className="font-mono text-sm font-bold uppercase">{profile?.panNumber || 'Pending'}</p>
+                  <p className="font-mono text-sm font-bold">{profile?.aadharNumber ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` : 'Pending Verification'}</p>
                 </div>
               </div>
             </div>
@@ -157,25 +147,23 @@ export default function DashboardPage() {
                   <p className="font-mono text-sm font-bold uppercase">{profile?.passportNumber || 'Pending'}</p>
                 </div>
               </div>
-              <div className="flex items-center gap-3">
-                <div className="bg-white p-2 rounded-lg shadow-sm"><Calendar className="w-4 h-4 text-primary" /></div>
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Age</p>
-                  <p className="font-bold text-sm">{profile?.age ? `${profile.age} Years` : 'N/A'}</p>
-                </div>
-              </div>
             </div>
           </CardContent>
+          <div className="p-6 pt-0 border-t flex justify-end">
+            <Link href="/profile">
+              <Button variant="link" className="text-primary font-bold">Update Identity Documents <Settings className="w-4 h-4 ml-1" /></Button>
+            </Link>
+          </div>
         </Card>
 
         <Card className="premium-card">
           <CardHeader>
             <Star className="w-8 h-8 text-primary mb-2" />
             <CardTitle>Saved Places</CardTitle>
-            <CardDescription>Destinations available for offline access</CardDescription>
+            <CardDescription>Destinations available offline</CardDescription>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground italic">Your saved offline landmarks will appear here.</p>
+            <p className="text-sm text-muted-foreground italic">Your saved landmarks will appear here for offline access.</p>
           </CardContent>
         </Card>
       </div>

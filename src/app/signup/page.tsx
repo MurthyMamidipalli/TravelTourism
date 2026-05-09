@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { UserPlus, Lock, Mail, User, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { UserPlus, Lock, Mail, User, Eye, EyeOff, Loader2, Sparkles } from 'lucide-react';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -188,8 +188,8 @@ export default function SignupPage() {
               )} />
 
               <Button type="submit" className="w-full h-14 text-lg rounded-2xl mt-2 font-bold shadow-xl shadow-primary/20 hover:scale-[1.01] transition-transform" disabled={isLoading}>
-                {isLoading ? <Loader2 className="animate-spin mr-2" /> : 'Create Account'}
-                {!isLoading && <UserPlus className="ml-2 h-5 w-5" />}
+                {isLoading ? <Loader2 className="animate-spin mr-2" /> : <UserPlus className="ml-2 h-5 w-5" />}
+                Create Account
               </Button>
             </form>
           </Form>

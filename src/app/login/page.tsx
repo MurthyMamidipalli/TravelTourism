@@ -19,7 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, LogIn, Mail, Lock, UserRound, AlertCircle, Copy, Loader2, KeyRound } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Mail, Lock, UserRound, AlertCircle, Copy, Loader2, KeyRound, Sparkles } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -53,7 +53,6 @@ export default function LoginPage() {
     const code = error?.code || 'unknown';
     const hostname = typeof window !== 'undefined' ? window.location.hostname : 'unknown';
     
-    // Specifically handle the "missing initial state" error
     if (error?.message?.includes('missing initial state') || code === 'auth/internal-error') {
       return { 
         title: 'Connection Interrupted', 
@@ -100,7 +99,6 @@ export default function LoginPage() {
     setIsGoogleLoading(true);
     setAuthError(null);
     const provider = new GoogleAuthProvider();
-    // Ensure persistence is handled correctly in specific browser environments
     try {
       await signInWithPopup(auth, provider);
       toast({ title: 'Success', description: 'Signed in with Google.' });
@@ -136,11 +134,11 @@ export default function LoginPage() {
       <Card className="w-full max-w-md border-none shadow-2xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
         <CardHeader className="text-center bg-primary/5 py-10">
           <CardTitle className="text-3xl font-black tracking-tight text-primary uppercase">TravelSphere</CardTitle>
-          <CardDescription className="text-base font-medium">Explore the wonders of India</CardDescription>
+          <CardDescription className="text-base font-medium">Log in to your explorer account</CardDescription>
         </CardHeader>
         <CardContent className="p-8 pt-10 space-y-6">
           {authError && (
-            <Alert variant="destructive" className="rounded-2xl bg-destructive/5 border-destructive/20">
+            <Alert variant="destructive" className="rounded-2xl bg-destructive/5 border-destructive/20 animate-in fade-in slide-in-from-top-2">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle className="font-bold">{authError.title}</AlertTitle>
               <AlertDescription className="space-y-3">
@@ -194,6 +192,7 @@ export default function LoginPage() {
                           <DialogTitle className="flex items-center gap-2">
                             <KeyRound className="w-5 h-5 text-primary" /> Reset Password
                           </DialogTitle>
+                          <DialogDescription>Enter your email to receive a password reset link.</DialogDescription>
                         </DialogHeader>
                         <form onSubmit={handleForgotPassword} className="space-y-4 py-4">
                           <div className="space-y-2">
@@ -222,8 +221,8 @@ export default function LoginPage() {
                 </FormItem>
               )} />
               <Button type="submit" className="w-full h-12 text-lg rounded-xl font-bold shadow-lg shadow-primary/20 mt-2" disabled={isLoading || isGoogleLoading}>
-                {isLoading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Sign In'}
-                {!isLoading && <LogIn className="ml-2 h-4 w-4" />}
+                {isLoading ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <LogIn className="mr-2 h-4 w-4" />}
+                Sign In
               </Button>
             </form>
           </Form>
@@ -235,7 +234,8 @@ export default function LoginPage() {
 
           <div className="grid grid-cols-2 gap-4">
             <Button variant="outline" className="h-12 rounded-xl border-zinc-200 font-bold" onClick={handleGoogleLogin} disabled={isLoading || isGoogleLoading}>
-              {isGoogleLoading ? <Loader2 className="animate-spin h-4 w-4" /> : 'Google'}
+              {isGoogleLoading ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <Sparkles className="mr-2 h-4 w-4 text-amber-500" />}
+              Google
             </Button>
             <Button variant="secondary" className="h-12 rounded-xl font-bold" onClick={() => signInAnonymously(auth).then(() => router.push('/dashboard'))}>
               <UserRound className="mr-2 h-4 w-4" /> Guest

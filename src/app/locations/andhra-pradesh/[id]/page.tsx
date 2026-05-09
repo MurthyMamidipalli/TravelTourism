@@ -4,7 +4,7 @@ import { use, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, Filter, Lock } from 'lucide-react';
+import { ArrowLeft, Filter, Lock, LogIn } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import TouristCard from '@/components/TouristCard';
@@ -13,38 +13,38 @@ import { Skeleton } from '@/components/ui/skeleton';
 
 const allDestinations = [
   // Temples
-  { id: 'tirumala-temple', name: 'Tirumala Temple', districtId: 'tirupati', district: 'Tirupati', category: 'Temple', rating: 4.9, timings: '3AM-12PM', entryFee: '₹300', desc: 'World famous Hindu temple on the hills of Tirumala.' },
-  { id: 'srisailam', name: 'Srisailam Mallikarjuna', districtId: 'nandyal', district: 'Nandyal', category: 'Temple', rating: 4.8, timings: '5AM-9PM', entryFee: 'Free', desc: 'Ancient Shiva temple and one of the 12 Jyotirlingas.' },
-  { id: 'simhachalam', name: 'Simhachalam Temple', districtId: 'vizag', district: 'Visakhapatnam', category: 'Temple', rating: 4.7, timings: '6AM-9PM', entryFee: 'Free', desc: 'Varaha Lakshmi Narasimha temple known for its unique architecture.' },
-  { id: 'kanaka-durga', name: 'Kanaka Durga Temple', districtId: 'ntr', district: 'NTR District', category: 'Temple', rating: 4.8, timings: '4AM-9PM', entryFee: 'Free', desc: 'Famous shrine of Goddess Durga on Indrakeeladri hill.' },
-  { id: 'annavaram', name: 'Annavaram Satyanarayana', districtId: 'kakinada', district: 'Kakinada', category: 'Temple', rating: 4.7, timings: '5AM-9PM', entryFee: 'Free', desc: 'Sacred temple of Lord Satyanarayana Swami.' },
-  { id: 'lepakshi', name: 'Lepakshi Temple', districtId: 'sss', district: 'Sri Sathya Sai', category: 'Temple', rating: 4.8, timings: '6AM-6PM', entryFee: 'Free', desc: 'Famous for its hanging pillar and Veerabhadra temple.' },
-  { id: 'ahobilam', name: 'Ahobilam Temple', districtId: 'nandyal', district: 'Nandyal', category: 'Temple', rating: 4.7, timings: '6AM-5PM', entryFee: 'Free', desc: 'Navanarasimha Kshetram located amidst lush forests.' },
-  { id: 'mahanandi', name: 'Mahanandi Temple', districtId: 'nandyal', district: 'Nandyal', category: 'Temple', rating: 4.6, timings: '5AM-9PM', entryFee: 'Free', desc: 'Ancient temple famous for its crystal clear water tank.' },
-  { id: 'yaganti', name: 'Yaganti Temple', districtId: 'nandyal', district: 'Nandyal', category: 'Temple', rating: 4.7, timings: '6AM-8PM', entryFee: 'Free', desc: 'Famous for the growing stone crow.' },
+  { id: 'tirumala-temple', name: 'Tirumala Temple', districtId: 'tirupati', district: 'Tirupati', category: 'Temple', rating: 4.9, timings: '3AM-12PM', entryFee: '₹300', desc: 'World famous Hindu temple on the hills of Tirumala.', lat: 13.6833, lng: 79.3500 },
+  { id: 'srisailam', name: 'Srisailam Mallikarjuna', districtId: 'nandyal', district: 'Nandyal', category: 'Temple', rating: 4.8, timings: '5AM-9PM', entryFee: 'Free', desc: 'Ancient Shiva temple and one of the 12 Jyotirlingas.', lat: 16.0748, lng: 78.8681 },
+  { id: 'simhachalam', name: 'Simhachalam Temple', districtId: 'vizag', district: 'Visakhapatnam', category: 'Temple', rating: 4.7, timings: '6AM-9PM', entryFee: 'Free', desc: 'Varaha Lakshmi Narasimha temple known for its unique architecture.', lat: 17.7665, lng: 83.2422 },
+  { id: 'kanaka-durga', name: 'Kanaka Durga Temple', districtId: 'ntr', district: 'NTR District', category: 'Temple', rating: 4.8, timings: '4AM-9PM', entryFee: 'Free', desc: 'Famous shrine of Goddess Durga on Indrakeeladri hill.', lat: 16.5165, lng: 80.6104 },
+  { id: 'annavaram', name: 'Annavaram Satyanarayana', districtId: 'kakinada', district: 'Kakinada', category: 'Temple', rating: 4.7, timings: '5AM-9PM', entryFee: 'Free', desc: 'Sacred temple of Lord Satyanarayana Swami.', lat: 17.2800, lng: 82.4044 },
+  { id: 'lepakshi', name: 'Lepakshi Temple', districtId: 'sss', district: 'Sri Sathya Sai', category: 'Temple', rating: 4.8, timings: '6AM-6PM', entryFee: 'Free', desc: 'Famous for its hanging pillar and Veerabhadra temple.', lat: 13.8021, lng: 77.6074 },
+  { id: 'ahobilam', name: 'Ahobilam Temple', districtId: 'nandyal', district: 'Nandyal', category: 'Temple', rating: 4.7, timings: '6AM-5PM', entryFee: 'Free', desc: 'Navanarasimha Kshetram located amidst lush forests.', lat: 15.1325, lng: 78.7186 },
+  { id: 'mahanandi', name: 'Mahanandi Temple', districtId: 'nandyal', district: 'Nandyal', category: 'Temple', rating: 4.6, timings: '5AM-9PM', entryFee: 'Free', desc: 'Ancient temple famous for its crystal clear water tank.', lat: 15.4628, lng: 78.6186 },
+  { id: 'yaganti', name: 'Yaganti Temple', districtId: 'nandyal', district: 'Nandyal', category: 'Temple', rating: 4.7, timings: '6AM-8PM', entryFee: 'Free', desc: 'Famous for the growing stone crow.', lat: 15.3501, lng: 78.1367 },
   
   // Beaches
-  { id: 'suryalanka', name: 'Suryalanka Beach', districtId: 'bapatla', district: 'Bapatla', category: 'Beach', rating: 4.5, timings: '24/7', entryFee: 'Free', desc: 'Popular weekend getaway known for its wide sandy shores.' },
-  { id: 'rk-beach', name: 'RK Beach', districtId: 'vizag', district: 'Visakhapatnam', category: 'Beach', rating: 4.6, timings: '24/7', entryFee: 'Free', desc: 'The most popular urban beach in Visakhapatnam.' },
-  { id: 'rushikonda', name: 'Rushikonda Beach', districtId: 'vizag', district: 'Visakhapatnam', category: 'Beach', rating: 4.7, timings: '24/7', entryFee: 'Free', desc: 'Blue Flag certified beach perfect for water sports.' },
-  { id: 'yarada-beach', name: 'Yarada Beach', districtId: 'vizag', district: 'Visakhapatnam', category: 'Beach', rating: 4.8, timings: '24/7', entryFee: 'Free', desc: 'A serene and secluded beach surrounded by hills.' },
-  { id: 'manginapudi', name: 'Machilipatnam Beach', districtId: 'krishna', district: 'Krishna', category: 'Beach', rating: 4.4, timings: '24/7', entryFee: 'Free', desc: 'Unique beach with black soil and historic port.' },
-  { id: 'mypadu', name: 'Mypadu Beach', districtId: 'nellore', district: 'SPSR Nellore', category: 'Beach', rating: 4.5, timings: '24/7', entryFee: 'Free', desc: 'Pristine coastline with golden sands.' },
+  { id: 'suryalanka', name: 'Suryalanka Beach', districtId: 'bapatla', district: 'Bapatla', category: 'Beach', rating: 4.5, timings: '24/7', entryFee: 'Free', desc: 'Popular weekend getaway known for its wide sandy shores.', lat: 15.8458, lng: 80.5050 },
+  { id: 'rk-beach', name: 'RK Beach', districtId: 'vizag', district: 'Visakhapatnam', category: 'Beach', rating: 4.6, timings: '24/7', entryFee: 'Free', desc: 'The most popular urban beach in Visakhapatnam.', lat: 17.7142, lng: 83.3236 },
+  { id: 'rushikonda', name: 'Rushikonda Beach', districtId: 'vizag', district: 'Visakhapatnam', category: 'Beach', rating: 4.7, timings: '24/7', entryFee: 'Free', desc: 'Blue Flag certified beach perfect for water sports.', lat: 17.7828, lng: 83.3854 },
+  { id: 'yarada-beach', name: 'Yarada Beach', districtId: 'vizag', district: 'Visakhapatnam', category: 'Beach', rating: 4.8, timings: '24/7', entryFee: 'Free', desc: 'A serene and secluded beach surrounded by hills.', lat: 17.6534, lng: 83.2687 },
+  { id: 'manginapudi', name: 'Machilipatnam Beach', districtId: 'krishna', district: 'Krishna', category: 'Beach', rating: 4.4, timings: '24/7', entryFee: 'Free', desc: 'Unique beach with black soil and historic port.', lat: 16.1554, lng: 81.2065 },
+  { id: 'mypadu', name: 'Mypadu Beach', districtId: 'nellore', district: 'SPSR Nellore', category: 'Beach', rating: 4.5, timings: '24/7', entryFee: 'Free', desc: 'Pristine coastline with golden sands.', lat: 14.5028, lng: 80.1794 },
 
   // Hill Stations
-  { id: 'araku-valley', name: 'Araku Valley', districtId: 'asr', district: 'ASR District', category: 'Hill Station', rating: 4.8, timings: '24/7', entryFee: 'Free', desc: 'Beautiful hill station with coffee plantations.' },
-  { id: 'lambasingi', name: 'Lambasingi', districtId: 'asr', district: 'ASR District', category: 'Hill Station', rating: 4.7, timings: '24/7', entryFee: 'Free', desc: 'Known as the Kashmir of Andhra Pradesh.' },
-  { id: 'madanapalle', name: 'Madanapalle', districtId: 'annamayya', district: 'Annamayya', category: 'Hill Station', rating: 4.5, timings: '24/7', entryFee: 'Free', desc: 'Historic town known for its pleasant climate.' },
+  { id: 'araku-valley', name: 'Araku Valley', districtId: 'asr', district: 'ASR District', category: 'Hill Station', rating: 4.8, timings: '24/7', entryFee: 'Free', desc: 'Beautiful hill station with coffee plantations.', lat: 18.3273, lng: 82.8775 },
+  { id: 'lambasingi', name: 'Lambasingi', districtId: 'asr', district: 'ASR District', category: 'Hill Station', rating: 4.7, timings: '24/7', entryFee: 'Free', desc: 'Known as the Kashmir of Andhra Pradesh.', lat: 17.8188, lng: 82.4925 },
+  { id: 'madanapalle', name: 'Madanapalle', districtId: 'annamayya', district: 'Annamayya', category: 'Hill Station', rating: 4.5, timings: '24/7', entryFee: 'Free', desc: 'Historic town known for its pleasant climate.', lat: 13.5534, lng: 78.5023 },
 
   // Caves
-  { id: 'borra-caves', name: 'Borra Caves', districtId: 'asr', district: 'ASR District', category: 'Caves', rating: 4.9, timings: '10AM-5PM', entryFee: '₹60', desc: 'Millions of years old limestone caves.' },
-  { id: 'belum-caves', name: 'Belum Caves', districtId: 'nandyal', district: 'Nandyal', category: 'Caves', rating: 4.8, timings: '10AM-5PM', entryFee: '₹65', desc: 'Second largest cave system in India.' },
-  { id: 'undavalli-caves', name: 'Undavalli Caves', districtId: 'guntur', district: 'Guntur', category: 'Caves', rating: 4.7, timings: '9AM-6PM', entryFee: '₹25', desc: 'Monolithic rock-cut caves near Vijayawada.' },
+  { id: 'borra-caves', name: 'Borra Caves', districtId: 'asr', district: 'ASR District', category: 'Caves', rating: 4.9, timings: '10AM-5PM', entryFee: '₹60', desc: 'Millions of years old limestone caves.', lat: 18.2809, lng: 83.0375 },
+  { id: 'belum-caves', name: 'Belum Caves', districtId: 'nandyal', district: 'Nandyal', category: 'Caves', rating: 4.8, timings: '10AM-5PM', entryFee: '₹65', desc: 'Second largest cave system in India.', lat: 15.1017, lng: 78.1133 },
+  { id: 'undavalli-caves', name: 'Undavalli Caves', districtId: 'guntur', district: 'Guntur', category: 'Caves', rating: 4.7, timings: '9AM-6PM', entryFee: '₹25', desc: 'Monolithic rock-cut caves near Vijayawada.', lat: 16.4914, lng: 80.5816 },
 
   // Waterfalls
-  { id: 'talakona-waterfalls', name: 'Talakona Waterfalls', districtId: 'annamayya', district: 'Annamayya', category: 'Waterfall', rating: 4.8, timings: '6AM-6PM', entryFee: '₹50', desc: 'Highest waterfall in Andhra Pradesh.' },
-  { id: 'ethipothala-falls', name: 'Ethipothala Falls', districtId: 'palnadu', district: 'Palnadu', category: 'Waterfall', rating: 4.6, timings: '6AM-6PM', entryFee: '₹20', desc: 'Beautiful cascade formed by three streams.' },
-  { id: 'katiki-falls', name: 'Katiki Waterfalls', districtId: 'asr', district: 'ASR District', category: 'Waterfall', rating: 4.7, timings: '6AM-5PM', entryFee: 'Free', desc: 'Stunning waterfall near Araku Valley.' },
+  { id: 'talakona-waterfalls', name: 'Talakona Waterfalls', districtId: 'annamayya', district: 'Annamayya', category: 'Waterfall', rating: 4.8, timings: '6AM-6PM', entryFee: '₹50', desc: 'Highest waterfall in Andhra Pradesh.', lat: 13.8066, lng: 79.2138 },
+  { id: 'ethipothala-falls', name: 'Ethipothala Falls', districtId: 'palnadu', district: 'Palnadu', category: 'Waterfall', rating: 4.6, timings: '6AM-6PM', entryFee: '₹20', desc: 'Beautiful cascade formed by three streams.', lat: 16.5186, lng: 79.3361 },
+  { id: 'katiki-falls', name: 'Katiki Waterfalls', districtId: 'asr', district: 'ASR District', category: 'Waterfall', rating: 4.7, timings: '6AM-5PM', entryFee: 'Free', desc: 'Stunning waterfall near Araku Valley.', lat: 18.2568, lng: 83.0125 },
 ];
 
 export default function DistrictPage({ params }: { params: Promise<{ id: string }> }) {
@@ -73,6 +73,14 @@ export default function DistrictPage({ params }: { params: Promise<{ id: string 
       sss: 'Sri Sathya Sai',
       nellore: 'SPSR Nellore',
       ntr: 'NTR District',
+      tirupati: 'Tirupati',
+      bapatla: 'Bapatla',
+      annamayya: 'Annamayya',
+      palnadu: 'Palnadu',
+      guntur: 'Guntur',
+      kakinada: 'Kakinada',
+      nandyal: 'Nandyal',
+      krishna: 'Krishna'
     };
     return names[id] || id.charAt(0).toUpperCase() + id.slice(1).replace('-', ' ');
   }, [id]);
@@ -90,7 +98,7 @@ export default function DistrictPage({ params }: { params: Promise<{ id: string 
 
   if (!user) {
     return (
-      <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center text-center space-y-6">
+      <div className="container mx-auto px-4 py-32 flex flex-col items-center justify-center text-center space-y-6 min-h-[60vh]">
         <div className="bg-primary/10 p-6 rounded-full"><Lock className="w-12 h-12 text-primary" /></div>
         <div className="space-y-2">
           <h1 className="text-3xl font-black tracking-tight">Access Restricted</h1>
