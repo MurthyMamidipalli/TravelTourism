@@ -2,7 +2,7 @@
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { User, Mail, Phone, Fingerprint, Calendar, ShieldCheck, MapPin, ArrowLeft, Edit3, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
@@ -14,7 +14,6 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -103,7 +102,7 @@ export default function ProfilePage() {
       return;
     }
     setIsSendingOtp(true);
-    await new Promise(r => setTimeout(r, 400));
+    await new Promise(r => setTimeout(r, 500));
     setIsSendingOtp(false);
     setIsOtpSent(true);
     toast({ title: "OTP Sent", description: "Verification code sent to your linked mobile." });
@@ -112,7 +111,7 @@ export default function ProfilePage() {
   const handleVerifyOtp = async () => {
     if (otpValue.length !== 6 || !userDocRef) return;
     setIsVerifying(true);
-    await new Promise(r => setTimeout(r, 400));
+    await new Promise(r => setTimeout(r, 500));
     setIsVerifying(false);
     
     if (otpValue === '123456') {
@@ -231,18 +230,18 @@ export default function ProfilePage() {
               <div className="pt-2">
                 {!profile?.isVerified ? (
                   <div className="space-y-4">
-                    <p className="text-xs text-destructive font-medium">Identity verification required to access all travel features.</p>
+                    <p className="text-xs text-destructive font-medium">Identity verification required via Aadhaar OTP to secure your account.</p>
                     {!isOtpSent ? (
                       <Button onClick={handleSendOtp} disabled={isSendingOtp} className="w-full bg-destructive hover:bg-destructive/90 rounded-xl h-11">
-                        {isSendingOtp ? <Loader2 className="animate-spin mr-2" /> : 'Send OTP to Mobile'}
+                        {isSendingOtp ? <Loader2 className="animate-spin mr-2" /> : 'Get OTP on Mobile'}
                       </Button>
                     ) : (
                       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-3">
                         <Input placeholder="Enter 6-digit OTP" maxLength={6} className="text-center font-bold tracking-widest h-11 rounded-xl" value={otpValue} onChange={e => setOtpValue(e.target.value)} />
                         <Button onClick={handleVerifyOtp} disabled={isVerifying || otpValue.length !== 6} className="w-full bg-accent text-white rounded-xl h-11">
-                          {isVerifying ? <Loader2 className="animate-spin" /> : 'Complete Verification'}
+                          {isVerifying ? <Loader2 className="animate-spin" /> : 'Verify Identity'}
                         </Button>
-                        <p className="text-[10px] text-center text-muted-foreground">Demo code: 123456</p>
+                        <p className="text-[10px] text-center text-muted-foreground">Test OTP: 123456</p>
                       </motion.div>
                     )}
                   </div>
@@ -251,7 +250,7 @@ export default function ProfilePage() {
                     <ShieldCheck className="w-6 h-6 text-accent" />
                     <div>
                       <p className="text-sm font-bold text-accent">Account Verified</p>
-                      <p className="text-[10px] text-muted-foreground">Identity successfully authenticated.</p>
+                      <p className="text-[10px] text-muted-foreground">Identity successfully authenticated via Aadhaar.</p>
                     </div>
                   </div>
                 )}
