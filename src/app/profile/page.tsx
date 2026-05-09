@@ -90,23 +90,24 @@ export default function ProfilePage() {
     setIsSaving(true);
     
     setDoc(userDocRef, values, { merge: true })
+      .then(() => {
+        toast({ title: "Profile Updated", description: "All information saved." });
+        setIsEditDialogOpen(false);
+      })
       .catch((error: any) => {
         errorEmitter.emit('permission-error', new FirestorePermissionError({
           path: userDocRef.path,
           operation: 'update',
           requestResourceData: values,
         }));
-      });
-
-    toast({ title: "Profile Updated", description: "All information saved." });
-    setIsEditDialogOpen(false);
-    setIsSaving(false);
+      })
+      .finally(() => setIsSaving(false));
   }, [userDocRef, toast]);
 
   const handleSendOtp = async () => {
     const mobile = profile?.mobileNumber || form.getValues('mobileNumber');
     if (!mobile || mobile.length !== 10) {
-      toast({ title: "Invalid Contact", description: "Please check your mobile number before requesting OTP.", variant: "destructive" });
+      toast({ title: "Invalid Contact", description: "Please check your mobile number.", variant: "destructive" });
       return;
     }
     
@@ -117,7 +118,7 @@ export default function ProfilePage() {
       setResendTimer(60);
       toast({ 
         title: "OTP Dispatched", 
-        description: `A secure verification code has been sent to your mobile device for identity confirmation.`,
+        description: `A secure verification code has been sent to your mobile device.`,
       });
     }, 600);
   };
@@ -126,7 +127,6 @@ export default function ProfilePage() {
     if (otpValue.length !== 6 || !userDocRef) return;
     setIsVerifying(true);
 
-    // Internal test verification code
     if (otpValue === '123456') {
       setDoc(userDocRef, { isVerified: true }, { merge: true })
         .catch((error) => {
@@ -137,14 +137,14 @@ export default function ProfilePage() {
           }));
         });
 
-      toast({ title: "Identity Verified", description: "Your profile is now government-linked and verified." });
+      toast({ title: "Identity Verified", description: "Your profile is now verified." });
       setIsOtpSent(false);
       setOtpValue('');
       setIsVerifying(false);
     } else {
       setTimeout(() => {
         setIsVerifying(false);
-        toast({ title: "Invalid Code", description: "The verification code is incorrect. Please check your messages.", variant: "destructive" });
+        toast({ title: "Invalid Code", description: "The verification code is incorrect.", variant: "destructive" });
       }, 300);
     }
   };
@@ -260,7 +260,7 @@ export default function ProfilePage() {
                         <motion.div key="send" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                           <Button onClick={handleSendOtp} disabled={isSendingOtp} className="w-full rounded-xl h-11 shadow-md">
                             {isSendingOtp ? <Loader2 className="animate-spin mr-2" /> : <Smartphone className="w-4 h-4 mr-2" />}
-                            {isSendingOtp ? 'Sending OTP...' : 'Verify Identity via Mobile OTP'}
+                            {isSendingOtp ? 'Sending OTP...' : 'Verify via Mobile OTP'}
                           </Button>
                         </motion.div>
                       ) : (
@@ -276,13 +276,6 @@ export default function ProfilePage() {
                           <Button onClick={handleVerifyOtp} disabled={isVerifying || otpValue.length !== 6} className="w-full bg-accent text-white rounded-xl h-11">
                             {isVerifying ? <Loader2 className="animate-spin" /> : 'Confirm Identity'}
                           </Button>
-                          <p className="text-[10px] text-center text-muted-foreground mt-2 font-body">
-                            {resendTimer > 0 ? (
-                              <span className="font-bold">New code available in {resendTimer}s</span>
-                            ) : (
-                              <button onClick={handleSendOtp} className="text-primary font-bold">Resend OTP Code</button>
-                            )}
-                          </p>
                         </motion.div>
                       )}
                     </AnimatePresence>

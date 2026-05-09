@@ -107,14 +107,14 @@ export default function GuideRegistrationPage() {
         setIsAadharVerified(true);
         toast({ 
           title: "Identity Verified", 
-          description: "Your government-linked identity has been authenticated. You can now complete your registration.",
+          description: "Your government-linked identity has been authenticated.",
           className: "bg-accent text-white"
         });
       } else {
         setIsVerifyingOtp(false);
         toast({ 
           title: "Verification Failed", 
-          description: "The secure code entered is incorrect. Please check your mobile messages.", 
+          description: "The secure code entered is incorrect.", 
           variant: "destructive" 
         });
       }
@@ -125,7 +125,7 @@ export default function GuideRegistrationPage() {
     if (!user || !isAadharVerified) {
       toast({ 
         title: "Security Check Required", 
-        description: "Aadhar identity verification via OTP is mandatory for tourist safety and guide accountability.", 
+        description: "Aadhar identity verification via OTP is mandatory for tourist safety.", 
         variant: "destructive" 
       });
       return;
@@ -169,18 +169,9 @@ export default function GuideRegistrationPage() {
               <ShieldAlert className="w-5 h-5 text-accent" /> Security Protocol:
             </h3>
             <ul className="space-y-3 text-sm opacity-90 font-body">
-              <li className="flex gap-2">
-                <span className="font-black text-accent">✓</span> 
-                Direct Link to Government Identity.
-              </li>
-              <li className="flex gap-2">
-                <span className="font-black text-accent">✓</span> 
-                SMS OTP Verification on Registered Mobile.
-              </li>
-              <li className="flex gap-2">
-                <span className="font-black text-accent">✓</span> 
-                Full Legal Accountability for Guide Actions.
-              </li>
+              <li className="flex gap-2"><span className="font-black text-accent">✓</span> Direct Link to Government Identity.</li>
+              <li className="flex gap-2"><span className="font-black text-accent">✓</span> SMS OTP Verification on Registered Mobile.</li>
+              <li className="flex gap-2"><span className="font-black text-accent">✓</span> Full Legal Accountability for Guide Actions.</li>
             </ul>
           </div>
         </div>
@@ -300,7 +291,7 @@ export default function GuideRegistrationPage() {
                   <FormItem>
                     <FormLabel>Guiding History & Expertise</FormLabel>
                     <FormControl>
-                      <Textarea className="rounded-xl min-h-[120px]" placeholder="Briefly describe your guiding experience and specialities..." {...field} />
+                      <Textarea className="rounded-xl min-h-[120px]" placeholder="Briefly describe your experience..." {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
