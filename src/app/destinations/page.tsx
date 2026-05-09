@@ -3,7 +3,7 @@
 import { useState, useMemo } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Search, MapPin, Sparkles, Filter, X, Landmark, Waves, Shield, Building2, Trees, Mountain, History, Lock } from 'lucide-react';
+import { Search, Landmark, Waves, Sparkles, Lock, Mountain } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { motion, AnimatePresence } from 'framer-motion';
 import TouristCard from '@/components/TouristCard';
@@ -80,7 +80,7 @@ export default function DestinationsPage() {
         <div className="bg-primary/10 p-6 rounded-full"><Lock className="w-12 h-12 text-primary" /></div>
         <div className="space-y-2">
           <h1 className="text-3xl font-black tracking-tight">Access Restricted</h1>
-          <p className="text-muted-foreground max-w-md">Sign in to TravelSphere to browse detailed landmark information, reviews, and interactive maps.</p>
+          <p className="text-muted-foreground max-w-md mx-auto">Sign in to TravelSphere to browse detailed landmark information, reviews, and interactive maps.</p>
         </div>
         <div className="flex gap-4">
           <Link href="/login"><Button size="lg" className="rounded-2xl h-12 px-8 font-bold shadow-lg">Sign In</Button></Link>
