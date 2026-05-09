@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -30,6 +30,11 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [isGuestLoading, setIsGuestLoading] = useState(false);
   const [authError, setAuthError] = useState<{title: string, message: string} | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -45,17 +50,12 @@ export default function LoginPage() {
       case 'auth/admin-restricted-operation':
         return {
           title: 'Admin Restricted',
-          message: 'This operation is restricted. Please go to the Firebase Console and ensure "Anonymous" authentication is enabled in the Auth settings.'
+          message: 'Anonymous authentication is disabled. Please enable it in the Firebase Console settings.'
         };
       case 'auth/operation-not-allowed':
         return {
           title: 'Provider Disabled',
           message: 'This login method is not enabled in the Firebase Console.'
-        };
-      case 'auth/unauthorized-domain':
-        return {
-          title: 'Unauthorized Domain',
-          message: 'This domain is not authorized for Firebase Authentication.'
         };
       case 'auth/user-not-found':
       case 'auth/wrong-password':
@@ -63,11 +63,6 @@ export default function LoginPage() {
         return {
           title: 'Login Failed',
           message: 'Invalid email or password.'
-        };
-      case 'auth/network-request-failed':
-        return {
-          title: 'Network Error',
-          message: 'Please check your internet connection.'
         };
       default:
         return {
@@ -150,7 +145,7 @@ export default function LoginPage() {
                     <FormControl>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="name@example.com" className="pl-10 h-12 rounded-xl" {...field} />
+                        <Input placeholder="name@example.com" className="pl-10 h-12 rounded-xl" {...field} suppressHydrationWarning />
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -171,14 +166,18 @@ export default function LoginPage() {
                           placeholder="••••••••"
                           className="pl-10 h-12 rounded-xl"
                           {...field}
+                          suppressHydrationWarning
                         />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary"
-                        >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
+                        {mounted && (
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary"
+                            suppressHydrationWarning
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        )}
                       </div>
                     </FormControl>
                     <FormMessage />

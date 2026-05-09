@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -12,9 +13,9 @@ import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage, FormDescription } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, UserPlus, Mail, Lock, User, Phone, Calendar, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, UserPlus, Mail, Lock, User, Phone, Calendar } from 'lucide-react';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -34,6 +35,11 @@ export default function SignupPage() {
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
@@ -113,7 +119,7 @@ export default function SignupPage() {
                       <FormControl>
                         <div className="relative">
                           <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input placeholder="John" className="pl-10 h-11 rounded-xl" {...field} />
+                          <Input placeholder="John" className="pl-10 h-11 rounded-xl" {...field} suppressHydrationWarning />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -127,7 +133,7 @@ export default function SignupPage() {
                     <FormItem>
                       <FormLabel>Last Name</FormLabel>
                       <FormControl>
-                        <Input placeholder="Doe" className="h-11 rounded-xl" {...field} />
+                        <Input placeholder="Doe" className="h-11 rounded-xl" {...field} suppressHydrationWarning />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -145,7 +151,7 @@ export default function SignupPage() {
                       <FormControl>
                         <div className="relative">
                           <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input type="number" placeholder="25" className="pl-10 h-11 rounded-xl" {...field} />
+                          <Input type="number" placeholder="25" className="pl-10 h-11 rounded-xl" {...field} suppressHydrationWarning />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -161,7 +167,7 @@ export default function SignupPage() {
                       <FormControl>
                         <div className="relative">
                           <Phone className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                          <Input placeholder="10-digit number" maxLength={10} className="pl-10 h-11 rounded-xl" {...field} />
+                          <Input placeholder="10-digit number" maxLength={10} className="pl-10 h-11 rounded-xl" {...field} suppressHydrationWarning />
                         </div>
                       </FormControl>
                       <FormMessage />
@@ -179,7 +185,7 @@ export default function SignupPage() {
                     <FormControl>
                       <div className="relative">
                         <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="name@example.com" className="pl-10 h-11 rounded-xl" {...field} />
+                        <Input placeholder="name@example.com" className="pl-10 h-11 rounded-xl" {...field} suppressHydrationWarning />
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -201,14 +207,18 @@ export default function SignupPage() {
                           placeholder="••••••••"
                           className="pl-10 h-11 rounded-xl"
                           {...field}
+                          suppressHydrationWarning
                         />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary"
-                        >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
+                        {mounted && (
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary"
+                            suppressHydrationWarning
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        )}
                       </div>
                     </FormControl>
                     <FormMessage />
