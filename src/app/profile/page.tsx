@@ -104,7 +104,7 @@ export default function ProfilePage() {
       return;
     }
     setIsSendingOtp(true);
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise(r => setTimeout(r, 50));
     setIsSendingOtp(false);
     setIsOtpSent(true);
     toast({ title: "OTP Sent", description: "Verification code sent to your linked mobile number." });
@@ -113,7 +113,7 @@ export default function ProfilePage() {
   const handleVerifyOtp = async () => {
     if (otpValue.length !== 6 || !userDocRef) return;
     setIsVerifying(true);
-    await new Promise(r => setTimeout(r, 200));
+    await new Promise(r => setTimeout(r, 50));
     setIsVerifying(false);
     
     if (otpValue === '123456') {
