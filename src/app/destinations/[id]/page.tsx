@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useMemo } from 'react';
@@ -40,20 +39,23 @@ const mockDestinations: Record<string, any> = {
 
 export default function DestinationDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const dest = mockDestinations[id] || { 
-    id,
-    name: id.replace('-', ' ').toUpperCase(), 
-    district: 'Unknown', 
-    districtId: 'unknown',
-    category: 'Travel', 
-    timings: '9AM-6PM',
-    entryFee: '₹50',
-    lang: 'English', 
-    desc: 'Explore this breathtaking destination with local guides.', 
-    lat: 17.0, 
-    lng: 78.0,
-    weather: { temp: '27°C', rain: '10%', bestTime: 'Year round' }
-  };
+  
+  const dest = useMemo(() => {
+    return mockDestinations[id] || { 
+      id,
+      name: id.replace('-', ' ').toUpperCase(), 
+      district: 'Unknown', 
+      districtId: 'unknown',
+      category: 'Travel', 
+      timings: '9AM-6PM',
+      entryFee: '₹50',
+      lang: 'English', 
+      desc: 'Explore this breathtaking destination with local experts.', 
+      lat: 17.0, 
+      lng: 78.0,
+      weather: { temp: '27°C', rain: '10%', bestTime: 'Year round' }
+    };
+  }, [id]);
 
   const nearbyRecommendations = useMemo(() => {
     return Object.entries(mockDestinations)
@@ -118,15 +120,15 @@ export default function DestinationDetailPage({ params }: { params: Promise<{ id
                 
                 <div className="bg-primary/5 border border-primary/10 p-6 rounded-3xl min-w-[220px] flex flex-col items-center justify-center text-center">
                   <CloudSun className="w-10 h-10 text-primary mb-2" />
-                  <p className="text-3xl font-black">{dest.weather.temp}</p>
+                  <p className="text-3xl font-black">{dest.weather?.temp || '27°C'}</p>
                   <p className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">Current Weather</p>
                   <div className="flex items-center gap-4 mt-6 w-full justify-center">
                     <div className="text-xs">
-                      <p className="font-bold flex items-center gap-1 text-primary"><CloudRain className="w-3 h-3" /> {dest.weather.rain}</p>
+                      <p className="font-bold flex items-center gap-1 text-primary"><CloudRain className="w-3 h-3" /> {dest.weather?.rain || '10%'}</p>
                       <p className="text-[8px] text-muted-foreground uppercase">Rain</p>
                     </div>
                     <div className="text-xs border-l pl-4">
-                      <p className="font-bold flex items-center gap-1 text-primary"><Calendar className="w-3 h-3" /> {dest.weather.bestTime.split(' ')[0]}</p>
+                      <p className="font-bold flex items-center gap-1 text-primary"><Calendar className="w-3 h-3" /> {dest.weather?.bestTime?.split(' ')[0] || 'Year'}</p>
                       <p className="text-[8px] text-muted-foreground uppercase">Best Time</p>
                     </div>
                   </div>
@@ -178,6 +180,11 @@ export default function DestinationDetailPage({ params }: { params: Promise<{ id
                       entryFee={val.entryFee}
                     />
                   ))}
+                  {nearbyRecommendations.length === 0 && (
+                    <div className="col-span-full py-20 text-center bg-secondary/5 rounded-3xl border border-dashed">
+                      <p className="text-muted-foreground italic">No other nearby spots mapped for this district yet.</p>
+                    </div>
+                  )}
                 </div>
               </TabsContent>
             </Tabs>

@@ -1,4 +1,3 @@
-
 'use client';
 
 import { use, useMemo } from 'react';
@@ -14,7 +13,7 @@ import {
 } from 'lucide-react';
 import { motion } from 'framer-motion';
 
-// Import map component dynamically
+// Import map component dynamically to avoid SSR issues
 const RestaurantMap = dynamic(() => import('@/components/DestinationMap'), {
   ssr: false,
   loading: () => (
@@ -26,11 +25,9 @@ const RestaurantMap = dynamic(() => import('@/components/DestinationMap'), {
 });
 
 const allRestaurants: Record<string, any> = {
-  // Andhra Pradesh
   'rest-1': { id: 'rest-1', name: 'Paradise Biryani', city: 'Visakhapatnam', cuisine: 'Hyderabadi Biryani', price: '₹₹', rating: 4.5, timings: '11AM-11PM', desc: 'World famous for its authentic Hyderabadi Dum Biryani and Kebabs.', lat: 17.7231, lng: 83.3013 },
   'rest-2': { id: 'rest-2', name: 'Dharani Restaurant', city: 'Vijayawada', cuisine: 'South Indian Thali', price: '₹₹', rating: 4.3, timings: '7AM-10PM', desc: 'Traditional Andhra meals served with love and spice.', lat: 16.5062, lng: 80.6480 },
   'rest-3': { id: 'rest-3', name: 'Sri Sairam Parlour', city: 'Tirupati', cuisine: 'Pure Veg Tiffins', price: '₹', rating: 4.6, timings: '6AM-10PM', desc: 'The most popular breakfast spot in Tirupati, famous for Ghee Roast Dosa.', lat: 13.6285, lng: 79.4192 },
-  // Telangana
   'ts-rest-1': { id: 'ts-rest-1', name: 'Paradise Biryani', city: 'Hyderabad', cuisine: 'Legendary Biryani', price: '₹₹', rating: 4.7, timings: '11AM-11:30PM', desc: 'The original home of Hyderabadi Biryani, a must-visit for every food lover.', lat: 17.4437, lng: 78.4897 },
   'ts-rest-2': { id: 'ts-rest-2', name: 'Cafe Bahar', city: 'Hyderabad', cuisine: 'Biryani & Haleem', price: '₹₹', rating: 4.6, timings: '11AM-12AM', desc: 'Authentic flavors and bustling atmosphere, famous for its mutton biryani.', lat: 17.3977, lng: 78.4831 },
   'ts-rest-3': { id: 'ts-rest-3', name: 'Shah Ghouse', city: 'Hyderabad', cuisine: 'Mughlai & Biryani', price: '₹₹', rating: 4.5, timings: '12PM-1AM', desc: 'Late-night food hub famous for Haleem and spicy kebabs.', lat: 17.3600, lng: 78.4735 },
@@ -38,17 +35,20 @@ const allRestaurants: Record<string, any> = {
 
 export default function RestaurantDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const rest = allRestaurants[id] || {
-    name: 'Gourmet Dining',
-    city: 'City Center',
-    cuisine: 'Multi-cuisine',
-    price: '₹₹',
-    rating: 4.0,
-    timings: '10AM-10PM',
-    desc: 'Experience the local flavors and hospitality at its best.',
-    lat: 17.3850,
-    lng: 78.4867
-  };
+  
+  const rest = useMemo(() => {
+    return allRestaurants[id] || {
+      name: 'Gourmet Dining',
+      city: 'City Center',
+      cuisine: 'Multi-cuisine',
+      price: '₹₹',
+      rating: 4.0,
+      timings: '10AM-10PM',
+      desc: 'Experience the local flavors and hospitality at its best.',
+      lat: 17.3850,
+      lng: 78.4867
+    };
+  }, [id]);
 
   return (
     <div className="flex flex-col min-h-screen pb-20">
@@ -119,42 +119,17 @@ export default function RestaurantDetailPage({ params }: { params: Promise<{ id:
                   <div className="flex items-center gap-2 text-primary font-bold uppercase tracking-widest text-xs">
                     <Navigation className="w-4 h-4 text-accent" /> Live Location
                   </div>
-                  <Button variant="ghost" size="sm" className="text-xs h-8">
-                    <Share2 className="w-3 h-3 mr-1" /> Share Location
-                  </Button>
                 </div>
                 <RestaurantMap name={rest.name} lat={rest.lat} lng={rest.lng} />
               </div>
             </Card>
-
-            <div className="bg-primary/5 rounded-[2.5rem] p-10 border border-primary/10">
-              <h3 className="font-headline text-2xl font-bold mb-6 flex items-center gap-2">
-                <Zap className="w-6 h-6 text-primary" /> Why People Love It
-              </h3>
-              <ul className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <li className="flex gap-4">
-                  <div className="bg-white dark:bg-zinc-800 p-2 rounded-lg h-fit shadow-sm"><Star className="w-4 h-4 text-accent" /></div>
-                  <div>
-                    <p className="font-bold text-sm">Authentic Recipes</p>
-                    <p className="text-xs text-muted-foreground mt-1">Sourced from generations of culinary heritage.</p>
-                  </div>
-                </li>
-                <li className="flex gap-4">
-                  <div className="bg-white dark:bg-zinc-800 p-2 rounded-lg h-fit shadow-sm"><Star className="w-4 h-4 text-accent" /></div>
-                  <div>
-                    <p className="font-bold text-sm">Great Ambiance</p>
-                    <p className="text-xs text-muted-foreground mt-1">Perfect for both family dinners and solo snacks.</p>
-                  </div>
-                </li>
-              </ul>
-            </div>
           </div>
 
           <div className="space-y-8">
             <Card className="border-none shadow-xl bg-primary text-white p-8 rounded-[2rem] sticky top-24">
               <h3 className="font-headline text-2xl font-bold mb-4">Book a Table</h3>
               <p className="text-white/80 mb-6">Skip the wait and reserve your spot at {rest.name} instantly.</p>
-              <Button className="w-full bg-accent hover:bg-accent/90 text-white rounded-xl h-14 text-lg font-bold shadow-lg">
+              <Button className="w-full bg-accent hover:bg-accent/90 text-white rounded-xl h-14 text-lg font-bold shadow-lg transition-transform hover:scale-[1.02]">
                 Check Availability
               </Button>
             </Card>
@@ -166,7 +141,7 @@ export default function RestaurantDetailPage({ params }: { params: Promise<{ id:
               <p className="text-sm text-muted-foreground italic leading-relaxed">
                 Traveling to a low-network zone? Save this restaurant's location and menu for offline access.
               </p>
-              <Button variant="outline" className="w-full rounded-xl">Save Offline</Button>
+              <Button variant="outline" className="w-full rounded-xl">Save for Offline</Button>
             </Card>
           </div>
         </div>

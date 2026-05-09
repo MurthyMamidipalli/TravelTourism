@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, UserPlus, Mail, Lock, Fingerprint, CreditCard, Globe, FileText, Calendar, Phone } from 'lucide-react';
+import { Eye, EyeOff, UserPlus, Mail, Lock, Fingerprint, CreditCard, Globe, FileText, Calendar, Phone, ShieldCheck } from 'lucide-react';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -27,7 +27,7 @@ const signupSchema = z.object({
   mobileNumber: z.string().regex(/^\d{10}$/, { message: 'Mobile must be exactly 10 digits.' }),
   aadharNumber: z.string().regex(/^\d{12}$/, { message: '12-digit Aadhar number is mandatory.' }),
   panNumber: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, { message: 'Invalid PAN card format.' }),
-  passportNumber: z.string().min(5, { message: 'Passport number is required.' }),
+  passportNumber: z.string().min(5, { message: 'Passport number is required for international compliance.' }),
 });
 
 export default function SignupPage() {
@@ -105,8 +105,8 @@ export default function SignupPage() {
     <div className="container mx-auto px-4 py-12 flex justify-center items-center min-h-[80vh]">
       <Card className="w-full max-w-2xl border-none shadow-2xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
         <CardHeader className="space-y-1 text-center bg-primary/5 py-8">
-          <CardTitle className="text-3xl font-bold tracking-tight">Join TravelSphere</CardTitle>
-          <CardDescription>Verified identity protocol for all travelers</CardDescription>
+          <CardTitle className="text-3xl font-black tracking-tight text-primary uppercase">TravelSphere</CardTitle>
+          <CardDescription className="text-base font-medium">Verified Identity Protocol for Travelers</CardDescription>
         </CardHeader>
         <CardContent className="p-8 pt-10">
           <Form {...form}>
@@ -135,7 +135,7 @@ export default function SignupPage() {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField control={form.control} name="email" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Email</FormLabel>
+                    <FormLabel>Email Address</FormLabel>
                     <FormControl>
                       <Input placeholder="name@example.com" className="h-11 rounded-xl" {...field} suppressHydrationWarning />
                     </FormControl>
@@ -158,7 +158,7 @@ export default function SignupPage() {
                           <button
                             type="button"
                             onClick={() => setShowPassword(!showPassword)}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
                           >
                             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                           </button>
@@ -172,7 +172,7 @@ export default function SignupPage() {
 
               <div className="bg-secondary/20 p-6 rounded-2xl space-y-6 border border-primary/10">
                 <div className="flex items-center gap-2 mb-2">
-                  <Fingerprint className="w-5 h-5 text-primary" />
+                  <ShieldCheck className="w-5 h-5 text-primary" />
                   <h3 className="font-bold text-sm tracking-tight uppercase">Government Identification</h3>
                 </div>
                 
@@ -200,21 +200,21 @@ export default function SignupPage() {
 
                 <FormField control={form.control} name="passportNumber" render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="flex items-center gap-2"><Globe className="w-4 h-4" /> Passport Number</FormLabel>
+                    <FormLabel className="flex items-center gap-2"><Globe className="w-4 h-4 text-primary" /> Passport ID</FormLabel>
                     <FormControl>
-                      <Input className="rounded-xl h-11" placeholder="Enter Passport Number" {...field} />
+                      <Input className="rounded-xl h-11" placeholder="International Travel Document ID" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
 
                 <div className="space-y-4 pt-4 border-t">
-                  <p className="text-xs font-bold text-muted-foreground uppercase">Upload Proofs (Soft Copies)</p>
+                  <p className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">Identity Proof Uploads</p>
                   <div className="grid grid-cols-3 gap-4">
                     {['Aadhar', 'PAN', 'Passport'].map((label) => (
                       <div key={label} className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl hover:bg-primary/5 transition-colors cursor-pointer group">
                         <FileText className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-1" />
-                        <span className="text-[10px] font-bold">{label}</span>
+                        <span className="text-[10px] font-bold uppercase">{label}</span>
                       </div>
                     ))}
                   </div>
@@ -233,7 +233,7 @@ export default function SignupPage() {
                 )} />
                 <FormField control={form.control} name="mobileNumber" render={({ field }) => (
                   <FormItem>
-                    <FormLabel><Phone className="w-3 h-3 inline mr-1" /> Mobile</FormLabel>
+                    <FormLabel><Phone className="w-3 h-3 inline mr-1" /> Mobile Number</FormLabel>
                     <FormControl>
                       <Input placeholder="10-digit number" maxLength={10} className="h-11 rounded-xl" {...field} suppressHydrationWarning />
                     </FormControl>
@@ -242,8 +242,8 @@ export default function SignupPage() {
                 )} />
               </div>
 
-              <Button type="submit" className="w-full h-14 text-lg rounded-2xl mt-4 font-bold shadow-xl shadow-primary/20" disabled={isLoading}>
-                {isLoading ? 'Creating Verified Account...' : 'Complete Registration'}
+              <Button type="submit" className="w-full h-14 text-lg rounded-2xl mt-4 font-bold shadow-xl shadow-primary/20 hover:scale-[1.01] transition-transform" disabled={isLoading}>
+                {isLoading ? 'Processing Identity...' : 'Complete Registration'}
                 <UserPlus className="ml-2 h-5 w-5" />
               </Button>
             </form>
@@ -251,7 +251,7 @@ export default function SignupPage() {
         </CardContent>
         <CardFooter className="flex justify-center p-8 bg-secondary/10 border-t">
           <p className="text-sm text-muted-foreground font-medium">
-            Already have an account? <Link href="/login" className="text-primary font-bold hover:underline">Sign in</Link>
+            Already a member? <Link href="/login" className="text-primary font-bold hover:underline">Sign in here</Link>
           </p>
         </CardFooter>
       </Card>

@@ -6,8 +6,8 @@ import Footer from '@/components/Footer';
 import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
-  title: 'TravelSphere - Andhra Pradesh Tourism',
-  description: 'Explore breathtaking wonders of Andhra Pradesh and connect with verified local guides.',
+  title: 'TravelSphere - India Tourism Explorer',
+  description: 'Explore the breathtaking wonders of India and connect with verified local guides.',
 };
 
 export default function RootLayout({
