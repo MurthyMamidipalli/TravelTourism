@@ -42,6 +42,7 @@ export default function LoginPage() {
   const [authError, setAuthError] = useState<{title: string, message: string, domain?: string} | null>(null);
   const [mounted, setMounted] = useState(false);
 
+  // Defer rendering until mounted to prevent hydration errors from browser extensions
   useEffect(() => { setMounted(true); }, []);
 
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -57,7 +58,7 @@ export default function LoginPage() {
       case 'auth/unauthorized-domain':
         return { 
           title: 'Domain Not Authorized', 
-          message: `Your Google Login popup is blank because this domain is not authorized in Firebase. Copy the hostname below and add it to "Authorized Domains" in your Firebase Console.`, 
+          message: `Your Google Login popup is blank because this domain is not authorized in Firebase. Copy the hostname below and add it to "Authorized Domains" in your Firebase Console Settings.`, 
           domain: hostname 
         };
       case 'auth/popup-blocked':
@@ -97,12 +98,12 @@ export default function LoginPage() {
       router.push('/dashboard');
     } catch (error: any) {
       setAuthError(getFriendlyErrorMessage(error));
-      // If it's a blank popup issue, usually it's domain authorization
+      // If error code is missing (common with domain issues), provide a fallback hint
       if (!error.code) {
         setAuthError({
           title: 'Connection Issue',
-          message: 'If the popup appeared blank, please ensure this domain is added to your Firebase Authorized Domains list.',
-          domain: window.location.hostname
+          message: 'If the Google popup appeared blank or closed immediately, your current domain might not be authorized.',
+          domain: typeof window !== 'undefined' ? window.location.hostname : 'unknown'
         });
       }
     } finally {
@@ -132,6 +133,10 @@ export default function LoginPage() {
       setIsResetLoading(false);
     }
   };
+
+  if (!mounted) {
+    return <div className="container mx-auto px-4 py-20 flex justify-center items-center min-h-[80vh]"><Loader2 className="w-12 h-12 text-primary animate-spin" /></div>;
+  }
 
   return (
     <div className="container mx-auto px-4 py-20 flex justify-center items-center min-h-[80vh]">
@@ -175,7 +180,7 @@ export default function LoginPage() {
                   <FormControl>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="name@example.com" className="pl-10 h-12 rounded-xl" {...field} suppressHydrationWarning />
+                      <Input placeholder="name@example.com" className="pl-10 h-12 rounded-xl" {...field} />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -225,12 +230,10 @@ export default function LoginPage() {
                   <FormControl>
                     <div className="relative">
                       <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input type={showPassword ? 'text' : 'password'} className="pl-10 h-12 rounded-xl" {...field} suppressHydrationWarning />
-                      {mounted && (
-                        <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary">
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
-                      )}
+                      <Input type={showPassword ? 'text' : 'password'} className="pl-10 h-12 rounded-xl" {...field} />
+                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary">
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
                   </FormControl>
                   <FormMessage />

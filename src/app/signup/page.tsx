@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { UserPlus, ShieldCheck, Lock, Mail, User, Eye, EyeOff } from 'lucide-react';
+import { UserPlus, ShieldCheck, Lock, Mail, User, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -38,9 +38,8 @@ export default function SignupPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  // Defer rendering interactive form until mounted to avoid hydration errors
+  useEffect(() => { setMounted(true); }, []);
 
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
@@ -93,8 +92,12 @@ export default function SignupPage() {
     }
   }
 
+  if (!mounted) {
+    return <div className="container mx-auto px-4 py-20 flex justify-center items-center min-h-[80vh]"><Loader2 className="w-12 h-12 text-primary animate-spin" /></div>;
+  }
+
   return (
-    <div className="container mx-auto px-4 py-12 flex justify-center items-center min-h-[80vh]">
+    <div className="container mx-auto px-4 py-12 flex justify-center items-center min-h-[80vh] relative">
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[600px] bg-primary/5 rounded-full blur-[120px] -z-10 pointer-events-none" />
       
       <Card className="w-full max-w-md border-none shadow-2xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
@@ -112,7 +115,7 @@ export default function SignupPage() {
                     <FormControl>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="John" className="pl-10 rounded-xl h-11" {...field} suppressHydrationWarning />
+                        <Input placeholder="John" className="pl-10 rounded-xl h-11" {...field} />
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -122,7 +125,7 @@ export default function SignupPage() {
                   <FormItem>
                     <FormLabel>Last Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Doe" className="h-11 rounded-xl" {...field} suppressHydrationWarning />
+                      <Input placeholder="Doe" className="h-11 rounded-xl" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -135,7 +138,7 @@ export default function SignupPage() {
                   <FormControl>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input placeholder="name@example.com" className="pl-10 h-11 rounded-xl" {...field} suppressHydrationWarning />
+                      <Input placeholder="name@example.com" className="pl-10 h-11 rounded-xl" {...field} />
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -153,17 +156,14 @@ export default function SignupPage() {
                         placeholder="••••••••"
                         className="pl-10 h-11 rounded-xl pr-10"
                         {...field}
-                        suppressHydrationWarning
                       />
-                      {mounted && (
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
-                        >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
-                      )}
+                      <button
+                        type="button"
+                        onClick={() => setShowPassword(!showPassword)}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary transition-colors"
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
                     </div>
                   </FormControl>
                   <FormMessage />
@@ -181,7 +181,6 @@ export default function SignupPage() {
                         placeholder="••••••••"
                         className="pl-10 h-11 rounded-xl"
                         {...field}
-                        suppressHydrationWarning
                       />
                     </div>
                   </FormControl>
@@ -192,13 +191,13 @@ export default function SignupPage() {
               <div className="bg-accent/5 p-4 rounded-2xl border border-accent/20 flex gap-3">
                 <ShieldCheck className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Join now and verify your identity documentation (Aadhar/PAN/Passport) in your profile later to gain verified status.
+                  Join now and verify your identity documentation in your profile later to gain verified status.
                 </p>
               </div>
 
               <Button type="submit" className="w-full h-14 text-lg rounded-2xl mt-2 font-bold shadow-xl shadow-primary/20 hover:scale-[1.01] transition-transform" disabled={isLoading}>
-                {isLoading ? 'Creating Account...' : 'Join TravelSphere'}
-                <UserPlus className="ml-2 h-5 w-5" />
+                {isLoading ? <Loader2 className="animate-spin mr-2" /> : 'Join TravelSphere'}
+                {!isLoading && <UserPlus className="ml-2 h-5 w-5" />}
               </Button>
             </form>
           </Form>
