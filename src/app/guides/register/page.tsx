@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -9,15 +9,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, Loader2, Fingerprint, Info, Smartphone } from 'lucide-react';
+import { ShieldCheck, Loader2, Fingerprint, Info } from 'lucide-react';
 import { useFirestore, useUser } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: 'Full name is required.' }),
@@ -45,6 +44,7 @@ export default function GuideRegistrationPage() {
   const [otpValue, setOtpValue] = useState('');
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -63,6 +63,13 @@ export default function GuideRegistrationPage() {
     },
   });
 
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendTimer]);
+
   const aadharValue = form.watch('aadharNumber') || '';
   const mobileValue = form.watch('mobileNumber') || '';
 
@@ -73,12 +80,14 @@ export default function GuideRegistrationPage() {
     }
     
     setIsSendingOtp(true);
+    // Mimic quick simulation
     setTimeout(() => {
       setIsSendingOtp(false);
       setIsOtpSent(true);
+      setResendTimer(30);
       toast({ 
         title: "OTP Sent", 
-        description: `A 6-digit verification code has been dispatched to your mobile.`,
+        description: `Identity verification code has been dispatched to ${mobileValue}.`,
       });
     }, 50);
   }
@@ -87,6 +96,7 @@ export default function GuideRegistrationPage() {
     if (otpValue.length !== 6) return;
     setIsVerifyingOtp(true);
     
+    // Test code simulation
     if (otpValue === '123456') {
       setIsVerifyingOtp(false);
       setIsAadharVerified(true);
@@ -128,7 +138,7 @@ export default function GuideRegistrationPage() {
   return (
     <div className="container mx-auto px-4 py-12">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 items-start">
-        <div className="md:col-span-2 space-y-6 bg-primary rounded-3xl p-8 text-white shadow-2xl">
+        <div className="md:col-span-2 space-y-6 bg-primary rounded-3xl p-8 text-white shadow-2xl h-auto">
           <ShieldCheck className="w-16 h-16 mb-4" />
           <h1 className="font-headline text-4xl font-bold tracking-tight">Expert Local Guide Program</h1>
           <p className="text-white/80 text-lg leading-relaxed">
@@ -180,8 +190,8 @@ export default function GuideRegistrationPage() {
                         <div className="flex gap-2">
                           <FormControl><Input disabled={isAadharVerified} maxLength={12} className="rounded-xl h-11" placeholder="XXXX XXXX XXXX" {...field} suppressHydrationWarning /></FormControl>
                           {!isAadharVerified && (
-                            <Button type="button" variant="outline" className="h-11 rounded-xl px-6 shrink-0" onClick={handleSendOtp} disabled={aadharValue.length !== 12 || mobileValue.length !== 10 || isSendingOtp || isOtpSent}>
-                              {isSendingOtp ? <Loader2 className="animate-spin" /> : 'Send OTP'}
+                            <Button type="button" variant="outline" className="h-11 rounded-xl px-6 shrink-0" onClick={handleSendOtp} disabled={aadharValue.length !== 12 || mobileValue.length !== 10 || isSendingOtp || (isOtpSent && resendTimer > 0)}>
+                              {isSendingOtp ? <Loader2 className="animate-spin" /> : isOtpSent && resendTimer > 0 ? `Resend (${resendTimer}s)` : 'Send OTP'}
                             </Button>
                           )}
                         </div>
@@ -190,17 +200,19 @@ export default function GuideRegistrationPage() {
                     )} />
                   </div>
 
-                  {isOtpSent && !isAadharVerified && (
-                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-3 pt-2">
-                      <FormLabel>Enter 6-Digit Verification Code</FormLabel>
-                      <div className="flex gap-2">
-                        <Input placeholder="Enter Code" maxLength={6} className="rounded-xl h-12 text-center font-bold text-lg tracking-[0.2em]" value={otpValue} onChange={(e) => setOtpValue(e.target.value)} suppressHydrationWarning />
-                        <Button type="button" className="h-12 rounded-xl px-8 shadow-md" onClick={handleVerifyOtp} disabled={otpValue.length !== 6 || isVerifyingOtp}>
-                          {isVerifyingOtp ? <Loader2 className="animate-spin" /> : 'Verify'}
-                        </Button>
-                      </div>
-                    </motion.div>
-                  )}
+                  <AnimatePresence>
+                    {isOtpSent && !isAadharVerified && (
+                      <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-3 pt-2 overflow-hidden">
+                        <FormLabel>Enter 6-Digit Verification Code</FormLabel>
+                        <div className="flex gap-2">
+                          <Input placeholder="Enter Code" maxLength={6} className="rounded-xl h-12 text-center font-bold text-lg tracking-[0.2em]" value={otpValue} onChange={(e) => setOtpValue(e.target.value)} suppressHydrationWarning />
+                          <Button type="button" className="h-12 rounded-xl px-8 shadow-md" onClick={handleVerifyOtp} disabled={otpValue.length !== 6 || isVerifyingOtp}>
+                            {isVerifyingOtp ? <Loader2 className="animate-spin" /> : 'Verify'}
+                          </Button>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
 
                   {isAadharVerified && (
                     <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-accent/10 p-3 rounded-xl text-accent text-sm font-bold flex items-center justify-center gap-2 border border-accent/20">
@@ -214,7 +226,13 @@ export default function GuideRegistrationPage() {
                     <FormItem><FormLabel>Primary Operational City</FormLabel><FormControl><Input placeholder="e.g. Tirupati" className="rounded-xl h-11" {...field} suppressHydrationWarning /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="languages" render={({ field }) => (
-                    <FormItem><FormLabel>Languages Spoken</FormLabel><FormControl><Input placeholder="e.g. Telugu, English, Hindi" className="rounded-xl h-11" {...field} suppressHydrationWarning /></FormControl><FormMessage /></FormItem>
+                    <FormItem>
+                      <FormLabel>Languages Spoken</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. Telugu, English, Hindi" className="rounded-xl h-11" {...field} suppressHydrationWarning />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
                   )} />
                 </div>
 

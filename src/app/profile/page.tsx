@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
@@ -7,7 +6,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
 import { User, Mail, Fingerprint, Edit3, Loader2, AlertCircle, CheckCircle2, ArrowLeft, Smartphone } from 'lucide-react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { doc, setDoc } from 'firebase/firestore';
 import { useMemo, useState, useEffect, useCallback } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -48,6 +47,7 @@ export default function ProfilePage() {
   const [isVerifying, setIsVerifying] = useState(false);
   const [otpValue, setOtpValue] = useState('');
   const [isSendingOtp, setIsSendingOtp] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
 
   const userDocRef = useMemo(() => {
     if (!firestore || !user?.uid) return null;
@@ -77,11 +77,17 @@ export default function ProfilePage() {
     }
   }, [profile, user?.displayName, form]);
 
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendTimer]);
+
   const onSaveProfile = useCallback((values: EditProfileValues) => {
     if (!userDocRef) return;
     setIsSaving(true);
     
-    // Optimistic write
     setDoc(userDocRef, values, { merge: true })
       .catch((error: any) => {
         errorEmitter.emit('permission-error', new FirestorePermissionError({
@@ -91,7 +97,6 @@ export default function ProfilePage() {
         }));
       });
 
-    // Respond immediately
     toast({ title: "Profile Updated", description: "Changes saved successfully." });
     setIsEditDialogOpen(false);
     setIsSaving(false);
@@ -108,11 +113,12 @@ export default function ProfilePage() {
     setTimeout(() => {
       setIsSendingOtp(false);
       setIsOtpSent(true);
+      setResendTimer(30);
       toast({ 
         title: "OTP Sent", 
-        description: `A 6-digit verification code has been sent to your mobile ending in ****${mobile.slice(-4)}.`,
+        description: `Verification code dispatched to your mobile.`,
       });
-    }, 50); // Minimal delay
+    }, 50);
   };
 
   const handleVerifyOtp = async () => {
@@ -120,7 +126,6 @@ export default function ProfilePage() {
     setIsVerifying(true);
 
     if (otpValue === '123456') {
-      // Optimistic write
       setDoc(userDocRef, { isVerified: true }, { merge: true })
         .catch((error) => {
           errorEmitter.emit('permission-error', new FirestorePermissionError({
@@ -130,7 +135,6 @@ export default function ProfilePage() {
           }));
         });
 
-      // Respond immediately
       toast({ title: "Identity Verified", description: "Your identity has been successfully authenticated." });
       setIsOtpSent(false);
       setOtpValue('');
@@ -145,7 +149,7 @@ export default function ProfilePage() {
 
   if (authLoading || profileLoading) {
     return (
-      <div className="container mx-auto px-4 py-12 space-y-8">
+      <div className="container mx-auto px-4 py-12 space-y-8 min-h-[60vh]">
         <Skeleton className="h-12 w-64 rounded-xl" />
         <div className="max-w-2xl mx-auto"><Skeleton className="h-[400px] rounded-3xl" /></div>
       </div>
@@ -166,7 +170,7 @@ export default function ProfilePage() {
   return (
     <div className="container mx-auto px-4 py-12">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="max-w-4xl mx-auto space-y-10">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link href="/dashboard" className="text-muted-foreground hover:text-primary flex items-center gap-1 text-sm font-medium">
             <ArrowLeft className="w-4 h-4" /> Back to Dashboard
           </Link>
@@ -176,8 +180,8 @@ export default function ProfilePage() {
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row items-center gap-8 bg-white dark:bg-zinc-900 p-8 rounded-3xl shadow-xl border relative">
-          <Avatar className="h-32 w-32 border-4 border-primary/20">
+        <div className="flex flex-col md:flex-row items-center gap-8 bg-white dark:bg-zinc-900 p-8 rounded-3xl shadow-xl border relative h-auto">
+          <Avatar className="h-32 w-32 border-4 border-primary/20 shrink-0">
             <AvatarImage src={user.photoURL || ''} alt={displayName} />
             <AvatarFallback className="text-4xl font-black bg-primary/10 text-primary">
               {displayName.charAt(0)}
@@ -192,11 +196,11 @@ export default function ProfilePage() {
           
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="absolute top-8 right-8 rounded-xl h-9 shadow-sm hover:shadow-md transition-shadow">
+              <Button variant="outline" size="sm" className="md:absolute top-8 right-8 rounded-xl h-9 shadow-sm hover:shadow-md transition-shadow">
                 <Edit3 className="w-4 h-4 mr-2" /> Edit Details
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] rounded-3xl">
+            <DialogContent className="sm:max-w-[425px] rounded-3xl overflow-hidden">
               <DialogHeader><DialogTitle>Update Profile Information</DialogTitle></DialogHeader>
               <form onSubmit={form.handleSubmit(onSaveProfile)} className="space-y-4 py-4">
                 <div className="space-y-2">
@@ -222,7 +226,7 @@ export default function ProfilePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <Card className="premium-card h-full">
+          <Card className="premium-card h-auto">
             <CardHeader><CardTitle className="text-lg flex items-center gap-2"><User className="w-5 h-5 text-primary" /> Profile Overview</CardTitle></CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-1">
@@ -236,7 +240,7 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          <Card className={`premium-card h-full ${profile?.isVerified ? 'bg-accent/5' : 'bg-destructive/5'}`}>
+          <Card className={`premium-card h-auto ${profile?.isVerified ? 'bg-accent/5' : 'bg-destructive/5'}`}>
             <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Fingerprint className={`w-5 h-5 ${profile?.isVerified ? 'text-accent' : 'text-destructive'}`} /> Identity Status</CardTitle></CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-1">
@@ -249,30 +253,40 @@ export default function ProfilePage() {
               <div className="pt-2">
                 {!profile?.isVerified ? (
                   <div className="space-y-4">
-                    {!isOtpSent ? (
-                      <Button onClick={handleSendOtp} disabled={isSendingOtp} className="w-full rounded-xl h-11 shadow-md">
-                        {isSendingOtp ? <Loader2 className="animate-spin mr-2" /> : <Smartphone className="w-4 h-4 mr-2" />}
-                        {isSendingOtp ? 'Sending Secure OTP...' : 'Send Verification OTP'}
-                      </Button>
-                    ) : (
-                      <div className="space-y-3">
-                        <Input 
-                          placeholder="Enter 6-digit Code" 
-                          maxLength={6} 
-                          className="text-center font-bold h-12 rounded-xl text-lg tracking-[0.2em]" 
-                          value={otpValue} 
-                          onChange={e => setOtpValue(e.target.value)} 
-                          suppressHydrationWarning
-                        />
-                        <Button onClick={handleVerifyOtp} disabled={isVerifying || otpValue.length !== 6} className="w-full bg-accent text-white rounded-xl h-11 shadow-lg shadow-accent/20">
-                          {isVerifying ? <Loader2 className="animate-spin" /> : 'Confirm Verification'}
-                        </Button>
-                        <p className="text-[10px] text-center text-muted-foreground">Didn't get the code? <button onClick={handleSendOtp} className="text-primary font-bold">Resend</button></p>
-                      </div>
-                    )}
+                    <AnimatePresence mode="wait">
+                      {!isOtpSent ? (
+                        <motion.div key="send" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+                          <Button onClick={handleSendOtp} disabled={isSendingOtp} className="w-full rounded-xl h-11 shadow-md">
+                            {isSendingOtp ? <Loader2 className="animate-spin mr-2" /> : <Smartphone className="w-4 h-4 mr-2" />}
+                            {isSendingOtp ? 'Sending Secure OTP...' : 'Send Verification OTP'}
+                          </Button>
+                        </motion.div>
+                      ) : (
+                        <motion.div key="verify" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
+                          <Input 
+                            placeholder="Enter 6-digit Code" 
+                            maxLength={6} 
+                            className="text-center font-bold h-12 rounded-xl text-lg tracking-[0.2em]" 
+                            value={otpValue} 
+                            onChange={e => setOtpValue(e.target.value)} 
+                            suppressHydrationWarning
+                          />
+                          <Button onClick={handleVerifyOtp} disabled={isVerifying || otpValue.length !== 6} className="w-full bg-accent text-white rounded-xl h-11 shadow-lg shadow-accent/20">
+                            {isVerifying ? <Loader2 className="animate-spin" /> : 'Confirm Verification'}
+                          </Button>
+                          <p className="text-[10px] text-center text-muted-foreground">
+                            Didn't get the code? {resendTimer > 0 ? (
+                              <span className="font-bold">Resend in {resendTimer}s</span>
+                            ) : (
+                              <button onClick={handleSendOtp} className="text-primary font-bold">Resend Now</button>
+                            )}
+                          </p>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 text-accent font-bold py-2 bg-accent/10 px-4 rounded-xl">
+                  <div className="flex items-center gap-2 text-accent font-bold py-2 bg-accent/10 px-4 rounded-xl border border-accent/20">
                     <CheckCircle2 className="w-5 h-5" /> Identity verified via Secure OTP
                   </div>
                 )}
