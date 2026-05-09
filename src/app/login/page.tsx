@@ -72,8 +72,13 @@ export default function LoginPage() {
 
   const getFriendlyErrorMessage = (error: any) => {
     const code = error?.code || 'unknown';
+    const message = error?.message || '';
     const hostname = typeof window !== 'undefined' ? window.location.hostname : 'unknown';
     
+    if (message.includes('already rendered')) {
+      return { title: 'System Busy', message: 'The verification system is resetting. Please wait 2 seconds and try again.' };
+    }
+
     switch (code) {
       case 'auth/unauthorized-domain':
         return { 
@@ -96,11 +101,16 @@ export default function LoginPage() {
   const setupRecaptcha = () => {
     if (recaptchaVerifierRef.current) return;
     try {
-      recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-login', {
+      const verifier = new RecaptchaVerifier(auth, 'recaptcha-container-login', {
         size: 'invisible',
       });
-    } catch (error) {
-      console.error("Recaptcha error:", error);
+      recaptchaVerifierRef.current = verifier;
+    } catch (error: any) {
+      if (error.message?.includes('already rendered')) {
+        console.warn("Recaptcha already rendered.");
+      } else {
+        console.error("Recaptcha error:", error);
+      }
     }
   };
 
@@ -117,24 +127,31 @@ export default function LoginPage() {
     const appVerifier = recaptchaVerifierRef.current;
     if (!appVerifier) {
       setIsSendingOtp(false);
-      toast({ title: "Error", description: "Recaptcha failed to initialize.", variant: "destructive" });
-      return;
+      // Try once more to initialize if null
+      setupRecaptcha();
+      if (!recaptchaVerifierRef.current) {
+        toast({ title: "Error", description: "Identity system failed to initialize. Please refresh.", variant: "destructive" });
+        return;
+      }
     }
 
     try {
       const formattedNumber = `+91${phoneNumber}`;
-      const result = await signInWithPhoneNumber(auth, formattedNumber, appVerifier);
+      const result = await signInWithPhoneNumber(auth, formattedNumber, recaptchaVerifierRef.current!);
       setConfirmationResult(result);
       setIsOtpSent(true);
       toast({ title: "OTP Sent", description: "Verification code sent to +91 " + phoneNumber });
     } catch (error: any) {
       const err = getFriendlyErrorMessage(error);
       setAuthError(err);
-      if (recaptchaVerifierRef.current) {
-        try {
-          recaptchaVerifierRef.current.clear();
-        } catch (e) {}
-        recaptchaVerifierRef.current = null;
+      
+      // If error is related to element already used, we don't necessarily clear it, 
+      // but for other fatal errors, clearing helps reset.
+      if (error.code !== 'auth/too-many-requests' && !error.message?.includes('already rendered')) {
+        if (recaptchaVerifierRef.current) {
+          try { recaptchaVerifierRef.current.clear(); } catch (e) {}
+          recaptchaVerifierRef.current = null;
+        }
       }
     } finally {
       setIsSendingOtp(false);

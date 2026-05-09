@@ -95,18 +95,28 @@ export default function GuideRegistrationPage() {
   const setupRecaptcha = () => {
     if (recaptchaVerifierRef.current) return;
     try {
-      recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
+      const verifier = new RecaptchaVerifier(auth, 'recaptcha-container', {
         size: 'invisible'
       });
-    } catch (error) {
-      console.error("Recaptcha setup error:", error);
+      recaptchaVerifierRef.current = verifier;
+    } catch (error: any) {
+      if (error.code === 'auth/captcha-check-failed' || error.message?.includes('already rendered')) {
+        console.warn("Recaptcha already rendered or initialized.");
+      } else {
+        console.error("Recaptcha setup error:", error);
+      }
     }
   };
 
   const getFriendlyErrorMessage = (error: any) => {
     const code = error?.code || 'unknown';
+    const message = error?.message || '';
     const hostname = typeof window !== 'undefined' ? window.location.hostname : 'unknown';
     
+    if (message.includes('already rendered')) {
+      return { title: 'System Busy', message: 'The verification system is resetting. Please wait 2 seconds and try again.' };
+    }
+
     switch (code) {
       case 'auth/unauthorized-domain':
         return { 
@@ -134,24 +144,31 @@ export default function GuideRegistrationPage() {
     const appVerifier = recaptchaVerifierRef.current;
     if (!appVerifier) {
       setIsSendingOtp(false);
-      toast({ title: "Verification Error", description: "Recaptcha failed to initialize.", variant: "destructive" });
-      return;
+      // Try once more to initialize if null
+      setupRecaptcha();
+      if (!recaptchaVerifierRef.current) {
+        toast({ title: "Verification Error", description: "Identity system failed to initialize. Refresh and try again.", variant: "destructive" });
+        return;
+      }
     }
 
     try {
       const phoneNumber = `+91${mobileValue}`;
-      const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+      const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier!);
       setConfirmationResult(result);
       setIsOtpSent(true);
       setResendTimer(60);
       toast({ title: "OTP Dispatched", description: "A secure verification code has been sent to +91 " + mobileValue });
     } catch (error: any) {
-      setAuthError(getFriendlyErrorMessage(error));
-      if (recaptchaVerifierRef.current) {
-        try {
-          recaptchaVerifierRef.current.clear();
-        } catch (e) {}
-        recaptchaVerifierRef.current = null;
+      const err = getFriendlyErrorMessage(error);
+      setAuthError(err);
+      
+      // If fatal error, clear verifier so it can be recreated
+      if (error.code !== 'auth/too-many-requests' && !error.message?.includes('already rendered')) {
+        if (recaptchaVerifierRef.current) {
+          try { recaptchaVerifierRef.current.clear(); } catch (e) {}
+          recaptchaVerifierRef.current = null;
+        }
       }
     } finally {
       setIsSendingOtp(false);
