@@ -31,9 +31,7 @@ export default function Navbar() {
   useEffect(() => {
     setMounted(true);
     const handleScroll = () => {
-      window.requestAnimationFrame(() => {
-        setScrolled(window.scrollY > 20);
-      });
+      setScrolled(window.scrollY > 20);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
     
@@ -70,13 +68,9 @@ export default function Navbar() {
     { name: 'Search', href: '/search', icon: Search },
   ];
 
-  const navClass = `glass-nav transition-colors duration-300 h-20 flex items-center border-b ${
-    scrolled ? 'bg-white/90 dark:bg-black/90 shadow-sm backdrop-blur-xl' : 'bg-white dark:bg-black'
-  }`;
-
   if (!mounted) {
     return (
-      <nav className="h-20 bg-white dark:bg-black border-b flex items-center">
+      <nav className="h-20 bg-white dark:bg-black border-b flex items-center shrink-0">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -94,7 +88,9 @@ export default function Navbar() {
   }
 
   return (
-    <nav className={navClass}>
+    <nav className={`h-20 flex items-center sticky top-0 z-50 border-b transition-all duration-300 shrink-0 ${
+      scrolled ? 'bg-white/80 dark:bg-black/80 backdrop-blur-xl shadow-sm' : 'bg-white dark:bg-black'
+    }`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 group">
@@ -123,7 +119,7 @@ export default function Navbar() {
               variant="ghost"
               size="icon"
               onClick={() => setIsDark(!isDark)}
-              className="rounded-full h-10 w-10"
+              className="rounded-full h-10 w-10 shrink-0"
             >
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </Button>
@@ -131,7 +127,7 @@ export default function Navbar() {
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0">
+                  <Button variant="ghost" className="relative h-10 w-10 rounded-full p-0 shrink-0">
                     <Avatar className="h-10 w-10 border-2 border-primary/20">
                       <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
                       <AvatarFallback className="bg-primary/10 text-primary font-bold">

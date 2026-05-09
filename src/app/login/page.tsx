@@ -42,10 +42,15 @@ export default function LoginPage() {
   const getFriendlyErrorMessage = (error: any) => {
     const code = error?.code || 'unknown';
     switch (code) {
+      case 'auth/admin-restricted-operation':
+        return {
+          title: 'Admin Restricted',
+          message: 'This operation is restricted. Please go to the Firebase Console and ensure "Anonymous" authentication is enabled in the Auth settings.'
+        };
       case 'auth/operation-not-allowed':
         return {
           title: 'Provider Disabled',
-          message: 'This login method (e.g. Anonymous) is not enabled in the Firebase Console.'
+          message: 'This login method is not enabled in the Firebase Console.'
         };
       case 'auth/unauthorized-domain':
         return {
@@ -113,7 +118,6 @@ export default function LoginPage() {
       const err = getFriendlyErrorMessage(error);
       setAuthError(err);
       toast({ variant: 'destructive', title: err.title, description: err.message });
-      console.error('Guest Login Error:', error);
     } finally {
       setIsGuestLoading(false);
     }
@@ -123,15 +127,15 @@ export default function LoginPage() {
     <div className="container mx-auto px-4 py-20 flex justify-center items-center min-h-[80vh]">
       <Card className="w-full max-w-md border-none shadow-2xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
         <CardHeader className="text-center bg-primary/5 py-10">
-          <CardTitle className="text-3xl font-black tracking-tight">Voyage Compass</CardTitle>
+          <CardTitle className="text-3xl font-black tracking-tight text-primary">Voyage Compass</CardTitle>
           <CardDescription>Explore the heart of Andhra Pradesh</CardDescription>
         </CardHeader>
         <CardContent className="p-8 pt-10 space-y-6">
           {authError && (
-            <Alert variant="destructive" className="rounded-2xl bg-destructive/5 border-destructive/20">
+            <Alert variant="destructive" className="rounded-2xl bg-destructive/5 border-destructive/20 mb-4">
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>{authError.title}</AlertTitle>
-              <AlertDescription>{authError.message}</AlertDescription>
+              <AlertDescription className="text-xs">{authError.message}</AlertDescription>
             </Alert>
           )}
 
@@ -171,7 +175,7 @@ export default function LoginPage() {
                         <button
                           type="button"
                           onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-primary"
                         >
                           {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                         </button>
@@ -181,7 +185,7 @@ export default function LoginPage() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full h-12 text-lg rounded-xl font-bold mt-2" disabled={isLoading}>
+              <Button type="submit" className="w-full h-12 text-lg rounded-xl font-bold mt-2 shadow-lg shadow-primary/20" disabled={isLoading}>
                 {isLoading ? 'Signing in...' : 'Sign In'}
                 <LogIn className="ml-2 h-4 w-4" />
               </Button>
@@ -207,7 +211,7 @@ export default function LoginPage() {
           </div>
         </CardContent>
         <CardFooter className="flex justify-center p-8 bg-secondary/10 border-t">
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-muted-foreground font-medium">
             New here? <Link href="/signup" className="text-primary font-bold hover:underline">Create Account</Link>
           </p>
         </CardFooter>
