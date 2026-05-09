@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -12,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, Loader2, Fingerprint, Info } from 'lucide-react';
+import { ShieldCheck, Loader2, Fingerprint, Info, Smartphone } from 'lucide-react';
 import { useFirestore, useUser } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -44,6 +45,7 @@ export default function GuideRegistrationPage() {
   const [isAadharVerified, setIsAadharVerified] = useState(false);
   const [otpValue, setOtpValue] = useState('');
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -63,33 +65,43 @@ export default function GuideRegistrationPage() {
   });
 
   const aadharValue = form.watch('aadharNumber') || '';
+  const mobileValue = form.watch('mobileNumber') || '';
 
   async function handleSendOtp() {
-    if (aadharValue.length !== 12) return;
-    setIsOtpSent(true);
-    toast({ 
-      title: "OTP Sent", 
-      description: "A verification code has been sent to your registered mobile number.",
-    });
+    if (aadharValue.length !== 12 || mobileValue.length !== 10) {
+      toast({ title: "Verification Error", description: "Please provide both Aadhar and Mobile numbers.", variant: "destructive" });
+      return;
+    }
+    
+    setIsSendingOtp(true);
+    setTimeout(() => {
+      setIsSendingOtp(false);
+      setIsOtpSent(true);
+      toast({ 
+        title: "Secure OTP Sent", 
+        description: `A verification code has been dispatched to your mobile ending in ****${mobileValue.slice(-4)}.`,
+      });
+    }, 1200);
   }
 
   async function handleVerifyOtp() {
     if (otpValue.length !== 6) return;
     setIsVerifyingOtp(true);
+    // Simulated internal test code is 123456
     setTimeout(() => {
       setIsVerifyingOtp(false);
       if (otpValue === '123456') {
         setIsAadharVerified(true);
-        toast({ title: "Aadhar Verified", description: "Successfully linked your identity." });
+        toast({ title: "Aadhar Verified", description: "Identity authentication successful." });
       } else {
-        toast({ title: "Verification Failed", description: "The code entered is incorrect. Please try again.", variant: "destructive" });
+        toast({ title: "Incorrect Code", description: "The verification code you entered is invalid. Please check and try again.", variant: "destructive" });
       }
-    }, 500);
+    }, 800);
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!user || !isAadharVerified) {
-      toast({ title: "Aadhar Verification Required", variant: "destructive" });
+      toast({ title: "Authentication Required", description: "Please complete Aadhar verification before proceeding.", variant: "destructive" });
       return;
     }
     setSubmitting(true);
@@ -106,7 +118,7 @@ export default function GuideRegistrationPage() {
 
     addDoc(guidesRef, guideData)
       .then(() => {
-        toast({ title: "Registration Successful!", description: "You are now a verified guide." });
+        toast({ title: "Expert Registration Complete", description: "Welcome to the elite guide program!" });
         router.push('/guides');
       })
       .catch((error) => {
@@ -120,95 +132,112 @@ export default function GuideRegistrationPage() {
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 items-start">
         <div className="md:col-span-2 space-y-6 bg-primary rounded-3xl p-8 text-white shadow-2xl">
           <ShieldCheck className="w-16 h-16 mb-4" />
-          <h1 className="font-headline text-4xl font-bold">Expert Guide Program</h1>
+          <h1 className="font-headline text-4xl font-bold tracking-tight">Expert Local Guide Program</h1>
           <p className="text-white/80 text-lg leading-relaxed">
-            Join the elite circle of certified local experts in Andhra Pradesh. Your journey to sharing authentic local wisdom starts with government identity verification.
+            Join the verified circle of local experts. Your journey to sharing authentic culture starts with high-standard identity authentication.
           </p>
           <div className="space-y-4 pt-6">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold">1</div>
-              <span>Identity Verification</span>
+              <span>Secure Identity Check</span>
             </div>
             <div className="flex items-center gap-3 opacity-60">
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold">2</div>
-              <span>Profile Creation</span>
+              <span>Professional Profile</span>
             </div>
             <div className="flex items-center gap-3 opacity-60">
               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center font-bold">3</div>
-              <span>Start Guiding</span>
+              <span>Start Earning</span>
             </div>
           </div>
         </div>
 
-        <Card className="md:col-span-3 border-none shadow-xl rounded-3xl overflow-hidden">
+        <Card className="md:col-span-3 border-none shadow-xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
           <CardContent className="p-8">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField control={form.control} name="fullName" render={({ field }) => (
-                    <FormItem><FormLabel>Full Name</FormLabel><FormControl><Input className="rounded-xl h-11" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Full Legal Name</FormLabel><FormControl><Input className="rounded-xl h-11" placeholder="As per documents" {...field} suppressHydrationWarning /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="email" render={({ field }) => (
-                    <FormItem><FormLabel>Email Address</FormLabel><FormControl><Input className="rounded-xl h-11" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Primary Email</FormLabel><FormControl><Input placeholder="email@example.com" className="rounded-xl h-11" {...field} suppressHydrationWarning /></FormControl><FormMessage /></FormItem>
                   )} />
                 </div>
 
                 <div className="bg-secondary/20 p-6 rounded-2xl space-y-4 border border-primary/10">
                   <div className="flex items-center gap-2 mb-2">
                     <Fingerprint className="w-5 h-5 text-primary" />
-                    <h3 className="font-bold text-sm">Aadhar Identity Check</h3>
+                    <h3 className="font-bold text-sm tracking-tight uppercase">Government Identity Verification</h3>
                   </div>
-                  <FormField control={form.control} name="aadharNumber" render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>12-Digit Aadhar Number</FormLabel>
-                      <div className="flex gap-2">
-                        <FormControl><Input disabled={isAadharVerified} maxLength={12} className="rounded-xl h-11" placeholder="XXXX XXXX XXXX" {...field} /></FormControl>
-                        {!isAadharVerified && (
-                          <Button type="button" variant="outline" className="h-11 rounded-xl" onClick={handleSendOtp} disabled={aadharValue.length !== 12 || isOtpSent}>Send OTP</Button>
-                        )}
-                      </div>
-                      <FormMessage />
-                    </FormItem>
-                  )} />
+                  
+                  <div className="grid grid-cols-1 gap-4">
+                    <FormField control={form.control} name="mobileNumber" render={({ field }) => (
+                      <FormItem><FormLabel>Registered Mobile Number</FormLabel><FormControl><Input disabled={isAadharVerified} placeholder="10-digit mobile" maxLength={10} className="rounded-xl h-11" {...field} suppressHydrationWarning /></FormControl><FormMessage /></FormItem>
+                    )} />
+                    
+                    <FormField control={form.control} name="aadharNumber" render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>12-Digit Aadhar Number</FormLabel>
+                        <div className="flex gap-2">
+                          <FormControl><Input disabled={isAadharVerified} maxLength={12} className="rounded-xl h-11" placeholder="XXXX XXXX XXXX" {...field} suppressHydrationWarning /></FormControl>
+                          {!isAadharVerified && (
+                            <Button type="button" variant="outline" className="h-11 rounded-xl px-6 shrink-0" onClick={handleSendOtp} disabled={aadharValue.length !== 12 || mobileValue.length !== 10 || isSendingOtp || isOtpSent}>
+                              {isSendingOtp ? <Loader2 className="animate-spin" /> : 'Send OTP'}
+                            </Button>
+                          )}
+                        </div>
+                        <FormMessage />
+                      </FormItem>
+                    )} />
+                  </div>
+
                   {isOtpSent && !isAadharVerified && (
-                    <div className="flex gap-2 pt-2">
-                      <Input placeholder="Enter 6-digit OTP" maxLength={6} className="rounded-xl h-11 text-center font-bold" value={otpValue} onChange={(e) => setOtpValue(e.target.value)} />
-                      <Button type="button" className="h-11 rounded-xl px-8" onClick={handleVerifyOtp} disabled={otpValue.length !== 6 || isVerifyingOtp}>
-                        {isVerifyingOtp ? <Loader2 className="animate-spin" /> : 'Verify'}
-                      </Button>
-                    </div>
+                    <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} className="space-y-3 pt-2">
+                      <FormLabel>Enter 6-Digit Verification Code</FormLabel>
+                      <div className="flex gap-2">
+                        <Input placeholder="Enter Code" maxLength={6} className="rounded-xl h-12 text-center font-bold text-lg tracking-[0.2em]" value={otpValue} onChange={(e) => setOtpValue(e.target.value)} />
+                        <Button type="button" className="h-12 rounded-xl px-8 shadow-md" onClick={handleVerifyOtp} disabled={otpValue.length !== 6 || isVerifyingOtp}>
+                          {isVerifyingOtp ? <Loader2 className="animate-spin" /> : 'Verify'}
+                        </Button>
+                      </div>
+                      <p className="text-[10px] text-muted-foreground">The code was sent to your phone. Please check your SMS.</p>
+                    </motion.div>
                   )}
+
                   {isAadharVerified && (
-                    <div className="text-accent text-sm font-bold flex items-center gap-2">
-                      <ShieldCheck className="w-4 h-4" /> Identity Verified Successfully
-                    </div>
+                    <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-accent/10 p-3 rounded-xl text-accent text-sm font-bold flex items-center justify-center gap-2 border border-accent/20">
+                      <ShieldCheck className="w-5 h-5" /> Identity Verified Successfully
+                    </motion.div>
                   )}
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField control={form.control} name="location" render={({ field }) => (
-                    <FormItem><FormLabel>Operational Location</FormLabel><FormControl><Input placeholder="e.g. Tirupati" className="rounded-xl h-11" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Primary Operational City</FormLabel><FormControl><Input placeholder="e.g. Tirupati" className="rounded-xl h-11" {...field} suppressHydrationWarning /></FormControl><FormMessage /></FormItem>
                   )} />
                   <FormField control={form.control} name="languages" render={({ field }) => (
-                    <FormItem><FormLabel>Languages Spoken</FormLabel><FormControl><Input placeholder="e.g. Telugu, English" className="rounded-xl h-11" {...field} /></FormControl><FormMessage /></FormItem>
+                    <FormItem><FormLabel>Languages Spoken</FormLabel><FormControl><Input placeholder="e.g. Telugu, English, Hindi" className="rounded-xl h-11" {...field} suppressHydrationWarning /></FormControl><FormMessage /></FormItem>
                   )} />
                 </div>
 
                 <FormField control={form.control} name="experience" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Guiding Experience</FormLabel>
-                    <FormControl><Textarea className="rounded-xl min-h-[100px]" placeholder="List places you have explored..." {...field} /></FormControl>
+                    <FormLabel>Professional Experience & History</FormLabel>
+                    <FormControl><Textarea className="rounded-xl min-h-[120px]" placeholder="Detail your experience exploring local regions..." {...field} /></FormControl>
                     <FormMessage />
                   </FormItem>
                 )} />
 
                 <div className="bg-accent/5 p-4 rounded-xl border border-accent/20 flex gap-3">
                   <Info className="w-5 h-5 text-accent flex-shrink-0" />
-                  <p className="text-xs text-muted-foreground">By clicking register, you agree to comply with the platform's local expertise guidelines and verification standards.</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    By submitting, you certify that all information is accurate and you agree to our platform standards for local expertise and tourist safety.
+                  </p>
                 </div>
 
-                <Button type="submit" disabled={submitting || !isAadharVerified} className="w-full h-14 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20">
-                  {submitting ? <Loader2 className="animate-spin" /> : 'Register as Official Guide'}
+                <Button type="submit" disabled={submitting || !isAadharVerified} className="w-full h-14 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20 transition-all hover:scale-[1.01]">
+                  {submitting ? <Loader2 className="animate-spin mr-2" /> : 'Complete Official Registration'}
                 </Button>
               </form>
             </Form>

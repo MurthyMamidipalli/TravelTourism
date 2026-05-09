@@ -1,10 +1,11 @@
+
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { User, Mail, Fingerprint, Edit3, Loader2, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
+import { User, Mail, Fingerprint, Edit3, Loader2, AlertCircle, CheckCircle2, ArrowLeft, Smartphone } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { doc, setDoc } from 'firebase/firestore';
@@ -97,30 +98,34 @@ export default function ProfilePage() {
   }, [userDocRef, toast]);
 
   const handleSendOtp = async () => {
-    if (!profile?.aadharNumber && !form.getValues('aadharNumber')) {
-      toast({ title: "Aadhar Missing", description: "Please provide your 12-digit Aadhar number first.", variant: "destructive" });
+    const mobile = profile?.mobileNumber || form.getValues('mobileNumber');
+    if (!mobile || mobile.length !== 10) {
+      toast({ title: "Invalid Mobile", description: "Please ensure your 10-digit mobile number is correct before sending OTP.", variant: "destructive" });
       return;
     }
+    
     setIsSendingOtp(true);
+    // Simulate network delay for sending OTP
     setTimeout(() => {
       setIsSendingOtp(false);
       setIsOtpSent(true);
       toast({ 
         title: "OTP Sent", 
-        description: "A verification code has been sent to your registered mobile number.",
+        description: `A 6-digit verification code has been sent to your mobile ending in ****${mobile.slice(-4)}.`,
       });
-    }, 500);
+    }, 1200);
   };
 
   const handleVerifyOtp = async () => {
     if (otpValue.length !== 6 || !userDocRef) return;
     setIsVerifying(true);
+    // Internal test code is 123456
     setTimeout(() => {
       setIsVerifying(false);
       if (otpValue === '123456') {
         setDoc(userDocRef, { isVerified: true }, { merge: true })
           .then(() => {
-            toast({ title: "Identity Verified", description: "Successfully authenticated via Aadhaar." });
+            toast({ title: "Identity Verified", description: "Your identity has been successfully authenticated." });
             setIsOtpSent(false);
             setOtpValue('');
           })
@@ -128,9 +133,9 @@ export default function ProfilePage() {
             toast({ title: "Verification Error", variant: "destructive" });
           });
       } else {
-        toast({ title: "Invalid OTP", description: "The code entered is incorrect. Please try again.", variant: "destructive" });
+        toast({ title: "Invalid Code", description: "The verification code you entered is incorrect. Please try again.", variant: "destructive" });
       }
-    }, 500);
+    }, 800);
   };
 
   if (authLoading || profileLoading) {
@@ -162,7 +167,7 @@ export default function ProfilePage() {
           </Link>
           <div className={`px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-bold ${profile?.isVerified ? 'bg-accent/10 text-accent' : 'bg-destructive/10 text-destructive'}`}>
             {profile?.isVerified ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-            {profile?.isVerified ? 'Verified' : 'Pending Verification'}
+            {profile?.isVerified ? 'Verified Account' : 'Action Required: Verification Pending'}
           </div>
         </div>
 
@@ -182,26 +187,28 @@ export default function ProfilePage() {
           
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="absolute top-8 right-8 rounded-xl h-9"><Edit3 className="w-4 h-4 mr-2" /> Edit Profile</Button>
+              <Button variant="outline" size="sm" className="absolute top-8 right-8 rounded-xl h-9 shadow-sm hover:shadow-md transition-shadow">
+                <Edit3 className="w-4 h-4 mr-2" /> Edit Details
+              </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px] rounded-3xl">
-              <DialogHeader><DialogTitle>Edit Profile Details</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>Update Profile Information</DialogTitle></DialogHeader>
               <form onSubmit={form.handleSubmit(onSaveProfile)} className="space-y-4 py-4">
                 <div className="space-y-2">
                   <Label>Full Name</Label>
-                  <Input {...form.register('fullName')} className="rounded-xl h-11" placeholder="Enter full name" />
+                  <Input {...form.register('fullName')} className="rounded-xl h-11" placeholder="Enter your full name" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2"><Label>Age</Label><Input type="number" {...form.register('age')} className="rounded-xl h-11" /></div>
-                  <div className="space-y-2"><Label>Mobile Number</Label><Input maxLength={10} {...form.register('mobileNumber')} className="rounded-xl h-11" placeholder="10 digits" /></div>
+                  <div className="space-y-2"><Label>Mobile Number</Label><Input maxLength={10} {...form.register('mobileNumber')} className="rounded-xl h-11" placeholder="10-digit number" /></div>
                 </div>
                 <div className="space-y-2">
                   <Label>Aadhar Number (12 digits)</Label>
                   <Input maxLength={12} {...form.register('aadharNumber')} className="rounded-xl h-11" placeholder="XXXX XXXX XXXX" />
                 </div>
                 <DialogFooter className="pt-4">
-                  <Button type="submit" className="w-full rounded-xl h-12" disabled={isSaving}>
-                    {isSaving ? <Loader2 className="animate-spin" /> : 'Save Changes'}
+                  <Button type="submit" className="w-full rounded-xl h-12 shadow-lg shadow-primary/20" disabled={isSaving}>
+                    {isSaving ? <Loader2 className="animate-spin" /> : 'Save Profile Changes'}
                   </Button>
                 </DialogFooter>
               </form>
@@ -211,26 +218,26 @@ export default function ProfilePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Card className="premium-card">
-            <CardHeader><CardTitle className="text-lg flex items-center gap-2"><User className="w-5 h-5 text-primary" /> Profile Details</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-lg flex items-center gap-2"><User className="w-5 h-5 text-primary" /> Profile Overview</CardTitle></CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Age</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">User Age</p>
                 <p className="font-bold text-lg">{profile?.age || 'Not set'} Years</p>
               </div>
               <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Contact Number</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Mobile Contact</p>
                 <p className="font-bold text-lg">{profile?.mobileNumber || 'Not set'}</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className={`premium-card ${profile?.isVerified ? 'bg-accent/5' : 'bg-destructive/5'}`}>
-            <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Fingerprint className={`w-5 h-5 ${profile?.isVerified ? 'text-accent' : 'text-destructive'}`} /> Identity Verification</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Fingerprint className={`w-5 h-5 ${profile?.isVerified ? 'text-accent' : 'text-destructive'}`} /> Identity Status</CardTitle></CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Registered Aadhar</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Verified Aadhar ID</p>
                 <p className="font-mono text-lg font-bold">
-                  {profile?.aadharNumber ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` : 'Not provided yet'}
+                  {profile?.aadharNumber ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` : 'Aadhar ID required'}
                 </p>
               </div>
 
@@ -238,21 +245,29 @@ export default function ProfilePage() {
                 {!profile?.isVerified ? (
                   <div className="space-y-4">
                     {!isOtpSent ? (
-                      <Button onClick={handleSendOtp} disabled={isSendingOtp} className="w-full rounded-xl h-11">
-                        {isSendingOtp ? <Loader2 className="animate-spin" /> : 'Send Verification OTP'}
+                      <Button onClick={handleSendOtp} disabled={isSendingOtp} className="w-full rounded-xl h-11 shadow-md">
+                        {isSendingOtp ? <Loader2 className="animate-spin mr-2" /> : <Smartphone className="w-4 h-4 mr-2" />}
+                        {isSendingOtp ? 'Sending Secure OTP...' : 'Send Verification OTP'}
                       </Button>
                     ) : (
                       <div className="space-y-3">
-                        <Input placeholder="Enter 6-digit OTP" maxLength={6} className="text-center font-bold h-11 rounded-xl" value={otpValue} onChange={e => setOtpValue(e.target.value)} />
-                        <Button onClick={handleVerifyOtp} disabled={isVerifying || otpValue.length !== 6} className="w-full bg-accent text-white rounded-xl h-11">
-                          {isVerifying ? <Loader2 className="animate-spin" /> : 'Verify Identity'}
+                        <Input 
+                          placeholder="Enter 6-digit Code" 
+                          maxLength={6} 
+                          className="text-center font-bold h-12 rounded-xl text-lg tracking-[0.2em]" 
+                          value={otpValue} 
+                          onChange={e => setOtpValue(e.target.value)} 
+                        />
+                        <Button onClick={handleVerifyOtp} disabled={isVerifying || otpValue.length !== 6} className="w-full bg-accent text-white rounded-xl h-11 shadow-lg shadow-accent/20">
+                          {isVerifying ? <Loader2 className="animate-spin" /> : 'Confirm Verification'}
                         </Button>
+                        <p className="text-[10px] text-center text-muted-foreground">Didn't get the code? <button onClick={handleSendOtp} className="text-primary font-bold">Resend</button></p>
                       </div>
                     )}
                   </div>
                 ) : (
-                  <div className="flex items-center gap-2 text-accent font-bold py-2">
-                    <CheckCircle2 className="w-5 h-5" /> Your identity is verified.
+                  <div className="flex items-center gap-2 text-accent font-bold py-2 bg-accent/10 px-4 rounded-xl">
+                    <CheckCircle2 className="w-5 h-5" /> Identity verified via Secure OTP
                   </div>
                 )}
               </div>
