@@ -64,6 +64,7 @@ export default function SignupPage() {
         email: values.email,
         isVerified: false,
         createdAt: serverTimestamp(),
+        // Identity fields are intentionally omitted here, to be filled in profile
       };
 
       setDoc(userDocRef, profileData)
@@ -161,7 +162,7 @@ export default function SignupPage() {
               <div className="bg-accent/5 p-4 rounded-2xl border border-accent/20 flex gap-3">
                 <ShieldCheck className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Identity documentation (Aadhar/Passport) can be verified later in your profile to gain verified status.
+                  Join now and verify your identity documentation (Aadhar/Passport) later in your profile to gain verified status.
                 </p>
               </div>
 
