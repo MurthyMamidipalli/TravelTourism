@@ -11,12 +11,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, Loader2, Fingerprint, CreditCard, ShieldAlert, FileText, Globe } from 'lucide-react';
+import { ShieldCheck, Loader2, Fingerprint, CreditCard, ShieldAlert, FileText, Globe, Upload, Check } from 'lucide-react';
 import { useFirestore, useUser } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { motion } from 'framer-motion';
+import { Badge } from '@/components/ui/badge';
 
 const formSchema = z.object({
   fullName: z.string().min(2, { message: 'Full name is required.' }),
@@ -39,6 +40,11 @@ export default function GuideRegistrationPage() {
   const firestore = useFirestore();
   const { user } = useUser();
   const [submitting, setSubmitting] = useState(false);
+
+  // Mandatory Upload States
+  const [aadharUploaded, setAadharUploaded] = useState(false);
+  const [panUploaded, setPanUploaded] = useState(false);
+  const [passportUploaded, setPassportUploaded] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -64,6 +70,10 @@ export default function GuideRegistrationPage() {
       return;
     }
     if (!firestore) return;
+    if (!aadharUploaded || !panUploaded) {
+      toast({ title: "Documents Missing", description: "Soft copies of Aadhar and PAN are mandatory.", variant: "destructive" });
+      return;
+    }
 
     setSubmitting(true);
     const guidesRef = collection(firestore, 'guides');
@@ -88,6 +98,21 @@ export default function GuideRegistrationPage() {
       });
   };
 
+  const handleSimulatedUpload = (type: 'aadhar' | 'pan' | 'passport') => {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*,application/pdf';
+    input.onchange = (e: any) => {
+      if (e.target.files && e.target.files.length > 0) {
+        if (type === 'aadhar') setAadharUploaded(true);
+        if (type === 'pan') setPanUploaded(true);
+        if (type === 'passport') setPassportUploaded(true);
+        toast({ title: "Upload Ready", description: `${type.toUpperCase()} copy staged for verification.` });
+      }
+    };
+    input.click();
+  };
+
   return (
     <div className="container mx-auto px-4 py-12 min-h-screen">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 items-start">
@@ -95,7 +120,7 @@ export default function GuideRegistrationPage() {
           <ShieldCheck className="w-16 h-16 mb-4" />
           <h1 className="font-headline text-4xl font-bold tracking-tight">Guide Identity Protocol</h1>
           <p className="text-white/80 text-lg leading-relaxed font-body">
-            To ensure absolute safety, every guide must provide verified government documentation.
+            To ensure absolute safety, every guide must provide verified government documentation and soft copies.
           </p>
           
           <div className="bg-white/10 p-6 rounded-2xl border border-white/20 space-y-4">
@@ -103,9 +128,9 @@ export default function GuideRegistrationPage() {
               <ShieldAlert className="w-5 h-5" /> Mandatory Requirements:
             </h3>
             <ul className="space-y-3 text-sm opacity-90 font-body">
-              <li className="flex gap-2"><span className="font-black text-accent">✓</span> Aadhar UID Verification.</li>
-              <li className="flex gap-2"><span className="font-black text-accent">✓</span> PAN Tax Identity.</li>
-              <li className="flex gap-2"><span className="font-black opacity-50">○</span> Passport (Optional for Domestic).</li>
+              <li className="flex gap-2"><span className="font-black text-accent">✓</span> Aadhar Soft Copy Upload.</li>
+              <li className="flex gap-2"><span className="font-black text-accent">✓</span> PAN Soft Copy Upload.</li>
+              <li className="flex gap-2"><span className="font-black opacity-50">○</span> Passport (Temporary / Optional).</li>
             </ul>
           </div>
         </div>
@@ -136,9 +161,12 @@ export default function GuideRegistrationPage() {
                 </div>
 
                 <div className="bg-secondary/20 p-6 rounded-2xl space-y-6 border border-primary/10">
-                  <div className="flex items-center gap-2 mb-2">
-                    <ShieldCheck className="w-5 h-5 text-primary" />
-                    <h3 className="font-bold text-sm tracking-tight uppercase">Government Identification</h3>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <ShieldCheck className="w-5 h-5 text-primary" />
+                      <h3 className="font-bold text-sm tracking-tight uppercase">Government Identification</h3>
+                    </div>
+                    <Badge variant="destructive" className="text-[8px] h-4">Upload Mandatory</Badge>
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -164,9 +192,9 @@ export default function GuideRegistrationPage() {
 
                     <FormField control={form.control} name="passportNumber" render={({ field }) => (
                       <FormItem className="md:col-span-2">
-                        <FormLabel className="flex items-center gap-2"><Globe className="w-4 h-4" /> Passport Number (Optional)</FormLabel>
+                        <FormLabel className="flex items-center gap-2 font-medium opacity-60"><Globe className="w-4 h-4" /> Passport Number (Optional)</FormLabel>
                         <FormControl>
-                          <Input className="rounded-xl h-11" placeholder="Enter Passport if available" {...field} />
+                          <Input className="rounded-xl h-11" placeholder="Optional for domestic verification" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -174,19 +202,34 @@ export default function GuideRegistrationPage() {
                   </div>
 
                   <div className="space-y-4 pt-4 border-t">
-                    <p className="text-xs font-bold text-muted-foreground uppercase">Document Upload (Soft Copies)</p>
+                    <div className="flex justify-between items-center">
+                       <p className="text-[10px] font-bold text-muted-foreground uppercase">Upload Proofs (Soft Copies)</p>
+                       <p className="text-[9px] text-destructive italic font-bold">* Aadhar and PAN required</p>
+                    </div>
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                      <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl hover:bg-primary/5 transition-colors cursor-pointer group">
-                        <FileText className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-2" />
-                        <span className="text-[10px] font-bold text-center">Upload Aadhar</span>
+                      {/* Aadhar Upload Box */}
+                      <div 
+                        onClick={() => handleSimulatedUpload('aadhar')}
+                        className={`flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl transition-all cursor-pointer group ${aadharUploaded ? 'border-accent bg-accent/5' : 'border-primary/20 hover:bg-primary/5'}`}
+                      >
+                        {aadharUploaded ? <Check className="w-6 h-6 text-accent" /> : <Upload className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-2" />}
+                        <span className="text-[10px] font-bold text-center">Aadhar *</span>
                       </div>
-                      <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl hover:bg-primary/5 transition-colors cursor-pointer group">
-                        <FileText className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-2" />
-                        <span className="text-[10px] font-bold text-center">Upload PAN</span>
+                      {/* PAN Upload Box */}
+                      <div 
+                        onClick={() => handleSimulatedUpload('pan')}
+                        className={`flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl transition-all cursor-pointer group ${panUploaded ? 'border-accent bg-accent/5' : 'border-primary/20 hover:bg-primary/5'}`}
+                      >
+                        {panUploaded ? <Check className="w-6 h-6 text-accent" /> : <Upload className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-2" />}
+                        <span className="text-[10px] font-bold text-center">PAN *</span>
                       </div>
-                      <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl hover:bg-primary/5 transition-colors cursor-pointer group opacity-60">
-                        <FileText className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-2" />
-                        <span className="text-[10px] font-bold text-center">Upload Passport (Opt)</span>
+                      {/* Passport Upload Box (Optional) */}
+                      <div 
+                        onClick={() => handleSimulatedUpload('passport')}
+                        className={`flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl transition-all cursor-pointer group opacity-60 ${passportUploaded ? 'border-accent bg-accent/5' : 'border-zinc-200 hover:bg-zinc-100'}`}
+                      >
+                        {passportUploaded ? <Check className="w-6 h-6 text-accent" /> : <Upload className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-2" />}
+                        <span className="text-[10px] font-bold text-center">Passport</span>
                       </div>
                     </div>
                   </div>
@@ -223,9 +266,16 @@ export default function GuideRegistrationPage() {
                   </FormItem>
                 )} />
 
-                <Button type="submit" disabled={submitting} className="w-full h-14 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20">
+                <Button 
+                  type="submit" 
+                  disabled={submitting || !aadharUploaded || !panUploaded} 
+                  className="w-full h-14 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20"
+                >
                   {submitting ? <Loader2 className="animate-spin mr-2" /> : 'Register as Verified Guide'}
                 </Button>
+                {(!aadharUploaded || !panUploaded) && (
+                  <p className="text-center text-[10px] text-destructive font-bold">Please upload mandatory documents to enable registration.</p>
+                )}
               </form>
             </Form>
           </CardContent>

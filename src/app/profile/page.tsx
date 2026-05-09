@@ -4,11 +4,11 @@ import { useUser, useFirestore, useDoc } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { User, Mail, Fingerprint, Edit3, Loader2, CheckCircle2, ArrowLeft, ShieldCheck, LogIn, CreditCard, Globe, FileText, Calendar, Phone } from 'lucide-react';
+import { User, Mail, Fingerprint, Edit3, Loader2, CheckCircle2, ArrowLeft, ShieldCheck, LogIn, CreditCard, Globe, FileText, Calendar, Phone, Upload, Check } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { doc, setDoc } from 'firebase/firestore';
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -19,6 +19,7 @@ import * as z from 'zod';
 import { useToast } from '@/hooks/use-toast';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
+import { Badge } from '@/components/ui/badge';
 
 const editProfileSchema = z.object({
   fullName: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
@@ -35,6 +36,11 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Mandatory Upload States
+  const [aadharUploaded, setAadharUploaded] = useState(false);
+  const [panUploaded, setPanUploaded] = useState(false);
+  const [passportUploaded, setPassportUploaded] = useState(false);
 
   const userDocRef = useMemo(() => {
     if (!firestore || !user?.uid) return null;
@@ -65,6 +71,11 @@ export default function ProfilePage() {
         panNumber: profile.panNumber || '',
         passportNumber: profile.passportNumber || '',
       });
+      // Set initial upload states if they exist in DB (simulated)
+      if (profile.isVerified) {
+        setAadharUploaded(true);
+        setPanUploaded(true);
+      }
     } else if (user && !profileLoading) {
       form.setValue('fullName', user.displayName || '');
     }
@@ -72,6 +83,11 @@ export default function ProfilePage() {
 
   const onSaveProfile = useCallback((values: z.infer<typeof editProfileSchema>) => {
     if (!userDocRef) return;
+    if (!aadharUploaded || !panUploaded) {
+      toast({ title: "Documents Missing", description: "Please upload mandatory Aadhar and PAN soft copies.", variant: "destructive" });
+      return;
+    }
+
     setIsSaving(true);
     const updatedProfile = { 
       ...values, 
@@ -82,14 +98,31 @@ export default function ProfilePage() {
     
     setDoc(userDocRef, updatedProfile, { merge: true })
       .then(() => {
-        toast({ title: "Profile Updated", description: "Identity documents verified." });
+        toast({ title: "Profile Updated", description: "Identity documents verified successfully." });
         setIsEditDialogOpen(false);
       })
       .catch((error: any) => {
         errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef.path, operation: 'update', requestResourceData: updatedProfile }));
       })
       .finally(() => setIsSaving(false));
-  }, [userDocRef, user?.email, toast]);
+  }, [userDocRef, user?.email, toast, aadharUploaded, panUploaded]);
+
+  // Simulated Upload Handlers
+  const handleSimulatedUpload = (type: 'aadhar' | 'pan' | 'passport') => {
+    // In a real app, this would trigger an <input type="file" />
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = 'image/*,application/pdf';
+    input.onchange = (e: any) => {
+      if (e.target.files && e.target.files.length > 0) {
+        if (type === 'aadhar') setAadharUploaded(true);
+        if (type === 'pan') setPanUploaded(true);
+        if (type === 'passport') setPassportUploaded(true);
+        toast({ title: "File Staged", description: `${type.toUpperCase()} document ready for verification.` });
+      }
+    };
+    input.click();
+  };
 
   if (authLoading) {
     return (
@@ -172,21 +205,52 @@ export default function ProfilePage() {
                   <Input {...form.register('panNumber')} className="rounded-xl h-11 uppercase" placeholder="ABCDE1234F" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-2"><Globe className="w-4 h-4" /> Passport ID (Optional)</Label>
-                  <Input {...form.register('passportNumber')} className="rounded-xl h-11" placeholder="Enter Passport if available" />
+                  <Label className="flex items-center gap-2 font-medium opacity-70"><Globe className="w-4 h-4" /> Passport ID (Temporary / Optional)</Label>
+                  <Input {...form.register('passportNumber')} className="rounded-xl h-11" placeholder="Optional for domestic travelers" />
                 </div>
-                <div className="p-4 bg-secondary/20 rounded-2xl space-y-3">
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Upload Proofs</p>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[1, 2, 3].map(i => (
-                      <div key={i} className="h-16 border-2 border-dashed rounded-lg flex items-center justify-center cursor-pointer hover:bg-primary/5 transition-colors">
-                        <FileText className="w-4 h-4 text-muted-foreground opacity-30" />
-                      </div>
-                    ))}
+
+                <div className="p-4 bg-secondary/20 rounded-2xl space-y-4">
+                  <div className="flex items-center justify-between">
+                    <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Document Proofs (Soft Copies)</p>
+                    <Badge variant="outline" className="text-[9px] h-4 bg-white">Aadhar & PAN Mandatory</Badge>
                   </div>
+                  <div className="grid grid-cols-3 gap-3">
+                    {/* Aadhar Upload */}
+                    <div 
+                      onClick={() => handleSimulatedUpload('aadhar')}
+                      className={`h-20 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all ${aadharUploaded ? 'border-accent bg-accent/5' : 'border-primary/20 hover:bg-primary/5'}`}
+                    >
+                      {aadharUploaded ? <Check className="w-5 h-5 text-accent" /> : <Upload className="w-5 h-5 text-muted-foreground opacity-50" />}
+                      <span className="text-[9px] font-bold mt-1 text-center px-1">Aadhar *</span>
+                    </div>
+                    {/* PAN Upload */}
+                    <div 
+                      onClick={() => handleSimulatedUpload('pan')}
+                      className={`h-20 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all ${panUploaded ? 'border-accent bg-accent/5' : 'border-primary/20 hover:bg-primary/5'}`}
+                    >
+                      {panUploaded ? <Check className="w-5 h-5 text-accent" /> : <Upload className="w-5 h-5 text-muted-foreground opacity-50" />}
+                      <span className="text-[9px] font-bold mt-1 text-center px-1">PAN *</span>
+                    </div>
+                    {/* Passport Upload (Optional) */}
+                    <div 
+                      onClick={() => handleSimulatedUpload('passport')}
+                      className={`h-20 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer transition-all opacity-60 ${passportUploaded ? 'border-accent bg-accent/5' : 'border-zinc-200 hover:bg-zinc-50'}`}
+                    >
+                      {passportUploaded ? <Check className="w-5 h-5 text-accent" /> : <Upload className="w-5 h-5 text-muted-foreground opacity-30" />}
+                      <span className="text-[9px] font-bold mt-1 text-center px-1">Passport</span>
+                    </div>
+                  </div>
+                  {(!aadharUploaded || !panUploaded) && (
+                    <p className="text-[9px] text-destructive font-bold">* Aadhar and PAN soft copies are mandatory for verification.</p>
+                  )}
                 </div>
+
                 <DialogFooter className="pt-4">
-                  <Button type="submit" className="w-full rounded-xl h-12 font-bold" disabled={isSaving}>
+                  <Button 
+                    type="submit" 
+                    className="w-full rounded-xl h-12 font-bold" 
+                    disabled={isSaving || !aadharUploaded || !panUploaded}
+                  >
                     {isSaving ? <Loader2 className="animate-spin" /> : 'Confirm Identity Verification'}
                   </Button>
                 </DialogFooter>
@@ -231,7 +295,7 @@ export default function ProfilePage() {
                   <div className="grid gap-4">
                     <div className="flex justify-between border-b pb-2"><span className="text-xs text-muted-foreground">Aadhar UID</span><span className="font-mono text-xs font-bold">{profile?.aadharNumber ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` : 'Pending'}</span></div>
                     <div className="flex justify-between border-b pb-2"><span className="text-xs text-muted-foreground">PAN Tax ID</span><span className="font-mono text-xs font-bold uppercase">{profile?.panNumber || 'Pending'}</span></div>
-                    <div className="flex justify-between pb-2"><span className="text-xs text-muted-foreground">Passport ID</span><span className="font-mono text-xs font-bold uppercase">{profile?.passportNumber || 'N/A'}</span></div>
+                    <div className="flex justify-between pb-2"><span className="text-xs text-muted-foreground font-medium opacity-50">Passport ID</span><span className="font-mono text-xs font-bold uppercase opacity-50">{profile?.passportNumber || 'N/A'}</span></div>
                   </div>
                   {profile?.isVerified && (
                     <div className="flex items-center gap-2 text-accent font-bold py-2 bg-accent/10 px-4 rounded-xl border border-accent/20">
