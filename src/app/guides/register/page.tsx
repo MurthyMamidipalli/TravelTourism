@@ -101,14 +101,12 @@ export default function GuideRegistrationPage() {
     setIsVerifyingOtp(true);
     
     setTimeout(() => {
-      // Secure internal verification test code
       if (otpValue === '123456') {
         setIsVerifyingOtp(false);
         setIsAadharVerified(true);
         toast({ 
           title: "Identity Verified", 
           description: "Your government-linked identity has been authenticated.",
-          className: "bg-accent text-white"
         });
       } else {
         setIsVerifyingOtp(false);
@@ -143,15 +141,17 @@ export default function GuideRegistrationPage() {
     };
 
     addDoc(guidesRef, guideData)
+      .then(() => {
+        toast({ 
+          title: "Registration Complete", 
+          description: "Welcome to our network of verified local experts. Your profile is now live.",
+        });
+        router.push('/guides');
+      })
       .catch((error) => {
         errorEmitter.emit('permission-error', new FirestorePermissionError({ path: guidesRef.path, operation: 'create', requestResourceData: guideData }));
+        setSubmitting(false);
       });
-
-    toast({ 
-      title: "Registration Complete", 
-      description: "Welcome to our network of verified local experts. Your profile is now live.",
-    });
-    router.push('/guides');
   };
 
   return (
@@ -261,7 +261,7 @@ export default function GuideRegistrationPage() {
 
                   {isAadharVerified && (
                     <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-accent/10 p-3 rounded-xl text-accent text-sm font-bold flex items-center justify-center gap-2 border border-accent/20">
-                      <CheckCircle2 className="w-5 h-5" /> Identity Verified via Secure OTP
+                      <CheckCircle2 className="w-5 h-5" /> Identity Verified
                     </motion.div>
                   )}
                 </div>

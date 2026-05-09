@@ -1,6 +1,5 @@
 
 import Link from 'next/link';
-import Image from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Compass } from 'lucide-react';
 
@@ -12,13 +11,13 @@ export default function Home() {
           <Compass className="w-10 h-10 text-primary" />
         </div>
         <h1 className="font-headline text-5xl md:text-7xl font-bold text-primary tracking-tighter">
-          Explore <span className="text-accent">Andhra Pradesh</span>
+          Explore <span className="text-accent">World Wide</span>
         </h1>
         <p className="text-xl text-muted-foreground font-medium">
-          Discover the 32 wonders of the Sunrise State.
+          Discover the wonders of the world and connect with verified local guides.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-8">
-          <Link href="/destinations">
+          <Link href="/locations">
             <Button size="lg" className="rounded-full h-14 px-8 text-lg">
               Explore Destinations
             </Button>
