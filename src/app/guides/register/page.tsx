@@ -28,7 +28,7 @@ const formSchema = z.object({
   languages: z.string().min(2, { message: 'Specify at least one language.' }),
   aadharNumber: z.string().regex(/^\d{12}$/, { message: '12-digit Aadhar number is mandatory.' }),
   panNumber: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, { message: 'Invalid PAN card format.' }),
-  passportNumber: z.string().min(5, { message: 'Passport number is required for international compliance.' }),
+  passportNumber: z.string().optional(),
   bio: z.string().min(50, { message: 'Bio is mandatory (min 50 chars).' }),
   experience: z.string().min(10, { message: 'Experience details are mandatory.' }),
 });
@@ -95,7 +95,7 @@ export default function GuideRegistrationPage() {
           <ShieldCheck className="w-16 h-16 mb-4" />
           <h1 className="font-headline text-4xl font-bold tracking-tight">Guide Identity Protocol</h1>
           <p className="text-white/80 text-lg leading-relaxed font-body">
-            To ensure absolute safety, every guide must provide verified government documentation including Aadhar, PAN, and Passport.
+            To ensure absolute safety, every guide must provide verified government documentation.
           </p>
           
           <div className="bg-white/10 p-6 rounded-2xl border border-white/20 space-y-4">
@@ -105,7 +105,7 @@ export default function GuideRegistrationPage() {
             <ul className="space-y-3 text-sm opacity-90 font-body">
               <li className="flex gap-2"><span className="font-black text-accent">✓</span> Aadhar UID Verification.</li>
               <li className="flex gap-2"><span className="font-black text-accent">✓</span> PAN Tax Identity.</li>
-              <li className="flex gap-2"><span className="font-black text-accent">✓</span> Passport for International Compliance.</li>
+              <li className="flex gap-2"><span className="font-black opacity-50">○</span> Passport (Optional for Domestic).</li>
             </ul>
           </div>
         </div>
@@ -164,9 +164,9 @@ export default function GuideRegistrationPage() {
 
                     <FormField control={form.control} name="passportNumber" render={({ field }) => (
                       <FormItem className="md:col-span-2">
-                        <FormLabel className="flex items-center gap-2"><Globe className="w-4 h-4" /> Passport Number</FormLabel>
+                        <FormLabel className="flex items-center gap-2"><Globe className="w-4 h-4" /> Passport Number (Optional)</FormLabel>
                         <FormControl>
-                          <Input className="rounded-xl h-11" placeholder="Enter Passport Number" {...field} />
+                          <Input className="rounded-xl h-11" placeholder="Enter Passport if available" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -184,9 +184,9 @@ export default function GuideRegistrationPage() {
                         <FileText className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-2" />
                         <span className="text-[10px] font-bold text-center">Upload PAN</span>
                       </div>
-                      <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl hover:bg-primary/5 transition-colors cursor-pointer group">
+                      <div className="flex flex-col items-center justify-center p-4 border-2 border-dashed rounded-xl hover:bg-primary/5 transition-colors cursor-pointer group opacity-60">
                         <FileText className="w-6 h-6 text-muted-foreground group-hover:text-primary mb-2" />
-                        <span className="text-[10px] font-bold text-center">Upload Passport</span>
+                        <span className="text-[10px] font-bold text-center">Upload Passport (Opt)</span>
                       </div>
                     </div>
                   </div>
@@ -224,7 +224,7 @@ export default function GuideRegistrationPage() {
                 )} />
 
                 <Button type="submit" disabled={submitting} className="w-full h-14 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20">
-                  {submitting ? <Loader2 className="animate-spin mr-2" /> : 'Register with Verified Documents'}
+                  {submitting ? <Loader2 className="animate-spin mr-2" /> : 'Register as Verified Guide'}
                 </Button>
               </form>
             </Form>

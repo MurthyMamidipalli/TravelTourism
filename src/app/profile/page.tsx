@@ -26,7 +26,7 @@ const editProfileSchema = z.object({
   mobileNumber: z.string().regex(/^\d{10}$/, { message: 'Mobile must be exactly 10 digits.' }),
   aadharNumber: z.string().regex(/^\d{12}$/, { message: 'Aadhar must be exactly 12 digits.' }),
   panNumber: z.string().regex(/^[A-Z]{5}[0-9]{4}[A-Z]{1}$/, { message: 'Invalid PAN card format.' }),
-  passportNumber: z.string().min(5, { message: 'Passport number is required.' }),
+  passportNumber: z.string().optional(),
 });
 
 export default function ProfilePage() {
@@ -55,7 +55,6 @@ export default function ProfilePage() {
     },
   });
 
-  // Sync profile data to form when it loads
   useEffect(() => {
     if (profile) {
       form.reset({
@@ -67,7 +66,6 @@ export default function ProfilePage() {
         passportNumber: profile.passportNumber || '',
       });
     } else if (user && !profileLoading) {
-      // If profile doc doesn't exist yet, prepopulate with Auth data
       form.setValue('fullName', user.displayName || '');
     }
   }, [profile, user, profileLoading, form]);
@@ -93,7 +91,6 @@ export default function ProfilePage() {
       .finally(() => setIsSaving(false));
   }, [userDocRef, user?.email, toast]);
 
-  // Priority 1: Auth Loading
   if (authLoading) {
     return (
       <div className="container mx-auto px-4 py-12 space-y-8 min-h-screen">
@@ -103,7 +100,6 @@ export default function ProfilePage() {
     );
   }
 
-  // Priority 2: No User
   if (!user) {
     return (
       <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center text-center space-y-6 min-h-[60vh]">
@@ -176,8 +172,8 @@ export default function ProfilePage() {
                   <Input {...form.register('panNumber')} className="rounded-xl h-11 uppercase" placeholder="ABCDE1234F" />
                 </div>
                 <div className="space-y-2">
-                  <Label className="flex items-center gap-2"><Globe className="w-4 h-4" /> Passport ID</Label>
-                  <Input {...form.register('passportNumber')} className="rounded-xl h-11" placeholder="Enter Passport" />
+                  <Label className="flex items-center gap-2"><Globe className="w-4 h-4" /> Passport ID (Optional)</Label>
+                  <Input {...form.register('passportNumber')} className="rounded-xl h-11" placeholder="Enter Passport if available" />
                 </div>
                 <div className="p-4 bg-secondary/20 rounded-2xl space-y-3">
                   <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Upload Proofs</p>
@@ -235,7 +231,7 @@ export default function ProfilePage() {
                   <div className="grid gap-4">
                     <div className="flex justify-between border-b pb-2"><span className="text-xs text-muted-foreground">Aadhar UID</span><span className="font-mono text-xs font-bold">{profile?.aadharNumber ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` : 'Pending'}</span></div>
                     <div className="flex justify-between border-b pb-2"><span className="text-xs text-muted-foreground">PAN Tax ID</span><span className="font-mono text-xs font-bold uppercase">{profile?.panNumber || 'Pending'}</span></div>
-                    <div className="flex justify-between pb-2"><span className="text-xs text-muted-foreground">Passport ID</span><span className="font-mono text-xs font-bold uppercase">{profile?.passportNumber || 'Pending'}</span></div>
+                    <div className="flex justify-between pb-2"><span className="text-xs text-muted-foreground">Passport ID</span><span className="font-mono text-xs font-bold uppercase">{profile?.passportNumber || 'N/A'}</span></div>
                   </div>
                   {profile?.isVerified && (
                     <div className="flex items-center gap-2 text-accent font-bold py-2 bg-accent/10 px-4 rounded-xl border border-accent/20">
