@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, UserPlus, ShieldCheck, Lock, Mail, User } from 'lucide-react';
+import { UserPlus, ShieldCheck, Lock, Mail, User, Eye, EyeOff } from 'lucide-react';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -192,7 +192,7 @@ export default function SignupPage() {
               <div className="bg-accent/5 p-4 rounded-2xl border border-accent/20 flex gap-3">
                 <ShieldCheck className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
                 <p className="text-[11px] text-muted-foreground leading-relaxed">
-                  Join now and verify your identity documentation (Aadhar/PAN) in your profile later to gain verified status.
+                  Join now and verify your identity documentation (Aadhar/PAN/Passport) in your profile later to gain verified status.
                 </p>
               </div>
 
