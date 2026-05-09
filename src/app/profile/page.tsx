@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
@@ -84,7 +83,7 @@ export default function ProfilePage() {
     
     const updatedProfile = {
       ...values,
-      isVerified: true, // Mark as verified once documents are provided
+      isVerified: true,
     };
 
     setDoc(userDocRef, updatedProfile, { merge: true })
@@ -102,9 +101,9 @@ export default function ProfilePage() {
       .finally(() => setIsSaving(false));
   }, [userDocRef, toast]);
 
-  const loading = authLoading || (user && profileLoading);
+  const isActuallyLoading = authLoading || (user && profileLoading && !profile);
 
-  if (loading) {
+  if (isActuallyLoading) {
     return (
       <div className="container mx-auto px-4 py-12 space-y-8 min-h-screen">
         <Skeleton className="h-12 w-64 rounded-xl" />
@@ -113,7 +112,7 @@ export default function ProfilePage() {
     );
   }
 
-  if (!user) {
+  if (!user && !authLoading) {
     return (
       <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center text-center space-y-6 min-h-[60vh]">
         <div className="bg-primary/10 p-6 rounded-full">
@@ -149,7 +148,7 @@ export default function ProfilePage() {
 
         <div className="flex flex-col md:flex-row items-center gap-8 bg-white dark:bg-zinc-900 p-8 rounded-3xl shadow-xl border relative">
           <Avatar className="h-32 w-32 border-4 border-primary/20 shrink-0">
-            <AvatarImage src={user.photoURL || ''} alt={displayName} />
+            <AvatarImage src={user?.photoURL || ''} alt={displayName} />
             <AvatarFallback className="text-4xl font-black bg-primary/10 text-primary">
               {displayName.charAt(0)}
             </AvatarFallback>
@@ -157,7 +156,7 @@ export default function ProfilePage() {
           <div className="text-center md:text-left space-y-2 flex-grow">
             <h1 className="text-4xl font-black tracking-tight font-headline">{displayName}</h1>
             <p className="text-muted-foreground flex items-center justify-center md:justify-start gap-2 font-body">
-              <Mail className="w-4 h-4 text-accent" /> {user.email || 'Guest Account'}
+              <Mail className="w-4 h-4 text-accent" /> {user?.email || 'Guest Account'}
             </p>
           </div>
           

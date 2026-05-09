@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
@@ -23,9 +22,10 @@ export default function DashboardPage() {
 
   const { data: profile, loading: profileLoading } = useDoc(userDocRef);
 
-  const loading = authLoading || (user && profileLoading);
+  // Optimize loading check: don't stop loading until both auth and profile are resolved if a user is expected
+  const isActuallyLoading = authLoading || (user && profileLoading && !profile);
 
-  if (loading) {
+  if (isActuallyLoading) {
     return (
       <div className="container mx-auto px-4 py-12 space-y-8 min-h-screen">
         <div className="flex justify-between items-center">
@@ -33,8 +33,8 @@ export default function DashboardPage() {
           <Skeleton className="h-12 w-12 rounded-full" />
         </div>
         <div className="grid gap-6 md:grid-cols-3">
-          <Skeleton className="h-48 rounded-3xl md:col-span-2" />
-          <Skeleton className="h-48 rounded-3xl" />
+          <Skeleton className="h-64 rounded-3xl md:col-span-2" />
+          <Skeleton className="h-64 rounded-3xl" />
         </div>
         <div className="grid gap-6 md:grid-cols-3">
           <Skeleton className="h-40 rounded-3xl" />
@@ -45,7 +45,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (!user) {
+  if (!user && !authLoading) {
     return (
       <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center text-center space-y-6 min-h-[60vh]">
         <div className="bg-primary/10 p-6 rounded-full">
@@ -65,6 +65,7 @@ export default function DashboardPage() {
   }
 
   const isAnonymous = user?.isAnonymous;
+  const firstName = profile?.fullName?.split(' ')[0] || user?.displayName?.split(' ')[0] || 'Traveler';
 
   return (
     <div className="container mx-auto px-4 py-12 space-y-12 min-h-screen [scrollbar-gutter:stable]">
@@ -76,19 +77,21 @@ export default function DashboardPage() {
             transition={{ duration: 0.3 }}
             className="text-4xl md:text-5xl font-black tracking-tight"
           >
-            Welcome, {profile?.fullName?.split(' ')[0] || user?.displayName?.split(' ')[0] || 'Traveler'}!
+            Welcome, {firstName}!
           </motion.h1>
           <p className="text-muted-foreground text-lg">Your personalized journey through the wonders of India starts here.</p>
         </div>
         <div className="flex gap-3">
-          <Link href="/search">
+          <Link href="/destinations">
             <Button className="rounded-2xl h-12 px-6 bg-primary shadow-lg shadow-primary/20">
               <Compass className="w-4 h-4 mr-2" /> Start Exploring
             </Button>
           </Link>
-          <Button variant="outline" className="rounded-2xl h-12 w-12 p-0">
-            <Settings className="w-5 h-5" />
-          </Button>
+          <Link href="/profile">
+            <Button variant="outline" className="rounded-2xl h-12 w-12 p-0">
+              <Settings className="w-5 h-5" />
+            </Button>
+          </Link>
         </div>
       </header>
 

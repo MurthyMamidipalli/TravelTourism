@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   onSnapshot,
   type DocumentReference,
@@ -13,16 +12,23 @@ import { FirestorePermissionError } from '../errors';
 
 export function useDoc<T = DocumentData>(ref: DocumentReference<T> | null) {
   const [data, setData] = useState<T | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!ref);
   const [error, setError] = useState<Error | null>(null);
+  const lastPath = useRef<string | null>(null);
 
   useEffect(() => {
     if (!ref) {
+      setData(null);
       setLoading(false);
       return;
     }
 
-    setLoading(true);
+    // Avoid flicker if the ref path is the same
+    if (ref.path !== lastPath.current) {
+      setLoading(true);
+      lastPath.current = ref.path;
+    }
+
     const unsubscribe = onSnapshot(
       ref,
       (snapshot: DocumentSnapshot<T>) => {
