@@ -2,6 +2,10 @@
 /**
  * @fileOverview This file defines a Genkit flow for generating a highly personalized 
  * travel itinerary based on user budget, duration, and interests.
+ *
+ * - aiTripPlanner - A function that handles the trip planning process.
+ * - AITripPlannerInput - The input type for the aiTripPlanner function.
+ * - AITripPlannerOutput - The return type for the aiTripPlanner function.
  */
 
 import {ai} from '@/ai/genkit';
@@ -13,6 +17,7 @@ const AITripPlannerInputSchema = z.object({
   interests: z.string().describe("User interests (e.g., 'adventure, temples, photography')."),
   location: z.string().optional().describe("Specific location if preferred, otherwise general South India."),
 });
+
 export type AITripPlannerInput = z.infer<typeof AITripPlannerInputSchema>;
 
 const AITripPlannerOutputSchema = z.object({
@@ -25,11 +30,8 @@ const AITripPlannerOutputSchema = z.object({
   })).describe("Day-by-day activities."),
   proTips: z.array(z.string()).describe("Travel tips for the user."),
 });
-export type AITripPlannerOutput = z.infer<typeof AITripPlannerOutputSchema>;
 
-export async function aiTripPlanner(input: AITripPlannerInput): Promise<AITripPlannerOutput> {
-  return aiTripPlannerFlow(input);
-}
+export type AITripPlannerOutput = z.infer<typeof AITripPlannerOutputSchema>;
 
 const prompt = ai.definePrompt({
   name: 'aiTripPlannerPrompt',
@@ -53,6 +55,12 @@ const aiTripPlannerFlow = ai.defineFlow(
   },
   async (input) => {
     const {output} = await prompt(input);
-    return output!;
+    if (!output) throw new Error('AI failed to generate a valid itinerary output.');
+    return output;
   }
 );
+
+// Wrapper function for use as a Next.js Server Action
+export async function aiTripPlanner(input: AITripPlannerInput): Promise<AITripPlannerOutput> {
+  return aiTripPlannerFlow(input);
+}

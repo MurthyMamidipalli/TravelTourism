@@ -22,6 +22,7 @@ const AIRecommendedItineraryInputSchema = z.object({
       "Optional preferences for the itinerary, such as interests, pace, or duration. Examples: 'family-friendly activities', 'adventure and nature', 'relaxed pace for 3 days'."
     ),
 });
+
 export type AIRecommendedItineraryInput = z.infer<typeof AIRecommendedItineraryInputSchema>;
 
 const AIRecommendedItineraryOutputSchema = z.object({
@@ -35,11 +36,8 @@ const AIRecommendedItineraryOutputSchema = z.object({
     .string()
     .describe('A brief, day-by-day suggested itinerary for the location, incorporating some of the attractions.'),
 });
-export type AIRecommendedItineraryOutput = z.infer<typeof AIRecommendedItineraryOutputSchema>;
 
-export async function aiRecommendedItinerary(input: AIRecommendedItineraryInput): Promise<AIRecommendedItineraryOutput> {
-  return aiRecommendedItineraryFlow(input);
-}
+export type AIRecommendedItineraryOutput = z.infer<typeof AIRecommendedItineraryOutputSchema>;
 
 const prompt = ai.definePrompt({
   name: 'aiRecommendedItineraryPrompt',
@@ -63,6 +61,12 @@ const aiRecommendedItineraryFlow = ai.defineFlow(
   },
   async (input) => {
     const {output} = await prompt(input);
-    return output!;
+    if (!output) throw new Error('AI failed to generate a valid recommended itinerary.');
+    return output;
   }
 );
+
+// Wrapper function for use as a Next.js Server Action
+export async function aiRecommendedItinerary(input: AIRecommendedItineraryInput): Promise<AIRecommendedItineraryOutput> {
+  return aiRecommendedItineraryFlow(input);
+}
