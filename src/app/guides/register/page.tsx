@@ -75,6 +75,15 @@ export default function GuideRegistrationPage() {
     }
   }, [resendTimer]);
 
+  useEffect(() => {
+    return () => {
+      if (recaptchaVerifierRef.current) {
+        recaptchaVerifierRef.current.clear();
+        recaptchaVerifierRef.current = null;
+      }
+    };
+  }, []);
+
   const mobileValue = form.watch('mobileNumber') || '';
 
   const setupRecaptcha = () => {
@@ -120,13 +129,19 @@ export default function GuideRegistrationPage() {
       });
     } catch (error: any) {
       console.error("SMS Error:", error);
-      let message = "Could not send OTP. Please check your number or try again later.";
-      if (error.code === 'auth/unauthorized-domain') {
-        message = "This domain is not authorized in Firebase Console. Add it to Authentication > Settings > Authorized domains.";
-      } else if (error.code === 'auth/too-many-requests') {
-        message = "Too many requests. Please try again in a few minutes.";
+      const currentDomain = typeof window !== 'undefined' ? window.location.hostname : 'unknown';
+      let message = `Could not send OTP. Domain "${currentDomain}" might not be authorized in Firebase Console.`;
+      
+      if (error.code === 'auth/too-many-requests') {
+        message = "Too many requests. Please try again later.";
       }
-      toast({ title: "SMS Failed", description: `${message} (${error.code})`, variant: "destructive" });
+      
+      toast({ title: "SMS Failed", description: message, variant: "destructive" });
+      
+      if (recaptchaVerifierRef.current) {
+        recaptchaVerifierRef.current.clear();
+        recaptchaVerifierRef.current = null;
+      }
     } finally {
       setIsSendingOtp(false);
     }
@@ -198,7 +213,7 @@ export default function GuideRegistrationPage() {
           <ShieldCheck className="w-16 h-16 mb-4" />
           <h1 className="font-headline text-4xl font-bold tracking-tight">Safety & Trust First</h1>
           <p className="text-white/80 text-lg leading-relaxed font-body">
-            To ensure the safety of tourists, every local guide is verified through a secure Aadhar-linked process. This accountability framework ensures transparency and trust.
+            To ensure the safety of tourists, every local guide is verified through a secure Aadhar-linked process.
           </p>
           
           <div className="bg-white/10 p-6 rounded-2xl border border-white/20 space-y-4">
@@ -208,7 +223,6 @@ export default function GuideRegistrationPage() {
             <ul className="space-y-3 text-sm opacity-90 font-body">
               <li className="flex gap-2"><span className="font-black text-accent">✓</span> Government Identity Authentication.</li>
               <li className="flex gap-2"><span className="font-black text-accent">✓</span> SMS OTP Verification for Account Security.</li>
-              <li className="flex gap-2"><span className="font-black text-accent">✓</span> Verified Legal Accountability.</li>
             </ul>
           </div>
         </div>
@@ -317,7 +331,7 @@ export default function GuideRegistrationPage() {
                     <FormItem>
                       <FormLabel>Languages Spoken</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Telugu, English, Hindi" className="rounded-xl h-11" {...field} suppressHydrationWarning />
+                        <Input placeholder="e.g. Telugu, English" className="rounded-xl h-11" {...field} suppressHydrationWarning />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -328,7 +342,7 @@ export default function GuideRegistrationPage() {
                   <FormItem>
                     <FormLabel>Guiding History & Expertise</FormLabel>
                     <FormControl>
-                      <Textarea className="rounded-xl min-h-[120px]" placeholder="Briefly describe your experience and places you specialize in..." {...field} />
+                      <Textarea className="rounded-xl min-h-[120px]" placeholder="Describe your experience..." {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

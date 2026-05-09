@@ -52,6 +52,12 @@ export default function LoginPage() {
 
   useEffect(() => {
     setMounted(true);
+    return () => {
+      if (recaptchaVerifierRef.current) {
+        recaptchaVerifierRef.current.clear();
+        recaptchaVerifierRef.current = null;
+      }
+    };
   }, []);
 
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -64,6 +70,8 @@ export default function LoginPage() {
 
   const getFriendlyErrorMessage = (error: any) => {
     const code = error?.code || 'unknown';
+    const currentDomain = typeof window !== 'undefined' ? window.location.hostname : 'this domain';
+    
     switch (code) {
       case 'auth/admin-restricted-operation':
         return {
@@ -87,7 +95,7 @@ export default function LoginPage() {
       case 'auth/unauthorized-domain':
         return { 
           title: 'Domain Not Authorized', 
-          message: 'This domain is not whitelisted in Firebase Console. Go to Auth > Settings > Authorized domains.' 
+          message: `The domain "${currentDomain}" is not in your Firebase Authorized Domains list. Please add it in Auth > Settings.` 
         };
       default:
         return {
@@ -101,7 +109,10 @@ export default function LoginPage() {
     if (recaptchaVerifierRef.current) return;
     try {
       recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-login', {
-        size: 'invisible'
+        size: 'invisible',
+        callback: () => {
+          console.log('Recaptcha resolved');
+        }
       });
     } catch (error) {
       console.error("Recaptcha error:", error);
@@ -132,7 +143,12 @@ export default function LoginPage() {
       toast({ title: "OTP Sent", description: "Code sent to +91 " + phoneNumber });
     } catch (error: any) {
       const err = getFriendlyErrorMessage(error);
-      toast({ variant: "destructive", title: err.title, description: `${err.message} (${error.code})` });
+      toast({ variant: "destructive", title: err.title, description: err.message });
+      // Reset verifier on failure so it can be re-tried
+      if (recaptchaVerifierRef.current) {
+        recaptchaVerifierRef.current.clear();
+        recaptchaVerifierRef.current = null;
+      }
     } finally {
       setIsSendingOtp(false);
     }
@@ -204,7 +220,7 @@ export default function LoginPage() {
       <Card className="w-full max-w-md border-none shadow-2xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
         <CardHeader className="text-center bg-primary/5 py-10">
           <CardTitle className="text-3xl font-black tracking-tight text-primary">Voyage Compass</CardTitle>
-          <CardDescription>Explore the heart of Andhra Pradesh</CardDescription>
+          <CardDescription>Explore the heart of India</CardDescription>
         </CardHeader>
         <CardContent className="p-8 pt-10 space-y-6">
           {authError && (
