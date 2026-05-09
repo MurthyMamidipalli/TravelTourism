@@ -71,24 +71,22 @@ export default function GuideRegistrationPage() {
       return;
     }
     setIsSendingOtp(true);
-    // Reduced simulated delay for snappier feel
     await new Promise(resolve => setTimeout(resolve, 200));
     setIsSendingOtp(false);
     setIsOtpSent(true);
-    toast({ title: "OTP Sent", description: "Verification code sent to linked mobile." });
+    toast({ title: "OTP Sent", description: "Verification code sent to the linked mobile number." });
   }
 
   async function handleVerifyOtp() {
     if (otpValue.length !== 6) return;
     setIsVerifyingOtp(true);
-    // Reduced simulated delay for snappier feel
     await new Promise(resolve => setTimeout(resolve, 200));
     setIsVerifyingOtp(false);
     if (otpValue === '123456') {
       setIsAadharVerified(true);
-      toast({ title: "Verified", description: "Identity authenticated." });
+      toast({ title: "Verified", description: "Identity authenticated successfully." });
     } else {
-      toast({ title: "Error", description: "Invalid OTP (Test: 123456).", variant: "destructive" });
+      toast({ title: "Error", description: "The OTP entered is invalid. Please try again.", variant: "destructive" });
     }
   }
 

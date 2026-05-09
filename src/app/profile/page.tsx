@@ -104,17 +104,15 @@ export default function ProfilePage() {
       return;
     }
     setIsSendingOtp(true);
-    // Reduced simulated delay for snappier feel
     await new Promise(r => setTimeout(r, 200));
     setIsSendingOtp(false);
     setIsOtpSent(true);
-    toast({ title: "OTP Sent", description: "Verification code sent to your linked mobile." });
+    toast({ title: "OTP Sent", description: "Verification code sent to your linked mobile number." });
   };
 
   const handleVerifyOtp = async () => {
     if (otpValue.length !== 6 || !userDocRef) return;
     setIsVerifying(true);
-    // Reduced simulated delay for snappier feel
     await new Promise(r => setTimeout(r, 200));
     setIsVerifying(false);
     
@@ -129,7 +127,7 @@ export default function ProfilePage() {
           toast({ title: "Error", description: "Failed to update verification status.", variant: "destructive" });
         });
     } else {
-      toast({ title: "Invalid OTP", description: "Try again with the test code 123456.", variant: "destructive" });
+      toast({ title: "Invalid OTP", description: "The verification code you entered is incorrect. Please try again.", variant: "destructive" });
     }
   };
 
@@ -249,7 +247,6 @@ export default function ProfilePage() {
                         <Button onClick={handleVerifyOtp} disabled={isVerifying || otpValue.length !== 6} className="w-full bg-accent text-white rounded-xl h-11">
                           {isVerifying ? <Loader2 className="animate-spin" /> : 'Verify Identity'}
                         </Button>
-                        <p className="text-[10px] text-center text-muted-foreground">Test OTP: 123456</p>
                       </motion.div>
                     )}
                   </div>
