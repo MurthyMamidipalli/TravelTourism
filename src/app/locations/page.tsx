@@ -20,6 +20,11 @@ const AP_DISTRICTS = [
   { id: 'ntr', name: 'NTR District', region: 'Central AP', image: 'https://picsum.photos/seed/vijayawada/800/600', count: 3 },
   { id: 'guntur', name: 'Guntur', region: 'Central AP', image: 'https://picsum.photos/seed/guntur/800/600', count: 2 },
   { id: 'nandyal', name: 'Nandyal', region: 'Rayalaseema', image: 'https://picsum.photos/seed/srisailam/800/600', count: 2 },
+  { id: 'kurnool', name: 'Kurnool', region: 'Rayalaseema', image: 'https://picsum.photos/seed/kurnool/800/600', count: 3 },
+  { id: 'nellore', name: 'Nellore', region: 'Coastal AP', image: 'https://picsum.photos/seed/nellore/800/600', count: 2 },
+  { id: 'anantapur', name: 'Anantapur', region: 'Rayalaseema', image: 'https://picsum.photos/seed/anantapur/800/600', count: 2 },
+  { id: 'kadapa', name: 'YSR Kadapa', region: 'Rayalaseema', image: 'https://picsum.photos/seed/kadapa/800/600', count: 2 },
+  { id: 'krishna', name: 'Krishna', region: 'Coastal AP', image: 'https://picsum.photos/seed/krishna/800/600', count: 2 },
 ];
 
 export default function LocationsPage() {
@@ -39,11 +44,11 @@ export default function LocationsPage() {
           transition={{ duration: 0.5 }}
         >
           <Badge className="bg-primary/10 text-primary border-none mb-4 px-4 py-1 flex items-center gap-1.5 mx-auto w-fit">
-            <Globe className="w-3.5 h-3.5" /> Sunrise State
+            <Globe className="w-3.5 h-3.5" /> Andhra Pradesh
           </Badge>
           <h1 className="text-4xl md:text-6xl font-black tracking-tight text-zinc-900 dark:text-white">Explore Districts</h1>
           <p className="text-xl text-muted-foreground mt-4 leading-relaxed">
-            Discover the diverse regions of Andhra Pradesh, from Rayalaseema to the Coastal Belt.
+            Discover the 26 heart-shaped regions of Andhra Pradesh, from the spiritual heights of Tirumala to the vibrant coast of Vizag.
           </p>
         </motion.div>
 
