@@ -96,7 +96,7 @@
         "isVerified": { "type": "boolean" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["fullName", "email", "age", "isVerified"]
+      "required": ["fullName", "email", "isVerified"]
     }
   },
   "auth": {
