@@ -5,7 +5,7 @@ import { useUser, useFirestore, useDoc } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { User, Mail, Phone, Fingerprint, Calendar, ShieldCheck, MapPin, ArrowLeft, Edit3, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { User, Mail, Fingerprint, Edit3, Loader2, AlertCircle, CheckCircle2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { doc, setDoc } from 'firebase/firestore';
@@ -77,8 +77,6 @@ export default function ProfilePage() {
     }
   }, [profile, user?.displayName, form]);
 
-  const loading = authLoading || profileLoading;
-
   const onSaveProfile = useCallback(async (values: EditProfileValues) => {
     if (!userDocRef) return;
     setIsSaving(true);
@@ -100,7 +98,7 @@ export default function ProfilePage() {
   }, [userDocRef, toast]);
 
   const handleSendOtp = async () => {
-    if (!profile?.aadharNumber) {
+    if (!profile?.aadharNumber && !form.getValues('aadharNumber')) {
       toast({ title: "Aadhar Missing", description: "Please provide your 12-digit Aadhar number first.", variant: "destructive" });
       return;
     }
@@ -108,8 +106,11 @@ export default function ProfilePage() {
     setTimeout(() => {
       setIsSendingOtp(false);
       setIsOtpSent(true);
-      toast({ title: "OTP Sent", description: "Verification code sent." });
-    }, 100);
+      toast({ 
+        title: "OTP Sent (Simulation Mode)", 
+        description: "In this prototype, please use the test code: 123456",
+      });
+    }, 500);
   };
 
   const handleVerifyOtp = async () => {
@@ -120,20 +121,20 @@ export default function ProfilePage() {
       if (otpValue === '123456') {
         setDoc(userDocRef, { isVerified: true }, { merge: true })
           .then(() => {
-            toast({ title: "Identity Verified", description: "Authenticated via Aadhaar." });
+            toast({ title: "Identity Verified", description: "Successfully authenticated via Aadhaar." });
             setIsOtpSent(false);
             setOtpValue('');
           })
           .catch(() => {
-            toast({ title: "Error", variant: "destructive" });
+            toast({ title: "Verification Error", variant: "destructive" });
           });
       } else {
-        toast({ title: "Invalid OTP", variant: "destructive" });
+        toast({ title: "Invalid OTP", description: "Please use the test code: 123456", variant: "destructive" });
       }
-    }, 100);
+    }, 500);
   };
 
-  if (loading) {
+  if (authLoading || profileLoading) {
     return (
       <div className="container mx-auto px-4 py-12 space-y-8">
         <Skeleton className="h-12 w-64 rounded-xl" />
@@ -155,14 +156,14 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto px-4 py-12">
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="max-w-4xl mx-auto space-y-10">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="max-w-4xl mx-auto space-y-10">
         <div className="flex items-center justify-between">
           <Link href="/dashboard" className="text-muted-foreground hover:text-primary flex items-center gap-1 text-sm font-medium">
-            <ArrowLeft className="w-4 h-4" /> Back
+            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
           </Link>
           <div className={`px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-bold ${profile?.isVerified ? 'bg-accent/10 text-accent' : 'bg-destructive/10 text-destructive'}`}>
             {profile?.isVerified ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-            {profile?.isVerified ? 'Verified' : 'Pending'}
+            {profile?.isVerified ? 'Verified' : 'Pending Verification'}
           </div>
         </div>
 
@@ -182,22 +183,22 @@ export default function ProfilePage() {
           
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="absolute top-8 right-8 rounded-xl h-9"><Edit3 className="w-4 h-4 mr-2" /> Edit</Button>
+              <Button variant="outline" size="sm" className="absolute top-8 right-8 rounded-xl h-9"><Edit3 className="w-4 h-4 mr-2" /> Edit Profile</Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-[425px] rounded-3xl">
-              <DialogHeader><DialogTitle>Edit Profile</DialogTitle></DialogHeader>
+              <DialogHeader><DialogTitle>Edit Profile Details</DialogTitle></DialogHeader>
               <form onSubmit={form.handleSubmit(onSaveProfile)} className="space-y-4 py-4">
                 <div className="space-y-2">
                   <Label>Full Name</Label>
-                  <Input {...form.register('fullName')} className="rounded-xl h-11" />
+                  <Input {...form.register('fullName')} className="rounded-xl h-11" placeholder="Enter full name" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2"><Label>Age</Label><Input type="number" {...form.register('age')} className="rounded-xl h-11" /></div>
-                  <div className="space-y-2"><Label>Mobile</Label><Input maxLength={10} {...form.register('mobileNumber')} className="rounded-xl h-11" /></div>
+                  <div className="space-y-2"><Label>Mobile Number</Label><Input maxLength={10} {...form.register('mobileNumber')} className="rounded-xl h-11" placeholder="10 digits" /></div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Aadhar Number</Label>
-                  <Input maxLength={12} {...form.register('aadharNumber')} className="rounded-xl h-11" />
+                  <Label>Aadhar Number (12 digits)</Label>
+                  <Input maxLength={12} {...form.register('aadharNumber')} className="rounded-xl h-11" placeholder="XXXX XXXX XXXX" />
                 </div>
                 <DialogFooter className="pt-4">
                   <Button type="submit" className="w-full rounded-xl h-12" disabled={isSaving}>
@@ -211,44 +212,49 @@ export default function ProfilePage() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           <Card className="premium-card">
-            <CardHeader><CardTitle className="text-lg flex items-center gap-2"><User className="w-5 h-5 text-primary" /> Details</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-lg flex items-center gap-2"><User className="w-5 h-5 text-primary" /> Profile Details</CardTitle></CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-1">
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Age</p>
-                <p className="font-bold">{profile?.age || 'N/A'} Years</p>
+                <p className="font-bold text-lg">{profile?.age || 'Not set'} Years</p>
               </div>
               <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Phone</p>
-                <p className="font-bold">{profile?.mobileNumber || 'N/A'}</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Contact Number</p>
+                <p className="font-bold text-lg">{profile?.mobileNumber || 'Not set'}</p>
               </div>
             </CardContent>
           </Card>
 
           <Card className={`premium-card ${profile?.isVerified ? 'bg-accent/5' : 'bg-destructive/5'}`}>
-            <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Fingerprint className={`w-5 h-5 ${profile?.isVerified ? 'text-accent' : 'text-destructive'}`} /> Identity</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Fingerprint className={`w-5 h-5 ${profile?.isVerified ? 'text-accent' : 'text-destructive'}`} /> Identity Verification</CardTitle></CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Aadhar Number</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Registered Aadhar</p>
                 <p className="font-mono text-lg font-bold">
-                  {profile?.aadharNumber ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` : 'Not Provided'}
+                  {profile?.aadharNumber ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` : 'Not provided yet'}
                 </p>
               </div>
 
               <div className="pt-2">
-                {!profile?.isVerified && (
+                {!profile?.isVerified ? (
                   <div className="space-y-4">
                     {!isOtpSent ? (
                       <Button onClick={handleSendOtp} disabled={isSendingOtp} className="w-full rounded-xl h-11">
-                        {isSendingOtp ? <Loader2 className="animate-spin" /> : 'Get OTP'}
+                        {isSendingOtp ? <Loader2 className="animate-spin" /> : 'Send Verification OTP'}
                       </Button>
                     ) : (
                       <div className="space-y-3">
-                        <Input placeholder="Enter OTP" maxLength={6} className="text-center font-bold h-11 rounded-xl" value={otpValue} onChange={e => setOtpValue(e.target.value)} />
+                        <Input placeholder="Enter 6-digit OTP" maxLength={6} className="text-center font-bold h-11 rounded-xl" value={otpValue} onChange={e => setOtpValue(e.target.value)} />
                         <Button onClick={handleVerifyOtp} disabled={isVerifying || otpValue.length !== 6} className="w-full bg-accent text-white rounded-xl h-11">
-                          {isVerifying ? <Loader2 className="animate-spin" /> : 'Verify'}
+                          {isVerifying ? <Loader2 className="animate-spin" /> : 'Verify Identity'}
                         </Button>
+                        <p className="text-[10px] text-center text-muted-foreground italic">Use 123456 for testing</p>
                       </div>
                     )}
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2 text-accent font-bold py-2">
+                    <CheckCircle2 className="w-5 h-5" /> Your identity is verified.
                   </div>
                 )}
               </div>
