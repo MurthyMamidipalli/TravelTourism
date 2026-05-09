@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -13,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, LogIn, Mail, Lock, UserRound, AlertCircle, Globe } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Mail, Lock, UserRound, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 const loginSchema = z.object({
@@ -39,16 +40,17 @@ export default function LoginPage() {
   });
 
   const getFriendlyErrorMessage = (error: any) => {
-    switch (error.code) {
+    const code = error?.code || 'unknown';
+    switch (code) {
       case 'auth/operation-not-allowed':
         return {
           title: 'Provider Disabled',
-          message: 'This login method is not enabled. Please check Authentication > Sign-in method in Firebase Console.'
+          message: 'This login method (e.g. Anonymous) is not enabled in the Firebase Console.'
         };
       case 'auth/unauthorized-domain':
         return {
           title: 'Unauthorized Domain',
-          message: 'This domain is not authorized. Add it in Firebase Console > Authentication > Settings.'
+          message: 'This domain is not authorized for Firebase Authentication.'
         };
       case 'auth/user-not-found':
       case 'auth/wrong-password':
@@ -57,10 +59,15 @@ export default function LoginPage() {
           title: 'Login Failed',
           message: 'Invalid email or password.'
         };
+      case 'auth/network-request-failed':
+        return {
+          title: 'Network Error',
+          message: 'Please check your internet connection.'
+        };
       default:
         return {
           title: 'Authentication Error',
-          message: error.message || 'An unexpected error occurred.'
+          message: error?.message || 'An unexpected error occurred.'
         };
     }
   };
@@ -106,6 +113,7 @@ export default function LoginPage() {
       const err = getFriendlyErrorMessage(error);
       setAuthError(err);
       toast({ variant: 'destructive', title: err.title, description: err.message });
+      console.error('Guest Login Error:', error);
     } finally {
       setIsGuestLoading(false);
     }

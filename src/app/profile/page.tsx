@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
@@ -148,6 +149,8 @@ export default function ProfilePage() {
     );
   }
 
+  const displayName = profile?.fullName || user?.displayName || 'Traveler';
+
   return (
     <div className="container mx-auto px-4 py-12">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="max-w-4xl mx-auto space-y-10">
@@ -163,15 +166,15 @@ export default function ProfilePage() {
 
         <div className="flex flex-col md:flex-row items-center gap-8 bg-white dark:bg-zinc-900 p-8 rounded-3xl shadow-xl border relative">
           <Avatar className="h-32 w-32 border-4 border-primary/20">
-            <AvatarImage src={user.photoURL || ''} alt={profile?.fullName || user.displayName || 'User'} />
+            <AvatarImage src={user.photoURL || ''} alt={displayName} />
             <AvatarFallback className="text-4xl font-black bg-primary/10 text-primary">
-              {(profile?.fullName || user.displayName || 'U').charAt(0)}
+              {displayName.charAt(0)}
             </AvatarFallback>
           </Avatar>
           <div className="text-center md:text-left space-y-2 flex-grow">
-            <h1 className="text-4xl font-black tracking-tight">{profile?.fullName || user.displayName}</h1>
+            <h1 className="text-4xl font-black tracking-tight">{displayName}</h1>
             <p className="text-muted-foreground flex items-center justify-center md:justify-start gap-2">
-              <Mail className="w-4 h-4 text-accent" /> {user.email}
+              <Mail className="w-4 h-4 text-accent" /> {user.email || 'Guest User'}
             </p>
           </div>
           

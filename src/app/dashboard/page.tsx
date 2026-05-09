@@ -5,11 +5,12 @@ import { useUser, useFirestore, useDoc } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { Compass, MapPin, Star, History, Calendar, Settings, User, Phone, Fingerprint } from 'lucide-react';
+import { Compass, MapPin, Star, History, Calendar, Settings, User, Phone, Fingerprint, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { doc } from 'firebase/firestore';
 import { useMemo } from 'react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function DashboardPage() {
   const { user, loading: authLoading } = useUser();
@@ -37,6 +38,8 @@ export default function DashboardPage() {
     );
   }
 
+  const isAnonymous = user?.isAnonymous;
+
   return (
     <div className="container mx-auto px-4 py-12 space-y-12">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-6">
@@ -46,7 +49,7 @@ export default function DashboardPage() {
             animate={{ opacity: 1, x: 0 }}
             className="text-4xl md:text-5xl font-black tracking-tight"
           >
-            Welcome, {user?.displayName?.split(' ')[0] || 'Traveler'}!
+            Welcome, {profile?.fullName?.split(' ')[0] || user?.displayName?.split(' ')[0] || 'Traveler'}!
           </motion.h1>
           <p className="text-muted-foreground text-lg">Your personalized journey through Andhra Pradesh starts here.</p>
         </div>
@@ -62,13 +65,23 @@ export default function DashboardPage() {
         </div>
       </header>
 
+      {isAnonymous && (
+        <Alert className="rounded-2xl bg-primary/5 border-primary/20">
+          <ShieldAlert className="h-5 w-5 text-primary" />
+          <AlertTitle className="font-bold">Guest Mode</AlertTitle>
+          <AlertDescription className="text-muted-foreground">
+            You are currently exploring as a guest. <Link href="/signup" className="text-primary font-bold hover:underline">Create an account</Link> to save your verified identity and travel history.
+          </AlertDescription>
+        </Alert>
+      )}
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Tourist Profile Details */}
         <Card className="premium-card bg-primary/5 border-primary/20 lg:col-span-2">
           <CardHeader>
             <div className="flex items-center gap-2">
               <User className="w-6 h-6 text-primary" />
-              <CardTitle>Verified Profile</CardTitle>
+              <CardTitle>{profile?.isVerified ? 'Verified Profile' : 'Traveler Profile'}</CardTitle>
             </div>
             <CardDescription>Your secure travel identity</CardDescription>
           </CardHeader>
@@ -77,14 +90,14 @@ export default function DashboardPage() {
               <div className="flex items-center gap-3">
                 <User className="w-5 h-5 text-muted-foreground" />
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Full Name</p>
-                  <p className="font-bold">{profile?.fullName || user?.displayName || 'N/A'}</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Full Name</p>
+                  <p className="font-bold">{profile?.fullName || user?.displayName || 'Traveler'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Calendar className="w-5 h-5 text-muted-foreground" />
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Age</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Age</p>
                   <p className="font-bold">{profile?.age ? `${profile.age} Years` : 'N/A'}</p>
                 </div>
               </div>
@@ -93,14 +106,14 @@ export default function DashboardPage() {
               <div className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-muted-foreground" />
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Mobile Number</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Mobile Number</p>
                   <p className="font-bold">{profile?.mobileNumber || 'N/A'}</p>
                 </div>
               </div>
               <div className="flex items-center gap-3">
                 <Fingerprint className="w-5 h-5 text-muted-foreground" />
                 <div>
-                  <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">Aadhar Verification</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Aadhar Verification</p>
                   <p className="font-bold">
                     {profile?.aadharNumber 
                       ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` 
