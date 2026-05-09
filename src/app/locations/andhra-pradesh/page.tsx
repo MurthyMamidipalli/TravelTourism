@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -10,20 +11,21 @@ import { Search, Globe, ArrowRight, Map } from 'lucide-react';
 import { motion } from 'framer-motion';
 
 const AP_DISTRICTS = [
-  { id: 'tirupati', name: 'Tirupati', region: 'Rayalaseema', image: 'https://picsum.photos/seed/tirupati/800/600', count: 4 },
-  { id: 'vizag', name: 'Visakhapatnam', region: 'Coastal AP', image: 'https://picsum.photos/seed/vizag/800/600', count: 6 },
-  { id: 'asr', name: 'Alluri Sitharama Raju', region: 'Highlands', image: 'https://picsum.photos/seed/asr/800/600', count: 2 },
+  { id: 'tirupati', name: 'Tirupati', region: 'Rayalaseema', image: 'https://picsum.photos/seed/tirupati/800/600', count: 2 },
+  { id: 'vizag', name: 'Visakhapatnam', region: 'Coastal AP', image: 'https://picsum.photos/seed/vizag/800/600', count: 4 },
+  { id: 'asr', name: 'Alluri Sitharama Raju', region: 'Highlands', image: 'https://picsum.photos/seed/asr/800/600', count: 4 },
+  { id: 'nandyal', name: 'Nandyal', region: 'Rayalaseema', image: 'https://picsum.photos/seed/srisailam/800/600', count: 6 },
+  { id: 'ntr', name: 'NTR District', region: 'Central AP', image: 'https://picsum.photos/seed/vijayawada/800/600', count: 1 },
+  { id: 'kakinada', name: 'Kakinada', region: 'Coastal AP', image: 'https://picsum.photos/seed/kakinada/800/600', count: 1 },
+  { id: 'sss', name: 'Sri Sathya Sai', region: 'Rayalaseema', image: 'https://picsum.photos/seed/lepakshi/800/600', count: 1 },
+  { id: 'bapatla', name: 'Bapatla', region: 'Coastal AP', image: 'https://picsum.photos/seed/bapatla/800/600', count: 1 },
+  { id: 'krishna', name: 'Krishna', region: 'Coastal AP', image: 'https://picsum.photos/seed/krishna/800/600', count: 1 },
+  { id: 'nellore', name: 'SPSR Nellore', region: 'Coastal AP', image: 'https://picsum.photos/seed/nellore/800/600', count: 1 },
+  { id: 'annamayya', name: 'Annamayya', region: 'Rayalaseema', image: 'https://picsum.photos/seed/annamayya/800/600', count: 2 },
+  { id: 'palnadu', name: 'Palnadu', region: 'Central AP', image: 'https://picsum.photos/seed/palnadu/800/600', count: 1 },
+  { id: 'guntur', name: 'Guntur', region: 'Central AP', image: 'https://picsum.photos/seed/guntur/800/600', count: 1 },
   { id: 'east-godavari', name: 'East Godavari', region: 'Godavari Basin', image: 'https://picsum.photos/seed/egodavari/800/600', count: 4 },
   { id: 'konaseema', name: 'Konaseema', region: 'Godavari Basin', image: 'https://picsum.photos/seed/konaseema/800/600', count: 2 },
-  { id: 'kakinada', name: 'Kakinada', region: 'Coastal AP', image: 'https://picsum.photos/seed/kakinada/800/600', count: 3 },
-  { id: 'ntr', name: 'NTR District', region: 'Central AP', image: 'https://picsum.photos/seed/vijayawada/800/600', count: 3 },
-  { id: 'guntur', name: 'Guntur', region: 'Central AP', image: 'https://picsum.photos/seed/guntur/800/600', count: 2 },
-  { id: 'nandyal', name: 'Nandyal', region: 'Rayalaseema', image: 'https://picsum.photos/seed/srisailam/800/600', count: 2 },
-  { id: 'kurnool', name: 'Kurnool', region: 'Rayalaseema', image: 'https://picsum.photos/seed/kurnool/800/600', count: 3 },
-  { id: 'nellore', name: 'Nellore', region: 'Coastal AP', image: 'https://picsum.photos/seed/nellore/800/600', count: 2 },
-  { id: 'anantapur', name: 'Anantapur', region: 'Rayalaseema', image: 'https://picsum.photos/seed/anantapur/800/600', count: 2 },
-  { id: 'kadapa', name: 'YSR Kadapa', region: 'Rayalaseema', image: 'https://picsum.photos/seed/kadapa/800/600', count: 2 },
-  { id: 'krishna', name: 'Krishna', region: 'Coastal AP', image: 'https://picsum.photos/seed/krishna/800/600', count: 2 },
 ];
 
 export default function APDistrictsPage() {
