@@ -5,7 +5,7 @@ import { useUser, useFirestore, useDoc } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { User, Mail, Fingerprint, Edit3, Loader2, AlertCircle, CheckCircle2, ArrowLeft, Smartphone, ShieldCheck } from 'lucide-react';
+import { User, Mail, Fingerprint, Edit3, Loader2, AlertCircle, CheckCircle2, ArrowLeft, Smartphone, ShieldCheck, LogIn } from 'lucide-react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { doc, setDoc } from 'firebase/firestore';
@@ -149,9 +149,11 @@ export default function ProfilePage() {
     }
   };
 
-  if (authLoading || profileLoading) {
+  const loading = authLoading || (user && profileLoading);
+
+  if (loading) {
     return (
-      <div className="container mx-auto px-4 py-12 space-y-8 min-h-[60vh]">
+      <div className="container mx-auto px-4 py-12 space-y-8 min-h-screen">
         <Skeleton className="h-12 w-64 rounded-xl" />
         <div className="max-w-4xl mx-auto"><Skeleton className="h-[400px] rounded-3xl" /></div>
       </div>
@@ -160,9 +162,19 @@ export default function ProfilePage() {
 
   if (!user) {
     return (
-      <div className="container mx-auto px-4 py-20 text-center space-y-4">
-        <h1 className="text-3xl font-bold">Sign-in Required</h1>
-        <Link href="/login"><Button className="rounded-xl">Sign In</Button></Link>
+      <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center text-center space-y-6 min-h-[60vh]">
+        <div className="bg-primary/10 p-6 rounded-full">
+          <LogIn className="w-12 h-12 text-primary" />
+        </div>
+        <div className="space-y-2">
+          <h1 className="text-3xl font-black tracking-tight">Sign-in Required</h1>
+          <p className="text-muted-foreground">Please sign in to view and manage your secure traveler profile.</p>
+        </div>
+        <Link href="/login">
+          <Button size="lg" className="rounded-2xl h-12 px-8 font-bold shadow-lg shadow-primary/20">
+            Sign In
+          </Button>
+        </Link>
       </div>
     );
   }
@@ -170,7 +182,7 @@ export default function ProfilePage() {
   const displayName = profile?.fullName || user?.displayName || 'Traveler';
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-12 min-h-screen">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="max-w-4xl mx-auto space-y-10">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link href="/dashboard" className="text-muted-foreground hover:text-primary flex items-center gap-1 text-sm font-medium">
@@ -227,7 +239,7 @@ export default function ProfilePage() {
           </Dialog>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 pb-12">
           <Card className="premium-card">
             <CardHeader><CardTitle className="text-lg flex items-center gap-2 font-bold font-headline"><User className="w-5 h-5 text-primary" /> Profile Data</CardTitle></CardHeader>
             <CardContent className="space-y-6">

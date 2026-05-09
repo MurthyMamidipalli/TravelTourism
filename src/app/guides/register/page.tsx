@@ -91,7 +91,7 @@ export default function GuideRegistrationPage() {
       setResendTimer(60);
       toast({ 
         title: "OTP Dispatched", 
-        description: "A verification code has been sent to your registered mobile number for identity confirmation.",
+        description: "A verification code has been sent to your registered mobile number.",
       });
     }, 800);
   }
@@ -101,6 +101,7 @@ export default function GuideRegistrationPage() {
     setIsVerifyingOtp(true);
     
     setTimeout(() => {
+      // Prototype internal key: 123456
       if (otpValue === '123456') {
         setIsVerifyingOtp(false);
         setIsAadharVerified(true);
@@ -144,7 +145,7 @@ export default function GuideRegistrationPage() {
       .then(() => {
         toast({ 
           title: "Registration Complete", 
-          description: "Welcome to our network of verified local experts. Your profile is now live.",
+          description: "Welcome to our network of verified local experts.",
         });
         router.push('/guides');
       })
@@ -155,23 +156,23 @@ export default function GuideRegistrationPage() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-12">
+    <div className="container mx-auto px-4 py-12 min-h-screen">
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 items-start">
-        <div className="md:col-span-2 space-y-6 bg-primary rounded-3xl p-8 text-white shadow-2xl sticky top-24">
+        <div className="md:col-span-2 space-y-6 bg-primary rounded-3xl p-8 text-white shadow-2xl md:sticky md:top-24">
           <ShieldCheck className="w-16 h-16 mb-4" />
           <h1 className="font-headline text-4xl font-bold tracking-tight">Safety & Trust First</h1>
           <p className="text-white/80 text-lg leading-relaxed font-body">
-            To ensure the safety of tourists, every local guide is verified through a secure Aadhar-linked process. This accountability framework allows tourists to trace and verify the identity of their guides, ensuring a safe and transparent experience.
+            To ensure the safety of tourists, every local guide is verified through a secure Aadhar-linked process. This accountability framework ensures transparency and trust.
           </p>
           
           <div className="bg-white/10 p-6 rounded-2xl border border-white/20 space-y-4">
-            <h3 className="font-bold flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-accent" /> Security Protocol:
+            <h3 className="font-bold flex items-center gap-2 text-accent">
+              <ShieldAlert className="w-5 h-5" /> Security Protocol:
             </h3>
             <ul className="space-y-3 text-sm opacity-90 font-body">
-              <li className="flex gap-2"><span className="font-black text-accent">✓</span> Direct Link to Government Identity.</li>
-              <li className="flex gap-2"><span className="font-black text-accent">✓</span> SMS OTP Verification on Registered Mobile.</li>
-              <li className="flex gap-2"><span className="font-black text-accent">✓</span> Full Legal Accountability for Guide Actions.</li>
+              <li className="flex gap-2"><span className="font-black text-accent">✓</span> Government Identity Authentication.</li>
+              <li className="flex gap-2"><span className="font-black text-accent">✓</span> SMS OTP Verification for Account Security.</li>
+              <li className="flex gap-2"><span className="font-black text-accent">✓</span> Verified Legal Accountability.</li>
             </ul>
           </div>
         </div>
