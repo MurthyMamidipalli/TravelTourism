@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, UserPlus, ShieldCheck } from 'lucide-react';
+import { Eye, EyeOff, UserPlus, ShieldCheck, Lock, Mail, User } from 'lucide-react';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -23,6 +23,10 @@ const signupSchema = z.object({
   lastName: z.string().min(1, { message: 'Last name is required.' }),
   email: z.string().email({ message: 'Please enter a valid email address.' }),
   password: z.string().min(6, { message: 'Password must be at least 6 characters.' }),
+  confirmPassword: z.string().min(6, { message: 'Please confirm your password.' }),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
 });
 
 export default function SignupPage() {
@@ -45,6 +49,7 @@ export default function SignupPage() {
       lastName: '',
       email: '',
       password: '',
+      confirmPassword: '',
     },
   });
 
@@ -64,7 +69,6 @@ export default function SignupPage() {
         email: values.email,
         isVerified: false,
         createdAt: serverTimestamp(),
-        // Identity fields are intentionally omitted here, to be filled in profile
       };
 
       setDoc(userDocRef, profileData)
@@ -96,17 +100,20 @@ export default function SignupPage() {
       <Card className="w-full max-w-md border-none shadow-2xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
         <CardHeader className="space-y-1 text-center bg-primary/5 py-8">
           <CardTitle className="text-3xl font-black tracking-tight text-primary uppercase">TravelSphere</CardTitle>
-          <CardDescription className="text-base font-medium text-muted-foreground">Create your traveler account</CardDescription>
+          <CardDescription className="text-base font-medium text-muted-foreground">Start your journey today</CardDescription>
         </CardHeader>
         <CardContent className="p-8 pt-10">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <FormField control={form.control} name="firstName" render={({ field }) => (
                   <FormItem>
                     <FormLabel>First Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="John" className="rounded-xl h-11" {...field} suppressHydrationWarning />
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input placeholder="John" className="pl-10 rounded-xl h-11" {...field} suppressHydrationWarning />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -124,9 +131,12 @@ export default function SignupPage() {
 
               <FormField control={form.control} name="email" render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email Address</FormLabel>
+                  <FormLabel>Email ID</FormLabel>
                   <FormControl>
-                    <Input placeholder="name@example.com" className="h-11 rounded-xl" {...field} suppressHydrationWarning />
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input placeholder="name@example.com" className="pl-10 h-11 rounded-xl" {...field} suppressHydrationWarning />
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -137,10 +147,11 @@ export default function SignupPage() {
                   <FormLabel>Password</FormLabel>
                   <FormControl>
                     <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                       <Input
                         type={showPassword ? 'text' : 'password'}
                         placeholder="••••••••"
-                        className="h-11 rounded-xl pr-10"
+                        className="pl-10 h-11 rounded-xl pr-10"
                         {...field}
                         suppressHydrationWarning
                       />
@@ -159,14 +170,33 @@ export default function SignupPage() {
                 </FormItem>
               )} />
 
+              <FormField control={form.control} name="confirmPassword" render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Confirm Password</FormLabel>
+                  <FormControl>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        type={showPassword ? 'text' : 'password'}
+                        placeholder="••••••••"
+                        className="pl-10 h-11 rounded-xl"
+                        {...field}
+                        suppressHydrationWarning
+                      />
+                    </div>
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )} />
+
               <div className="bg-accent/5 p-4 rounded-2xl border border-accent/20 flex gap-3">
                 <ShieldCheck className="w-5 h-5 text-accent flex-shrink-0 mt-0.5" />
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Join now and verify your identity documentation (Aadhar/Passport) later in your profile to gain verified status.
+                <p className="text-[11px] text-muted-foreground leading-relaxed">
+                  Join now and verify your identity documentation (Aadhar/PAN) in your profile later to gain verified status.
                 </p>
               </div>
 
-              <Button type="submit" className="w-full h-14 text-lg rounded-2xl mt-4 font-bold shadow-xl shadow-primary/20 hover:scale-[1.01] transition-transform" disabled={isLoading}>
+              <Button type="submit" className="w-full h-14 text-lg rounded-2xl mt-2 font-bold shadow-xl shadow-primary/20 hover:scale-[1.01] transition-transform" disabled={isLoading}>
                 {isLoading ? 'Creating Account...' : 'Join TravelSphere'}
                 <UserPlus className="ml-2 h-5 w-5" />
               </Button>
