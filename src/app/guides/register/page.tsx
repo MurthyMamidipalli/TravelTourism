@@ -77,10 +77,10 @@ export default function GuideRegistrationPage() {
       setIsSendingOtp(false);
       setIsOtpSent(true);
       toast({ 
-        title: "Secure OTP Sent", 
-        description: `A verification code has been dispatched to your mobile.`,
+        title: "OTP Sent", 
+        description: `A 6-digit verification code has been dispatched to your mobile.`,
       });
-    }, 50); // Instant feedback
+    }, 50);
   }
 
   async function handleVerifyOtp() {
@@ -116,13 +116,11 @@ export default function GuideRegistrationPage() {
       imageUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/400/400`,
     };
 
-    // Optimistic write
     addDoc(guidesRef, guideData)
       .catch((error) => {
         errorEmitter.emit('permission-error', new FirestorePermissionError({ path: guidesRef.path, operation: 'create', requestResourceData: guideData }));
       });
 
-    // Respond immediately
     toast({ title: "Expert Registration Complete", description: "Welcome to the elite guide program!" });
     router.push('/guides');
   };
