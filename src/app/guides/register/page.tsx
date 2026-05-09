@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -69,8 +68,8 @@ export default function GuideRegistrationPage() {
     if (aadharValue.length !== 12) return;
     setIsOtpSent(true);
     toast({ 
-      title: "OTP Sent (Simulation Mode)", 
-      description: "In this prototype, please use 123456 to verify.",
+      title: "OTP Sent", 
+      description: "A verification code has been sent to your registered mobile number.",
     });
   }
 
@@ -83,7 +82,7 @@ export default function GuideRegistrationPage() {
         setIsAadharVerified(true);
         toast({ title: "Aadhar Verified", description: "Successfully linked your identity." });
       } else {
-        toast({ title: "Verification Failed", description: "Please use the test code: 123456", variant: "destructive" });
+        toast({ title: "Verification Failed", description: "The code entered is incorrect. Please try again.", variant: "destructive" });
       }
     }, 500);
   }

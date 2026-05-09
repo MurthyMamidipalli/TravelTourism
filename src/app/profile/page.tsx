@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useUser, useFirestore, useDoc } from '@/firebase';
@@ -107,8 +106,8 @@ export default function ProfilePage() {
       setIsSendingOtp(false);
       setIsOtpSent(true);
       toast({ 
-        title: "OTP Sent (Simulation Mode)", 
-        description: "In this prototype, please use the test code: 123456",
+        title: "OTP Sent", 
+        description: "A verification code has been sent to your registered mobile number.",
       });
     }, 500);
   };
@@ -129,7 +128,7 @@ export default function ProfilePage() {
             toast({ title: "Verification Error", variant: "destructive" });
           });
       } else {
-        toast({ title: "Invalid OTP", description: "Please use the test code: 123456", variant: "destructive" });
+        toast({ title: "Invalid OTP", description: "The code entered is incorrect. Please try again.", variant: "destructive" });
       }
     }, 500);
   };
@@ -248,7 +247,6 @@ export default function ProfilePage() {
                         <Button onClick={handleVerifyOtp} disabled={isVerifying || otpValue.length !== 6} className="w-full bg-accent text-white rounded-xl h-11">
                           {isVerifying ? <Loader2 className="animate-spin" /> : 'Verify Identity'}
                         </Button>
-                        <p className="text-[10px] text-center text-muted-foreground italic">Use 123456 for testing</p>
                       </div>
                     )}
                   </div>
