@@ -54,7 +54,9 @@ export default function LoginPage() {
     setMounted(true);
     return () => {
       if (recaptchaVerifierRef.current) {
-        recaptchaVerifierRef.current.clear();
+        try {
+          recaptchaVerifierRef.current.clear();
+        } catch (e) {}
         recaptchaVerifierRef.current = null;
       }
     };
@@ -76,7 +78,7 @@ export default function LoginPage() {
       case 'auth/unauthorized-domain':
         return { 
           title: 'Domain Not Authorized', 
-          message: `Your current domain is not in the Firebase "Authorized Domains" list. Copy the link below and add it in Firebase Console > Authentication > Settings.`,
+          message: `Your domain is not authorized. Add the hostname below in Firebase Console > Authentication > Settings > Authorized Domains.`,
           domain: hostname
         };
       case 'auth/too-many-requests':
@@ -129,7 +131,9 @@ export default function LoginPage() {
       const err = getFriendlyErrorMessage(error);
       setAuthError(err);
       if (recaptchaVerifierRef.current) {
-        recaptchaVerifierRef.current.clear();
+        try {
+          recaptchaVerifierRef.current.clear();
+        } catch (e) {}
         recaptchaVerifierRef.current = null;
       }
     } finally {

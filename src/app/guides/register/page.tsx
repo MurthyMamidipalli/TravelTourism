@@ -53,6 +53,25 @@ export default function GuideRegistrationPage() {
   const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
   const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      fullName: '',
+      email: '',
+      mobileNumber: '',
+      age: 25,
+      gender: 'Male',
+      location: '',
+      languages: '',
+      aadharNumber: '',
+      panNumber: '',
+      bio: '',
+      experience: '',
+    },
+  });
+
+  const mobileValue = form.watch('mobileNumber') || '';
+
   useEffect(() => {
     if (resendTimer > 0) {
       const timer = setTimeout(() => setResendTimer(resendTimer - 1), 1000);
@@ -63,13 +82,15 @@ export default function GuideRegistrationPage() {
   useEffect(() => {
     return () => {
       if (recaptchaVerifierRef.current) {
-        recaptchaVerifierRef.current.clear();
+        try {
+          recaptchaVerifierRef.current.clear();
+        } catch (e) {
+          console.error("Cleanup error:", e);
+        }
         recaptchaVerifierRef.current = null;
       }
     };
   }, []);
-
-  const mobileValue = form.watch('mobileNumber') || '';
 
   const setupRecaptcha = () => {
     if (recaptchaVerifierRef.current) return;
@@ -127,7 +148,9 @@ export default function GuideRegistrationPage() {
     } catch (error: any) {
       setAuthError(getFriendlyErrorMessage(error));
       if (recaptchaVerifierRef.current) {
-        recaptchaVerifierRef.current.clear();
+        try {
+          recaptchaVerifierRef.current.clear();
+        } catch (e) {}
         recaptchaVerifierRef.current = null;
       }
     } finally {
@@ -149,30 +172,15 @@ export default function GuideRegistrationPage() {
     }
   }
 
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      fullName: '',
-      email: '',
-      mobileNumber: '',
-      age: 25,
-      gender: 'Male',
-      location: '',
-      languages: '',
-      aadharNumber: '',
-      panNumber: '',
-      bio: '',
-      experience: '',
-    },
-  });
-
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (!user || !isAadharVerified) {
       toast({ title: "Security Check Required", description: "Mobile identity verification via OTP is mandatory for safety.", variant: "destructive" });
       return;
     }
+    if (!firestore) return;
+
     setSubmitting(true);
-    const guidesRef = collection(firestore!, 'guides');
+    const guidesRef = collection(firestore, 'guides');
     const guideData = {
       ...values,
       userId: user.uid,
