@@ -2,16 +2,23 @@
 'use client';
 
 import { use, useMemo } from 'react';
-import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
 import dynamic from 'next/dynamic';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { MapPin, Info, ArrowLeft, Compass, Globe, Calendar, Clock, Navigation, Loader2, CloudSun, Thermometer, CloudRain, Star, Wallet, Sparkles } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { 
+  MapPin, Info, ArrowLeft, Calendar, Clock, Navigation, 
+  Loader2, CloudSun, CloudRain, Star, Wallet, Sparkles, 
+  MessageCircle, PartyPopper, Zap, Download
+} from 'lucide-react';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import TouristCard from '@/components/TouristCard';
+import DestinationReviews from '@/components/DestinationReviews';
+import LocalEvents from '@/components/LocalEvents';
+import PersonalizedRecommendations from '@/components/PersonalizedRecommendations';
 
 // Import map component dynamically to avoid SSR issues with Leaflet
 const DestinationMap = dynamic(() => import('@/components/DestinationMap'), {
@@ -25,19 +32,19 @@ const DestinationMap = dynamic(() => import('@/components/DestinationMap'), {
 });
 
 const mockDestinations: Record<string, any> = {
-  'tirumala-temple': { name: 'Tirumala Temple', districtId: 'tirupati', district: 'Tirupati', category: 'Pilgrimage', timings: '3AM-12PM', entryFee: '₹300 (Special)', lang: 'Telugu, English', desc: 'World famous Hindu temple on the hills of Tirumala. A spiritual hub of millions.', lat: 13.6833, lng: 79.3500, weather: { temp: '28°C', rain: '5%', bestTime: 'October - March' } },
-  'sri-kalahasti': { name: 'Sri Kalahasti', districtId: 'tirupati', district: 'Tirupati', category: 'Pilgrimage', timings: '6AM-9PM', entryFee: 'Free', lang: 'Telugu', desc: 'Famous Shiva temple known for Vayu Linga and Rahu Ketu Pooja.', lat: 13.7498, lng: 79.6984, weather: { temp: '30°C', rain: '10%', bestTime: 'November - February' } },
-  'talakona-waterfalls': { name: 'Talakona Waterfalls', districtId: 'tirupati', district: 'Tirupati', category: 'Nature', timings: '6AM-6PM', entryFee: '₹50', lang: 'Telugu', desc: 'Highest waterfall in Andhra Pradesh, located in the Sri Venkateswara National Park.', lat: 13.8055, lng: 79.2222, weather: { temp: '24°C', rain: '40%', bestTime: 'July - September' } },
-  'charminar': { name: 'Charminar', districtId: 'hyderabad', district: 'Hyderabad', category: 'Heritage', timings: '9AM-5:30PM', entryFee: '₹25', lang: 'Urdu, Telugu', desc: 'Iconic 16th-century mosque and monument in the heart of Hyderabad.', lat: 17.3616, lng: 78.4747, weather: { temp: '32°C', rain: '2%', bestTime: 'October - February' } },
-  'golconda-fort': { name: 'Golconda Fort', districtId: 'hyderabad', district: 'Hyderabad', category: 'Heritage', timings: '9AM-5PM', entryFee: '₹25', lang: 'English, Hindi', desc: 'Historic citadel and former capital of the Qutb Shahi dynasty.', lat: 17.3833, lng: 78.4011, weather: { temp: '33°C', rain: '5%', bestTime: 'November - January' } },
-  'ramappa-temple': { name: 'Ramappa Temple', districtId: 'warangal', district: 'Warangal', category: 'Heritage', timings: '6AM-6PM', entryFee: 'Free', lang: 'Telugu', desc: 'UNESCO World Heritage site known for its exquisite Kakatiya architecture.', lat: 18.2583, lng: 79.9431, weather: { temp: '29°C', rain: '8%', bestTime: 'December - February' } },
+  'tirumala-temple': { id: 'tirumala-temple', name: 'Tirumala Temple', districtId: 'tirupati', district: 'Tirupati', category: 'Pilgrimage', timings: '3AM-12PM', entryFee: '₹300 (Special)', lang: 'Telugu, English', desc: 'World famous Hindu temple on the hills of Tirumala. A spiritual hub of millions.', lat: 13.6833, lng: 79.3500, weather: { temp: '28°C', rain: '5%', bestTime: 'October - March' } },
+  'sri-kalahasti': { id: 'sri-kalahasti', name: 'Sri Kalahasti', districtId: 'tirupati', district: 'Tirupati', category: 'Pilgrimage', timings: '6AM-9PM', entryFee: 'Free', lang: 'Telugu', desc: 'Famous Shiva temple known for Vayu Linga and Rahu Ketu Pooja.', lat: 13.7498, lng: 79.6984, weather: { temp: '30°C', rain: '10%', bestTime: 'November - February' } },
+  'talakona-waterfalls': { id: 'talakona-waterfalls', name: 'Talakona Waterfalls', districtId: 'tirupati', district: 'Tirupati', category: 'Nature', timings: '6AM-6PM', entryFee: '₹50', lang: 'Telugu', desc: 'Highest waterfall in Andhra Pradesh, located in the Sri Venkateswara National Park.', lat: 13.8055, lng: 79.2222, weather: { temp: '24°C', rain: '40%', bestTime: 'July - September' } },
+  'charminar': { id: 'charminar', name: 'Charminar', districtId: 'hyderabad', district: 'Hyderabad', category: 'Heritage', timings: '9AM-5:30PM', entryFee: '₹25', lang: 'Urdu, Telugu', desc: 'Iconic 16th-century mosque and monument in the heart of Hyderabad.', lat: 17.3616, lng: 78.4747, weather: { temp: '32°C', rain: '2%', bestTime: 'October - February' } },
 };
 
 export default function DestinationDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const dest = mockDestinations[id] || { 
+    id,
     name: id.replace('-', ' ').toUpperCase(), 
     district: 'Unknown', 
+    districtId: 'unknown',
     category: 'Travel', 
     timings: '9AM-6PM',
     entryFee: '₹50',
@@ -56,7 +63,7 @@ export default function DestinationDetailPage({ params }: { params: Promise<{ id
 
   const getDestinationImage = (idKey: string) => {
     const found = PlaceHolderImages.find(img => img.id === idKey);
-    return found ? found.imageUrl : `https://picsum.photos/seed/${idKey}/600/400`;
+    return found ? found.imageUrl : `https://picsum.photos/seed/${idKey}/1200/800`;
   };
 
   return (
@@ -80,7 +87,7 @@ export default function DestinationDetailPage({ params }: { params: Promise<{ id
 
       <div className="container mx-auto px-4 py-12 -mt-20 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-12">
             <Card className="border-none shadow-lg p-8 bg-white dark:bg-zinc-900 rounded-[2.5rem]">
               <div className="flex flex-col md:flex-row justify-between gap-6 mb-8 border-b pb-8">
                 <div className="space-y-4 flex-grow">
@@ -119,8 +126,8 @@ export default function DestinationDetailPage({ params }: { params: Promise<{ id
                       <p className="text-[8px] text-muted-foreground uppercase">Rain</p>
                     </div>
                     <div className="text-xs border-l pl-4">
-                      <p className="font-bold flex items-center gap-1 text-primary"><Calendar className="w-3 h-3" /> Nov-Feb</p>
-                      <p className="text-[8px] text-muted-foreground uppercase">Best Trip</p>
+                      <p className="font-bold flex items-center gap-1 text-primary"><Calendar className="w-3 h-3" /> {dest.weather.bestTime.split(' ')[0]}</p>
+                      <p className="text-[8px] text-muted-foreground uppercase">Best Time</p>
                     </div>
                   </div>
                 </div>
@@ -134,58 +141,68 @@ export default function DestinationDetailPage({ params }: { params: Promise<{ id
               </div>
             </Card>
 
-            {/* Nearby Recommendations Section */}
-            <div className="space-y-6">
-              <div className="flex items-center gap-3">
-                <Sparkles className="w-6 h-6 text-accent" />
-                <h3 className="text-2xl font-black font-headline">Nearby Recommendations</h3>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {nearbyRecommendations.map(([key, val]) => (
-                  <TouristCard
-                    key={key}
-                    id={key}
-                    name={val.name}
-                    location={val.district}
-                    category={val.category}
-                    rating={4.8}
-                    description={val.desc}
-                    image={getDestinationImage(key)}
-                    timings={val.timings}
-                    entryFee={val.entryFee}
-                  />
-                ))}
-                {nearbyRecommendations.length === 0 && (
-                  <p className="text-muted-foreground italic col-span-full py-8 text-center bg-secondary/10 rounded-3xl border border-dashed">
-                    No other attractions listed nearby in {dest.district}.
-                  </p>
-                )}
-              </div>
-            </div>
+            <Tabs defaultValue="reviews" className="w-full">
+              <TabsList className="bg-secondary/30 p-1 rounded-2xl mb-8 w-full flex h-auto">
+                <TabsTrigger value="reviews" className="rounded-xl flex-1 py-3 flex gap-2">
+                  <MessageCircle className="w-4 h-4" /> Community Reviews
+                </TabsTrigger>
+                <TabsTrigger value="events" className="rounded-xl flex-1 py-3 flex gap-2">
+                  <PartyPopper className="w-4 h-4" /> Nearby Events
+                </TabsTrigger>
+                <TabsTrigger value="nearby" className="rounded-xl flex-1 py-3 flex gap-2">
+                  <MapPin className="w-4 h-4" /> Nearby Spots
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="reviews">
+                <DestinationReviews destinationId={id} />
+              </TabsContent>
+
+              <TabsContent value="events">
+                <LocalEvents location={dest.district} />
+              </TabsContent>
+
+              <TabsContent value="nearby">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {nearbyRecommendations.map(([key, val]) => (
+                    <TouristCard
+                      key={key}
+                      id={key}
+                      name={val.name}
+                      location={val.district}
+                      category={val.category}
+                      rating={4.8}
+                      description={val.desc}
+                      image={getDestinationImage(key)}
+                      timings={val.timings}
+                      entryFee={val.entryFee}
+                    />
+                  ))}
+                </div>
+              </TabsContent>
+            </Tabs>
           </div>
 
-          <div className="space-y-6">
+          <div className="space-y-8">
             <Card className="border-none shadow-xl bg-primary text-white p-8 rounded-[2rem] sticky top-24">
-              <h3 className="font-headline text-2xl font-bold mb-4">Book a Local Guide</h3>
-              <p className="text-white/80 mb-6">Explore {dest.name} with an expert local guide from {dest.district} for an authentic experience.</p>
-              <Link href={`/guides?search=${dest.district}`} className="block">
-                <Button className="w-full bg-accent hover:bg-accent/90 text-white rounded-xl h-14 text-lg font-bold shadow-lg shadow-black/20">
-                  Find Guides in {dest.district}
+              <h3 className="font-headline text-2xl font-bold mb-4">Plan with AI</h3>
+              <p className="text-white/80 mb-6">Let our AI Travel Assistant craft the perfect day for you in {dest.district}.</p>
+              <Link href={`/trip-planner?location=${dest.district}`} className="block">
+                <Button className="w-full bg-accent hover:bg-accent/90 text-white rounded-xl h-14 text-lg font-bold shadow-lg">
+                  <Zap className="w-5 h-5 mr-2" /> Open AI Planner
                 </Button>
               </Link>
             </Card>
 
+            <PersonalizedRecommendations currentCategory={dest.category} currentId={id} />
+
             <Card className="border-none shadow-sm bg-white dark:bg-zinc-900 p-8 rounded-[2rem] space-y-4">
-              <h4 className="font-black flex items-center gap-2 uppercase tracking-widest text-xs"><Navigation className="w-4 h-4 text-primary" /> Location Details</h4>
-              <div className="text-sm text-muted-foreground space-y-3">
-                <div className="flex justify-between border-b pb-2"><span>Latitude</span> <span className="font-mono font-bold text-foreground">{dest.lat.toFixed(4)}</span></div>
-                <div className="flex justify-between border-b pb-2"><span>Longitude</span> <span className="font-mono font-bold text-foreground">{dest.lng.toFixed(4)}</span></div>
-                <div className="flex justify-between"><span>Region</span> <span className="font-bold text-foreground">{dest.district}</span></div>
-              </div>
-              <div className="pt-4 flex gap-2">
-                <Globe className="w-4 h-4 text-accent" />
-                <span className="text-xs text-muted-foreground leading-tight italic">Recommended Languages: {dest.lang}</span>
-              </div>
+              <h4 className="font-black flex items-center gap-2 uppercase tracking-widest text-xs text-primary">
+                <Download className="w-4 h-4" /> Pro Tip
+              </h4>
+              <p className="text-sm text-muted-foreground italic leading-relaxed">
+                Save this destination to access its map and details even when exploring remote areas with limited network connectivity.
+              </p>
             </Card>
           </div>
         </div>

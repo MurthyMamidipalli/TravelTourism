@@ -37,14 +37,16 @@
         "description": { "type": "string" },
         "imageUrl": { "type": "string" },
         "rating": { "type": "number" },
-        "category": { "type": "string", "enum": ["Monument", "Nature", "Museum", "Park", "Historical"] },
-        "googleMapsUrl": { "type": "string" }
+        "category": { "type": "string", "enum": ["Monument", "Nature", "Museum", "Park", "Historical", "Pilgrimage", "Beach", "Hill Station", "Wildlife", "Fort", "Resort"] },
+        "googleMapsUrl": { "type": "string" },
+        "timings": { "type": "string" },
+        "entryFee": { "type": "string" }
       },
       "required": ["name", "cityId"]
     },
     "Review": {
       "title": "Review",
-      "description": "A review for a guide.",
+      "description": "A review for a guide or attraction.",
       "type": "object",
       "properties": {
         "userId": { "type": "string" },
@@ -71,15 +73,12 @@
         "panNumber": { "type": "string" },
         "passportNumber": { "type": "string" },
         "bio": { "type": "string" },
-        "experience": { "type": "string", "description": "A list of places explored or shown to tourists, formatted as 'Place Name - X times' on separate lines." },
+        "experience": { "type": "string" },
         "imageUrl": { "type": "string" },
-        "specialty": { "type": "string" },
-        "rating": { "type": "number" },
-        "reviewCount": { "type": "number" },
         "isVerified": { "type": "boolean" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["fullName", "email", "location", "aadharNumber", "panNumber", "mobileNumber", "age", "gender", "experience", "isVerified"]
+      "required": ["fullName", "email", "location", "aadharNumber", "panNumber", "mobileNumber", "age", "gender", "isVerified"]
     },
     "Tourist": {
       "title": "Tourist",
@@ -93,35 +92,24 @@
         "panNumber": { "type": "string" },
         "passportNumber": { "type": "string" },
         "mobileNumber": { "type": "string" },
+        "interests": { "type": "string", "description": "Comma separated list of interests" },
         "isVerified": { "type": "boolean" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["fullName", "email", "age", "aadharNumber", "mobileNumber", "isVerified"]
+      "required": ["fullName", "email", "age", "isVerified"]
     }
   },
   "auth": {
     "providers": ["google.com", "password", "anonymous"]
   },
   "firestore": {
-    "/countries/{countryId}": {
-      "schema": "Country",
-      "description": "Global countries collection"
-    },
-    "/countries/{countryId}/cities/{cityId}": {
-      "schema": "City",
-      "description": "Cities within a country"
-    },
-    "/countries/{countryId}/cities/{cityId}/attractions/{attractionId}": {
-      "schema": "Attraction",
-      "description": "Attractions within a city"
-    },
-    "/guides/{guideId}": {
-      "schema": "Guide",
-      "description": "Verified local guides collection"
+    "/destinations/{destId}/reviews/{reviewId}": {
+      "schema": "Review",
+      "description": "Reviews for attractions"
     },
     "/guides/{guideId}/reviews/{reviewId}": {
       "schema": "Review",
-      "description": "Reviews for a specific guide"
+      "description": "Reviews for specific guides"
     },
     "/users/{userId}": {
       "schema": "Tourist",

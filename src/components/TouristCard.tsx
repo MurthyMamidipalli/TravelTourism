@@ -5,9 +5,11 @@ import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Star, MapPin, ArrowRight, ExternalLink, Clock, Wallet } from 'lucide-react';
+import { Star, MapPin, ArrowRight, ExternalLink, Clock, Wallet, Download, CheckCircle2 } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 interface TouristCardProps {
   id: string;
@@ -22,7 +24,29 @@ interface TouristCardProps {
 }
 
 export default function TouristCard({ id, name, image, rating, description, location, category, timings, entryFee }: TouristCardProps) {
+  const { toast } = useToast();
+  const [isSaved, setIsSaved] = useState(false);
   const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${name} ${location}`)}`;
+
+  useEffect(() => {
+    const saved = localStorage.getItem(`saved_dest_${id}`);
+    if (saved) setIsSaved(true);
+  }, [id]);
+
+  const toggleSave = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (isSaved) {
+      localStorage.removeItem(`saved_dest_${id}`);
+      setIsSaved(false);
+      toast({ title: "Removed", description: "Destination removed from offline storage." });
+    } else {
+      const data = { id, name, image, rating, description, location, category, timings, entryFee };
+      localStorage.setItem(`saved_dest_${id}`, JSON.stringify(data));
+      setIsSaved(true);
+      toast({ title: "Saved Offline", description: "This place is now available offline." });
+    }
+  };
 
   return (
     <motion.div
@@ -48,9 +72,17 @@ export default function TouristCard({ id, name, image, rating, description, loca
             </Badge>
           </div>
           
-          <div className="absolute top-4 right-4 bg-white/95 dark:bg-black/90 px-3 py-1 rounded-full flex items-center gap-1.5 shadow-md backdrop-blur-sm border border-primary/10">
-            <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-            <span className="text-sm font-black text-zinc-900 dark:text-white">{rating.toFixed(1)}</span>
+          <div className="absolute top-4 right-4 flex gap-2">
+            <button 
+              onClick={toggleSave}
+              className={`p-2 rounded-full backdrop-blur-sm border transition-all ${isSaved ? 'bg-accent text-white border-accent' : 'bg-white/90 text-primary border-primary/10'}`}
+            >
+              {isSaved ? <CheckCircle2 className="w-4 h-4" /> : <Download className="w-4 h-4" />}
+            </button>
+            <div className="bg-white/95 dark:bg-black/90 px-3 py-1 rounded-full flex items-center gap-1.5 shadow-md backdrop-blur-sm border border-primary/10">
+              <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+              <span className="text-sm font-black text-zinc-900 dark:text-white">{rating.toFixed(1)}</span>
+            </div>
           </div>
         </div>
 
@@ -66,10 +98,10 @@ export default function TouristCard({ id, name, image, rating, description, loca
           
           <div className="grid grid-cols-2 gap-2 mb-4">
             <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-              <Clock className="w-3 h-3 text-primary" /> {timings || 'Varies'}
+              <Clock className="w-3.5 h-3.5 text-primary" /> {timings || '9 AM - 6 PM'}
             </div>
             <div className="flex items-center gap-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-              <Wallet className="w-3 h-3 text-primary" /> {entryFee || 'Free'}
+              <Wallet className="w-3.5 h-3.5 text-primary" /> {entryFee || '₹50'}
             </div>
           </div>
 
