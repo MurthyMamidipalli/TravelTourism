@@ -53,6 +53,15 @@ export default function LoginPage() {
     const code = error?.code || 'unknown';
     const hostname = typeof window !== 'undefined' ? window.location.hostname : 'unknown';
     
+    // Specifically handle the "missing initial state" error
+    if (error?.message?.includes('missing initial state') || code === 'auth/internal-error') {
+      return { 
+        title: 'Connection Interrupted', 
+        message: 'The login state was lost. This usually happens when the domain is not authorized in your Firebase Console. Please add the hostname below to your Authorized Domains list.',
+        domain: hostname
+      };
+    }
+
     switch (code) {
       case 'auth/unauthorized-domain':
         return { 
@@ -65,7 +74,7 @@ export default function LoginPage() {
       case 'auth/popup-closed-by-user':
         return { 
           title: 'Login Cancelled', 
-          message: 'If the Google window was blank, your domain might not be authorized. Copy the hostname below to fix it.',
+          message: 'The login window was closed. If the window was blank, your domain might not be authorized. Copy the hostname below to fix it.',
           domain: hostname
         };
       default:
@@ -91,6 +100,7 @@ export default function LoginPage() {
     setIsGoogleLoading(true);
     setAuthError(null);
     const provider = new GoogleAuthProvider();
+    // Ensure persistence is handled correctly in specific browser environments
     try {
       await signInWithPopup(auth, provider);
       toast({ title: 'Success', description: 'Signed in with Google.' });
