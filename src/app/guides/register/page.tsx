@@ -1,7 +1,6 @@
-
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -13,8 +12,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { ShieldCheck, Loader2, Fingerprint, Smartphone, ShieldAlert, CheckCircle2 } from 'lucide-react';
-import { useFirestore, useUser } from '@/firebase';
+import { useFirestore, useUser, useAuth } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -37,6 +37,7 @@ export default function GuideRegistrationPage() {
   const { toast } = useToast();
   const router = useRouter();
   const firestore = useFirestore();
+  const auth = useAuth();
   const { user } = useUser();
   const [submitting, setSubmitting] = useState(false);
 
@@ -46,6 +47,9 @@ export default function GuideRegistrationPage() {
   const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
+  
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -74,58 +78,89 @@ export default function GuideRegistrationPage() {
   const aadharValue = form.watch('aadharNumber') || '';
   const mobileValue = form.watch('mobileNumber') || '';
 
+  const setupRecaptcha = () => {
+    if (recaptchaVerifierRef.current) return;
+    try {
+      recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
+        size: 'invisible',
+        callback: () => {
+          // reCAPTCHA solved, allow signInWithPhoneNumber.
+        }
+      });
+    } catch (error) {
+      console.error("Recaptcha setup error:", error);
+    }
+  };
+
   async function handleSendOtp() {
-    if (aadharValue.length !== 12 || mobileValue.length !== 10) {
+    if (mobileValue.length !== 10) {
       toast({ 
-        title: "Details Incomplete", 
-        description: "Please provide both Aadhar and Mobile numbers.", 
+        title: "Number Required", 
+        description: "Please provide a valid 10-digit mobile number.", 
         variant: "destructive" 
       });
       return;
     }
     
     setIsSendingOtp(true);
-    // Simulation of SMS dispatch
-    setTimeout(() => {
+    setupRecaptcha();
+
+    const appVerifier = recaptchaVerifierRef.current;
+    if (!appVerifier) {
       setIsSendingOtp(false);
+      toast({ title: "Verification Error", description: "Recaptcha failed to initialize. Please refresh.", variant: "destructive" });
+      return;
+    }
+
+    try {
+      // Format for India
+      const phoneNumber = `+91${mobileValue}`;
+      const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+      setConfirmationResult(result);
       setIsOtpSent(true);
       setResendTimer(60);
       toast({ 
         title: "OTP Dispatched", 
-        description: "A secure verification code has been sent to your registered mobile number.",
+        description: "A secure verification code has been sent to your mobile number.",
       });
-    }, 1500);
+    } catch (error: any) {
+      console.error("SMS Error:", error);
+      let message = "Could not send OTP. Please check your number or try again later.";
+      if (error.code === 'auth/too-many-requests') message = "Too many requests. Please try again in a few minutes.";
+      toast({ title: "SMS Failed", description: message, variant: "destructive" });
+    } finally {
+      setIsSendingOtp(false);
+    }
   }
 
   async function handleVerifyOtp() {
-    if (otpValue.length !== 6) return;
+    if (otpValue.length !== 6 || !confirmationResult) return;
     setIsVerifyingOtp(true);
     
-    // Internal simulation key is 123456
-    setTimeout(() => {
-      if (otpValue === '123456') {
-        setIsVerifyingOtp(false);
-        setIsAadharVerified(true);
-        toast({ 
-          title: "Identity Verified", 
-          description: "Your government-linked identity has been authenticated.",
-        });
-      } else {
-        setIsVerifyingOtp(false);
-        toast({ 
-          title: "Verification Failed", 
-          description: "The secure code entered is incorrect.", 
-          variant: "destructive" 
-        });
-      }
-    }, 800);
+    try {
+      await confirmationResult.confirm(otpValue);
+      setIsAadharVerified(true);
+      toast({ 
+        title: "Identity Verified", 
+        description: "Your mobile identity has been authenticated successfully.",
+      });
+    } catch (error: any) {
+      console.error("OTP Error:", error);
+      toast({ 
+        title: "Verification Failed", 
+        description: "The code entered is incorrect or has expired.", 
+        variant: "destructive" 
+      });
+    } finally {
+      setIsVerifyingOtp(false);
+    }
   }
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (!user || !isAadharVerified) {
       toast({ 
         title: "Security Check Required", 
-        description: "Aadhar identity verification via OTP is mandatory for tourist safety.", 
+        description: "Mobile identity verification via OTP is mandatory for tourist safety.", 
         variant: "destructive" 
       });
       return;
@@ -158,6 +193,7 @@ export default function GuideRegistrationPage() {
 
   return (
     <div className="container mx-auto px-4 py-12 min-h-screen">
+      <div id="recaptcha-container"></div>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 items-start">
         <div className="md:col-span-2 space-y-6 bg-primary rounded-3xl p-8 text-white shadow-2xl md:sticky md:top-24">
           <ShieldCheck className="w-16 h-16 mb-4" />
@@ -233,7 +269,7 @@ export default function GuideRegistrationPage() {
                               variant="outline" 
                               className="h-11 rounded-xl px-6 shrink-0 border-primary text-primary" 
                               onClick={handleSendOtp} 
-                              disabled={aadharValue.length !== 12 || mobileValue.length !== 10 || isSendingOtp || (isOtpSent && resendTimer > 0)}
+                              disabled={mobileValue.length !== 10 || isSendingOtp || (isOtpSent && resendTimer > 0)}
                             >
                               {isSendingOtp ? <Loader2 className="animate-spin" /> : isOtpSent && resendTimer > 0 ? `Resend (${resendTimer}s)` : 'Send OTP'}
                             </Button>

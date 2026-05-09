@@ -1,6 +1,6 @@
 'use client';
 
-import { useUser, useFirestore, useDoc } from '@/firebase';
+import { useUser, useFirestore, useDoc, useAuth } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
@@ -8,8 +8,9 @@ import { User, Mail, Fingerprint, Edit3, Loader2, AlertCircle, CheckCircle2, Arr
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { doc, setDoc } from 'firebase/firestore';
-import { useMemo, useState, useEffect, useCallback } from 'react';
+import { useMemo, useState, useEffect, useCallback, useRef } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
 import {
   Dialog,
   DialogContent,
@@ -38,6 +39,7 @@ type EditProfileValues = z.infer<typeof editProfileSchema>;
 
 export default function ProfilePage() {
   const { user, loading: authLoading } = useUser();
+  const auth = useAuth();
   const firestore = useFirestore();
   const { toast } = useToast();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -48,6 +50,9 @@ export default function ProfilePage() {
   const [otpValue, setOtpValue] = useState('');
   const [isSendingOtp, setIsSendingOtp] = useState(false);
   const [resendTimer, setResendTimer] = useState(0);
+  
+  const [confirmationResult, setConfirmationResult] = useState<ConfirmationResult | null>(null);
+  const recaptchaVerifierRef = useRef<RecaptchaVerifier | null>(null);
 
   const userDocRef = useMemo(() => {
     if (!firestore || !user?.uid) return null;
@@ -88,7 +93,6 @@ export default function ProfilePage() {
     if (!userDocRef) return;
     setIsSaving(true);
     
-    // Optimistic UI: update local cache immediately
     setDoc(userDocRef, values, { merge: true })
       .then(() => {
         toast({ title: "Profile Updated", description: "All information saved." });
@@ -104,6 +108,17 @@ export default function ProfilePage() {
       .finally(() => setIsSaving(false));
   }, [userDocRef, toast]);
 
+  const setupRecaptcha = () => {
+    if (recaptchaVerifierRef.current) return;
+    try {
+      recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-profile', {
+        size: 'invisible'
+      });
+    } catch (error) {
+      console.error("Recaptcha setup error:", error);
+    }
+  };
+
   const handleSendOtp = async () => {
     const mobile = profile?.mobileNumber || form.getValues('mobileNumber');
     if (!mobile || mobile.length !== 10) {
@@ -112,24 +127,39 @@ export default function ProfilePage() {
     }
     
     setIsSendingOtp(true);
-    setTimeout(() => {
+    setupRecaptcha();
+    
+    const appVerifier = recaptchaVerifierRef.current;
+    if (!appVerifier) {
       setIsSendingOtp(false);
+      toast({ title: "Error", description: "Security check failed to initialize.", variant: "destructive" });
+      return;
+    }
+
+    try {
+      const phoneNumber = `+91${mobile}`;
+      const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
+      setConfirmationResult(result);
       setIsOtpSent(true);
       setResendTimer(60);
       toast({ 
         title: "OTP Dispatched", 
         description: `A secure verification code has been sent to your mobile device.`,
       });
-    }, 600);
+    } catch (error: any) {
+      console.error("SMS error:", error);
+      toast({ title: "SMS Failed", description: "Could not send verification code. Try again later.", variant: "destructive" });
+    } finally {
+      setIsSendingOtp(false);
+    }
   };
 
   const handleVerifyOtp = async () => {
-    if (otpValue.length !== 6 || !userDocRef) return;
+    if (otpValue.length !== 6 || !confirmationResult || !userDocRef) return;
     setIsVerifying(true);
 
-    // Simulation logic
-    if (otpValue === '123456') {
-      // Optimistic update
+    try {
+      await confirmationResult.confirm(otpValue);
       setDoc(userDocRef, { isVerified: true }, { merge: true })
         .catch((error) => {
           errorEmitter.emit('permission-error', new FirestorePermissionError({
@@ -142,12 +172,10 @@ export default function ProfilePage() {
       toast({ title: "Identity Verified", description: "Your profile is now verified." });
       setIsOtpSent(false);
       setOtpValue('');
+    } catch (error) {
+      toast({ title: "Invalid Code", description: "The verification code is incorrect.", variant: "destructive" });
+    } finally {
       setIsVerifying(false);
-    } else {
-      setTimeout(() => {
-        setIsVerifying(false);
-        toast({ title: "Invalid Code", description: "The verification code is incorrect.", variant: "destructive" });
-      }, 300);
     }
   };
 
@@ -185,6 +213,7 @@ export default function ProfilePage() {
 
   return (
     <div className="container mx-auto px-4 py-12 min-h-screen">
+      <div id="recaptcha-container-profile"></div>
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="max-w-4xl mx-auto space-y-10">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link href="/dashboard" className="text-muted-foreground hover:text-primary flex items-center gap-1 text-sm font-medium">
