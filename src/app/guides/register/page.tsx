@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, Loader2, Fingerprint, CreditCard, ShieldAlert, FileText, Globe, Upload, Check } from 'lucide-react';
+import { ShieldCheck, Loader2, Fingerprint, CreditCard, ShieldAlert, Globe, Upload, Check } from 'lucide-react';
 import { useFirestore, useUser } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -40,6 +40,9 @@ export default function GuideRegistrationPage() {
   const firestore = useFirestore();
   const { user } = useUser();
   const [submitting, setSubmitting] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   // Mandatory Upload States
   const [aadharUploaded, setAadharUploaded] = useState(false);
@@ -87,7 +90,7 @@ export default function GuideRegistrationPage() {
       imageUrl: user.photoURL || `https://picsum.photos/seed/${user.uid}/400/400`,
     };
 
-    // Optimistic write: redirect and toast immediately
+    // Optimistic write: Update UI and redirect immediately
     addDoc(guidesRef, guideData)
       .catch((error) => {
         errorEmitter.emit('permission-error', new FirestorePermissionError({ 
@@ -115,6 +118,8 @@ export default function GuideRegistrationPage() {
     };
     input.click();
   };
+
+  if (!mounted) return null;
 
   return (
     <div className="container mx-auto px-4 py-12 min-h-screen">
@@ -271,7 +276,7 @@ export default function GuideRegistrationPage() {
                   disabled={submitting || !aadharUploaded || !panUploaded} 
                   className="w-full h-14 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20"
                 >
-                  {submitting ? <><Loader2 className="animate-spin mr-2" /> Initializing...</> : 'Register as Verified Guide'}
+                  {submitting ? <><Loader2 className="animate-spin mr-2" /> Registering...</> : 'Register as Verified Guide'}
                 </Button>
                 {(!aadharUploaded || !panUploaded) && (
                   <p className="text-center text-[10px] text-destructive font-bold">Please upload mandatory documents to enable registration.</p>

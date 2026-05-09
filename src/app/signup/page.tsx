@@ -14,7 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { UserPlus, Lock, Mail, User, Eye, EyeOff, Loader2, Sparkles } from 'lucide-react';
+import { UserPlus, Lock, Mail, User, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 
@@ -114,7 +114,7 @@ export default function SignupPage() {
                     <FormControl>
                       <div className="relative">
                         <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input placeholder="John" className="pl-10 rounded-xl h-11" {...field} />
+                        <Input placeholder="First Name" className="pl-10 rounded-xl h-11" {...field} />
                       </div>
                     </FormControl>
                     <FormMessage />
@@ -124,7 +124,7 @@ export default function SignupPage() {
                   <FormItem>
                     <FormLabel>Last Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Doe" className="h-11 rounded-xl" {...field} />
+                      <Input placeholder="Last Name" className="h-11 rounded-xl" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

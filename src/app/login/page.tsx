@@ -51,18 +51,19 @@ export default function LoginPage() {
     defaultValues: { email: '', password: '' },
   });
 
-  const ensureUserProfile = async (user: any) => {
+  const ensureUserProfile = (user: any) => {
     if (!firestore) return;
     const userDocRef = doc(firestore, 'users', user.uid);
-    const userDoc = await getDoc(userDocRef);
-    if (!userDoc.exists()) {
-      await setDoc(userDocRef, {
-        fullName: user.displayName || 'Traveler',
-        email: user.email || '',
-        isVerified: false,
-        createdAt: serverTimestamp(),
-      });
-    }
+    getDoc(userDocRef).then((userDoc) => {
+      if (!userDoc.exists()) {
+        setDoc(userDocRef, {
+          fullName: user.displayName || 'Traveler',
+          email: user.email || '',
+          isVerified: false,
+          createdAt: serverTimestamp(),
+        });
+      }
+    });
   };
 
   const getFriendlyErrorMessage = (error: any) => {
@@ -117,7 +118,7 @@ export default function LoginPage() {
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      await ensureUserProfile(result.user);
+      ensureUserProfile(result.user);
       toast({ title: 'Success', description: 'Signed in with Google.' });
       router.push('/dashboard');
     } catch (error: any) {
@@ -130,7 +131,7 @@ export default function LoginPage() {
   const handleGuestLogin = async () => {
     try {
       const result = await signInAnonymously(auth);
-      await ensureUserProfile(result.user);
+      ensureUserProfile(result.user);
       router.push('/dashboard');
     } catch (error: any) {
       toast({ variant: 'destructive', title: 'Error', description: error.message });

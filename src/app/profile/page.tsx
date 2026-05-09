@@ -4,7 +4,7 @@ import { useUser, useFirestore, useDoc } from '@/firebase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Button } from '@/components/ui/button';
-import { User, Mail, Fingerprint, Edit3, Loader2, CheckCircle2, ArrowLeft, ShieldCheck, LogIn, CreditCard, Globe, FileText, Calendar, Phone, Upload, Check } from 'lucide-react';
+import { User, Mail, Fingerprint, Edit3, Loader2, CheckCircle2, ArrowLeft, ShieldCheck, LogIn, CreditCard, Globe, Phone, Upload, Check, Calendar } from 'lucide-react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { doc, setDoc } from 'firebase/firestore';
@@ -36,6 +36,9 @@ export default function ProfilePage() {
   const { toast } = useToast();
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => { setMounted(true); }, []);
 
   // Mandatory Upload States
   const [aadharUploaded, setAadharUploaded] = useState(false);
@@ -75,10 +78,10 @@ export default function ProfilePage() {
         setAadharUploaded(true);
         setPanUploaded(true);
       }
-    } else if (user && !profileLoading) {
+    } else if (user) {
       form.setValue('fullName', user.displayName || '');
     }
-  }, [profile, user, profileLoading, form]);
+  }, [profile, user, form]);
 
   const onSaveProfile = useCallback((values: z.infer<typeof editProfileSchema>) => {
     if (!userDocRef) return;
@@ -95,7 +98,7 @@ export default function ProfilePage() {
       updatedAt: new Date().toISOString()
     };
     
-    // Optimistic write: Close dialog and show toast instantly
+    // Optimistic write: Update UI immediately
     setDoc(userDocRef, updatedProfile, { merge: true })
       .catch((error: any) => {
         errorEmitter.emit('permission-error', new FirestorePermissionError({ 
@@ -125,7 +128,7 @@ export default function ProfilePage() {
     input.click();
   };
 
-  if (authLoading) {
+  if (!mounted || authLoading) {
     return (
       <div className="container mx-auto px-4 py-12 space-y-8 min-h-screen">
         <Skeleton className="h-12 w-64 rounded-xl" />
