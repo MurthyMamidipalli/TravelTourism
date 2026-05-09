@@ -22,7 +22,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, LogIn, Mail, Lock, UserRound, AlertCircle, Phone, Smartphone, ArrowLeft, Loader2 } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Mail, Lock, UserRound, AlertCircle, Phone, Smartphone, ArrowLeft, Loader2, Copy } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -38,7 +38,7 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isGuestLoading, setIsGuestLoading] = useState(false);
-  const [authError, setAuthError] = useState<{title: string, message: string} | null>(null);
+  const [authError, setAuthError] = useState<{title: string, message: string, domain?: string} | null>(null);
   const [mounted, setMounted] = useState(false);
 
   // Phone Auth State
@@ -70,33 +70,19 @@ export default function LoginPage() {
 
   const getFriendlyErrorMessage = (error: any) => {
     const code = error?.code || 'unknown';
-    const currentDomain = typeof window !== 'undefined' ? window.location.hostname : 'this domain';
+    const hostname = typeof window !== 'undefined' ? window.location.hostname : 'unknown';
     
     switch (code) {
-      case 'auth/admin-restricted-operation':
-        return {
-          title: 'Admin Restricted',
-          message: 'Anonymous authentication is disabled. Please enable it in the Firebase Console settings.'
-        };
-      case 'auth/operation-not-allowed':
-        return {
-          title: 'Provider Disabled',
-          message: 'This login method is not enabled in the Firebase Console.'
-        };
-      case 'auth/user-not-found':
-      case 'auth/wrong-password':
-      case 'auth/invalid-credential':
-        return {
-          title: 'Login Failed',
-          message: 'Invalid email or password.'
-        };
-      case 'auth/invalid-phone-number':
-        return { title: 'Invalid Phone', message: 'The phone number provided is incorrect.' };
       case 'auth/unauthorized-domain':
         return { 
           title: 'Domain Not Authorized', 
-          message: `The domain "${currentDomain}" is not in your Firebase Authorized Domains list. Please add it in Auth > Settings.` 
+          message: `Your current domain is not in the Firebase "Authorized Domains" list. Copy the link below and add it in Firebase Console > Authentication > Settings.`,
+          domain: hostname
         };
+      case 'auth/too-many-requests':
+        return { title: 'Too Many Requests', message: 'SMS traffic blocked due to unusual activity. Try again later.' };
+      case 'auth/invalid-phone-number':
+        return { title: 'Invalid Phone', message: 'The phone number provided is incorrect.' };
       default:
         return {
           title: 'Authentication Error',
@@ -110,9 +96,6 @@ export default function LoginPage() {
     try {
       recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container-login', {
         size: 'invisible',
-        callback: () => {
-          console.log('Recaptcha resolved');
-        }
       });
     } catch (error) {
       console.error("Recaptcha error:", error);
@@ -126,6 +109,7 @@ export default function LoginPage() {
     }
     
     setIsSendingOtp(true);
+    setAuthError(null);
     setupRecaptcha();
     
     const appVerifier = recaptchaVerifierRef.current;
@@ -140,11 +124,10 @@ export default function LoginPage() {
       const result = await signInWithPhoneNumber(auth, formattedNumber, appVerifier);
       setConfirmationResult(result);
       setIsOtpSent(true);
-      toast({ title: "OTP Sent", description: "Code sent to +91 " + phoneNumber });
+      toast({ title: "OTP Sent", description: "Verification code sent to +91 " + phoneNumber });
     } catch (error: any) {
       const err = getFriendlyErrorMessage(error);
-      toast({ variant: "destructive", title: err.title, description: err.message });
-      // Reset verifier on failure so it can be re-tried
+      setAuthError(err);
       if (recaptchaVerifierRef.current) {
         recaptchaVerifierRef.current.clear();
         recaptchaVerifierRef.current = null;
@@ -159,7 +142,7 @@ export default function LoginPage() {
     setIsLoading(true);
     try {
       await confirmationResult.confirm(verificationCode);
-      toast({ title: "Welcome!", description: "Log in successful." });
+      toast({ title: "Welcome!", description: "Logged in successfully." });
       router.push('/dashboard');
     } catch (error: any) {
       toast({ variant: "destructive", title: "Verification Failed", description: "Invalid code entered." });
@@ -178,7 +161,6 @@ export default function LoginPage() {
     } catch (error: any) {
       const err = getFriendlyErrorMessage(error);
       setAuthError(err);
-      toast({ variant: 'destructive', title: err.title, description: err.message });
     } finally {
       setIsLoading(false);
     }
@@ -194,7 +176,6 @@ export default function LoginPage() {
     } catch (error: any) {
       const err = getFriendlyErrorMessage(error);
       setAuthError(err);
-      toast({ variant: 'destructive', title: err.title, description: err.message });
     }
   };
 
@@ -208,10 +189,14 @@ export default function LoginPage() {
     } catch (error: any) {
       const err = getFriendlyErrorMessage(error);
       setAuthError(err);
-      toast({ variant: 'destructive', title: err.title, description: err.message });
     } finally {
       setIsGuestLoading(false);
     }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied", description: "Hostname copied to clipboard." });
   };
 
   return (
@@ -226,8 +211,23 @@ export default function LoginPage() {
           {authError && (
             <Alert variant="destructive" className="rounded-2xl bg-destructive/5 border-destructive/20 mb-4">
               <AlertCircle className="h-4 w-4" />
-              <AlertTitle>{authError.title}</AlertTitle>
-              <AlertDescription className="text-xs">{authError.message}</AlertDescription>
+              <AlertTitle className="font-bold">{authError.title}</AlertTitle>
+              <AlertDescription className="space-y-3">
+                <p className="text-xs">{authError.message}</p>
+                {authError.domain && (
+                  <div className="bg-white/50 dark:bg-black/50 p-2 rounded-lg border border-destructive/20 flex items-center justify-between gap-2">
+                    <code className="text-[10px] font-mono break-all">{authError.domain}</code>
+                    <Button 
+                      variant="ghost" 
+                      size="icon" 
+                      className="h-8 w-8 shrink-0" 
+                      onClick={() => copyToClipboard(authError.domain!)}
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
+                )}
+              </AlertDescription>
             </Alert>
           )}
 
@@ -329,11 +329,11 @@ export default function LoginPage() {
                       </div>
                     </div>
                     <Button 
-                      className="w-full h-12 rounded-xl font-bold" 
+                      className="w-full h-12 rounded-xl font-bold shadow-lg" 
                       onClick={handleSendOtp} 
                       disabled={isSendingOtp || phoneNumber.length !== 10}
                     >
-                      {isSendingOtp ? <Loader2 className="animate-spin" /> : 'Send OTP'}
+                      {isSendingOtp ? <Loader2 className="animate-spin" /> : 'Send Verification OTP'}
                     </Button>
                   </div>
                 ) : (
@@ -350,7 +350,7 @@ export default function LoginPage() {
                       <p className="text-xs text-muted-foreground mt-2">Code sent to +91 {phoneNumber}</p>
                     </div>
                     <Button 
-                      className="w-full h-12 rounded-xl font-bold" 
+                      className="w-full h-12 rounded-xl font-bold shadow-lg" 
                       onClick={handleVerifyOtp} 
                       disabled={isLoading || verificationCode.length !== 6}
                     >
@@ -368,6 +368,7 @@ export default function LoginPage() {
                   onClick={() => {
                     setLoginMethod('email');
                     setIsOtpSent(false);
+                    setAuthError(null);
                   }}
                 >
                   <ArrowLeft className="w-3 h-3 mr-2" /> Back to Email Login
