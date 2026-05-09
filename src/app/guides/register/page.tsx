@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, Loader2, Fingerprint, Info, Smartphone, ShieldAlert } from 'lucide-react';
+import { ShieldCheck, Loader2, Fingerprint, Info, Smartphone, ShieldAlert, CheckCircle2 } from 'lucide-react';
 import { useFirestore, useUser } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
@@ -76,56 +76,55 @@ export default function GuideRegistrationPage() {
   async function handleSendOtp() {
     if (aadharValue.length !== 12 || mobileValue.length !== 10) {
       toast({ 
-        title: "Verification Details Required", 
-        description: "Please provide both Aadhar and Mobile numbers to initiate secure identity verification.", 
+        title: "Details Incomplete", 
+        description: "Please provide both Aadhar and Mobile numbers.", 
         variant: "destructive" 
       });
       return;
     }
     
     setIsSendingOtp(true);
-    // Mimic real-world network latency for security verification
     setTimeout(() => {
       setIsSendingOtp(false);
       setIsOtpSent(true);
       setResendTimer(60);
       toast({ 
-        title: "Secure Code Dispatched", 
-        description: `An identity verification code has been sent to the mobile number registered with your Aadhar.`,
+        title: "Secure OTP Sent", 
+        description: `Verification code dispatched to ${mobileValue}.`,
       });
-    }, 1500);
+    }, 800);
   }
 
   async function handleVerifyOtp() {
     if (otpValue.length !== 6) return;
     setIsVerifyingOtp(true);
     
-    // Simulate internal verification check
     setTimeout(() => {
+      // Simulation test key: 123456
       if (otpValue === '123456') {
         setIsVerifyingOtp(false);
         setIsAadharVerified(true);
         toast({ 
-          title: "Identity Verified", 
-          description: "Aadhar and Mobile number link confirmed. You are now verified for tourist safety.",
+          title: "Identity Authenticated", 
+          description: "Government ID verified successfully.",
           className: "bg-accent text-white"
         });
       } else {
         setIsVerifyingOtp(false);
         toast({ 
-          title: "Verification Failed", 
-          description: "The code entered is incorrect. Please check your messages and try again.", 
+          title: "Invalid Code", 
+          description: "The verification code is incorrect.", 
           variant: "destructive" 
         });
       }
-    }, 1200);
+    }, 600);
   }
 
   const onSubmit = (values: z.infer<typeof formSchema>) => {
     if (!user || !isAadharVerified) {
       toast({ 
-        title: "Safety Verification Incomplete", 
-        description: "For tourist safety, Aadhar verification via mobile OTP is mandatory before registration.", 
+        title: "Security Check Required", 
+        description: "Identity verification is mandatory for guide accountability.", 
         variant: "destructive" 
       });
       return;
@@ -148,8 +147,8 @@ export default function GuideRegistrationPage() {
       });
 
     toast({ 
-      title: "Registration Successful", 
-      description: "You are now a verified local expert. Tourists can book you with confidence.",
+      title: "Successfully Registered", 
+      description: "Welcome to our network of verified local experts.",
     });
     router.push('/guides');
   };
@@ -159,27 +158,27 @@ export default function GuideRegistrationPage() {
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-5 gap-8 items-start">
         <div className="md:col-span-2 space-y-6 bg-primary rounded-3xl p-8 text-white shadow-2xl sticky top-24">
           <ShieldCheck className="w-16 h-16 mb-4" />
-          <h1 className="font-headline text-4xl font-bold tracking-tight">Safety & Trust Program</h1>
+          <h1 className="font-headline text-4xl font-bold tracking-tight">Accountability Program</h1>
           <p className="text-white/80 text-lg leading-relaxed">
-            By verifying your Aadhar and Mobile, you ensure that tourists feel safe and protected. This step is mandatory to maintain our high standard of local expertise.
+            Every guide on Voyage Compass is government-verified. This ensures that tourists are safe and that every guide can be held accountable for their service quality.
           </p>
           
           <div className="bg-white/10 p-6 rounded-2xl border border-white/20 space-y-4">
             <h3 className="font-bold flex items-center gap-2">
-              <ShieldAlert className="w-5 h-5 text-accent" /> Why verify?
+              <ShieldAlert className="w-5 h-5 text-accent" /> Why this is mandatory:
             </h3>
             <ul className="space-y-3 text-sm opacity-90">
               <li className="flex gap-2">
                 <span className="font-black text-accent">✓</span> 
-                Ensures accountability for tourist safety.
+                Direct link to Government ID (Aadhar).
               </li>
               <li className="flex gap-2">
                 <span className="font-black text-accent">✓</span> 
-                Verifies your identity against government records.
+                Verified contact number for real-time support.
               </li>
               <li className="flex gap-2">
                 <span className="font-black text-accent">✓</span> 
-                Boosts your profile ranking for local bookings.
+                Legal accountability for tourist safety.
               </li>
             </ul>
           </div>
@@ -213,13 +212,13 @@ export default function GuideRegistrationPage() {
                 <div className="bg-secondary/20 p-6 rounded-2xl space-y-4 border border-primary/10">
                   <div className="flex items-center gap-2 mb-2">
                     <Fingerprint className="w-5 h-5 text-primary" />
-                    <h3 className="font-bold text-sm tracking-tight uppercase">Government Identity Authentication</h3>
+                    <h3 className="font-bold text-sm tracking-tight uppercase">Identity Authentication</h3>
                   </div>
                   
                   <div className="grid grid-cols-1 gap-4">
                     <FormField control={form.control} name="mobileNumber" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Registered Mobile Number</FormLabel>
+                        <FormLabel>Mobile Number (for OTP)</FormLabel>
                         <FormControl>
                           <Input disabled={isAadharVerified} placeholder="10-digit mobile" maxLength={10} className="rounded-xl h-11" {...field} suppressHydrationWarning />
                         </FormControl>
@@ -229,20 +228,20 @@ export default function GuideRegistrationPage() {
                     
                     <FormField control={form.control} name="aadharNumber" render={({ field }) => (
                       <FormItem>
-                        <FormLabel>12-Digit Aadhar Number</FormLabel>
+                        <FormLabel>Aadhar Card Number</FormLabel>
                         <div className="flex gap-2">
                           <FormControl>
-                            <Input disabled={isAadharVerified} maxLength={12} className="rounded-xl h-11" placeholder="XXXX XXXX XXXX" {...field} suppressHydrationWarning />
+                            <Input disabled={isAadharVerified} maxLength={12} className="rounded-xl h-11" placeholder="12-digit ID" {...field} suppressHydrationWarning />
                           </FormControl>
                           {!isAadharVerified && (
                             <Button 
                               type="button" 
                               variant="outline" 
-                              className="h-11 rounded-xl px-6 shrink-0 border-primary text-primary hover:bg-primary hover:text-white transition-all" 
+                              className="h-11 rounded-xl px-6 shrink-0 border-primary text-primary" 
                               onClick={handleSendOtp} 
                               disabled={aadharValue.length !== 12 || mobileValue.length !== 10 || isSendingOtp || (isOtpSent && resendTimer > 0)}
                             >
-                              {isSendingOtp ? <Loader2 className="animate-spin" /> : isOtpSent && resendTimer > 0 ? `Resend (${resendTimer}s)` : 'Verify via OTP'}
+                              {isSendingOtp ? <Loader2 className="animate-spin" /> : isOtpSent && resendTimer > 0 ? `Resend (${resendTimer}s)` : 'Send OTP'}
                             </Button>
                           )}
                         </div>
@@ -256,12 +255,12 @@ export default function GuideRegistrationPage() {
                       <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="space-y-3 pt-2 overflow-hidden">
                         <div className="flex items-center gap-2 text-xs text-muted-foreground bg-primary/5 p-3 rounded-lg border border-primary/10">
                           <Smartphone className="w-4 h-4 text-primary" />
-                          <span>Enter the 6-digit code sent to your Aadhar-linked mobile.</span>
+                          <span>Enter the 6-digit code sent to your device.</span>
                         </div>
                         <div className="flex gap-2">
                           <Input placeholder="Enter Code" maxLength={6} className="rounded-xl h-12 text-center font-bold text-lg tracking-[0.2em]" value={otpValue} onChange={(e) => setOtpValue(e.target.value)} suppressHydrationWarning />
                           <Button type="button" className="h-12 rounded-xl px-8 shadow-md" onClick={handleVerifyOtp} disabled={otpValue.length !== 6 || isVerifyingOtp}>
-                            {isVerifyingOtp ? <Loader2 className="animate-spin" /> : 'Confirm'}
+                            {isVerifyingOtp ? <Loader2 className="animate-spin" /> : 'Verify'}
                           </Button>
                         </div>
                       </motion.div>
@@ -270,7 +269,7 @@ export default function GuideRegistrationPage() {
 
                   {isAadharVerified && (
                     <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-accent/10 p-3 rounded-xl text-accent text-sm font-bold flex items-center justify-center gap-2 border border-accent/20">
-                      <ShieldCheck className="w-5 h-5" /> Identity Verified for Public Safety
+                      <CheckCircle2 className="w-5 h-5" /> Identity Authenticated
                     </motion.div>
                   )}
                 </div>
@@ -278,7 +277,7 @@ export default function GuideRegistrationPage() {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <FormField control={form.control} name="location" render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Primary Operational City</FormLabel>
+                      <FormLabel>Operational City</FormLabel>
                       <FormControl>
                         <Input placeholder="e.g. Tirupati" className="rounded-xl h-11" {...field} suppressHydrationWarning />
                       </FormControl>
@@ -289,7 +288,7 @@ export default function GuideRegistrationPage() {
                     <FormItem>
                       <FormLabel>Languages Spoken</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g. Telugu, English, Hindi" className="rounded-xl h-11" {...field} suppressHydrationWarning />
+                        <Input placeholder="e.g. Telugu, English" className="rounded-xl h-11" {...field} suppressHydrationWarning />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -298,9 +297,9 @@ export default function GuideRegistrationPage() {
 
                 <FormField control={form.control} name="experience" render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Professional Experience & History</FormLabel>
+                    <FormLabel>Guiding History</FormLabel>
                     <FormControl>
-                      <Textarea className="rounded-xl min-h-[120px]" placeholder="List significant landmarks or areas you specialize in..." {...field} />
+                      <Textarea className="rounded-xl min-h-[120px]" placeholder="List places you specialize in..." {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -309,12 +308,12 @@ export default function GuideRegistrationPage() {
                 <div className="bg-accent/5 p-4 rounded-xl border border-accent/20 flex gap-3">
                   <Info className="w-5 h-5 text-accent flex-shrink-0" />
                   <p className="text-xs text-muted-foreground leading-relaxed">
-                    By submitting, you certify that all identity details are accurate. Your verified status will be publicly displayed to tourists.
+                    By submitting, you agree that your identity details will be kept on record for tourist safety verification.
                   </p>
                 </div>
 
-                <Button type="submit" disabled={submitting || !isAadharVerified} className="w-full h-14 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20 transition-all hover:scale-[1.01]">
-                  {submitting ? <Loader2 className="animate-spin mr-2" /> : 'Register as Verified Local Expert'}
+                <Button type="submit" disabled={submitting || !isAadharVerified} className="w-full h-14 rounded-2xl text-lg font-bold shadow-xl shadow-primary/20">
+                  {submitting ? <Loader2 className="animate-spin mr-2" /> : 'Complete Verified Registration'}
                 </Button>
               </form>
             </Form>

@@ -97,7 +97,7 @@ export default function ProfilePage() {
         }));
       });
 
-    toast({ title: "Profile Updated", description: "Changes saved successfully." });
+    toast({ title: "Profile Updated", description: "All information saved." });
     setIsEditDialogOpen(false);
     setIsSaving(false);
   }, [userDocRef, toast]);
@@ -105,7 +105,7 @@ export default function ProfilePage() {
   const handleSendOtp = async () => {
     const mobile = profile?.mobileNumber || form.getValues('mobileNumber');
     if (!mobile || mobile.length !== 10) {
-      toast({ title: "Invalid Mobile", description: "Please ensure your 10-digit mobile number is correct before sending OTP.", variant: "destructive" });
+      toast({ title: "Invalid Contact", description: "Check mobile number before sending OTP.", variant: "destructive" });
       return;
     }
     
@@ -115,16 +115,17 @@ export default function ProfilePage() {
       setIsOtpSent(true);
       setResendTimer(30);
       toast({ 
-        title: "OTP Sent", 
-        description: `Verification code dispatched to your mobile.`,
+        title: "OTP Dispatched", 
+        description: `Secure code sent to mobile.`,
       });
-    }, 50);
+    }, 400);
   };
 
   const handleVerifyOtp = async () => {
     if (otpValue.length !== 6 || !userDocRef) return;
     setIsVerifying(true);
 
+    // Simulation test key: 123456
     if (otpValue === '123456') {
       setDoc(userDocRef, { isVerified: true }, { merge: true })
         .catch((error) => {
@@ -135,15 +136,15 @@ export default function ProfilePage() {
           }));
         });
 
-      toast({ title: "Identity Verified", description: "Your identity has been successfully authenticated." });
+      toast({ title: "Identity Verified", description: "Verification complete." });
       setIsOtpSent(false);
       setOtpValue('');
       setIsVerifying(false);
     } else {
       setTimeout(() => {
         setIsVerifying(false);
-        toast({ title: "Invalid Code", description: "The verification code you entered is incorrect.", variant: "destructive" });
-      }, 50);
+        toast({ title: "Invalid Code", description: "The code is incorrect.", variant: "destructive" });
+      }, 300);
     }
   };
 
@@ -151,7 +152,7 @@ export default function ProfilePage() {
     return (
       <div className="container mx-auto px-4 py-12 space-y-8 min-h-[60vh]">
         <Skeleton className="h-12 w-64 rounded-xl" />
-        <div className="max-w-2xl mx-auto"><Skeleton className="h-[400px] rounded-3xl" /></div>
+        <div className="max-w-4xl mx-auto"><Skeleton className="h-[400px] rounded-3xl" /></div>
       </div>
     );
   }
@@ -172,15 +173,15 @@ export default function ProfilePage() {
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }} className="max-w-4xl mx-auto space-y-10">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <Link href="/dashboard" className="text-muted-foreground hover:text-primary flex items-center gap-1 text-sm font-medium">
-            <ArrowLeft className="w-4 h-4" /> Back to Dashboard
+            <ArrowLeft className="w-4 h-4" /> Dashboard
           </Link>
           <div className={`px-4 py-1.5 rounded-full flex items-center gap-2 text-sm font-bold ${profile?.isVerified ? 'bg-accent/10 text-accent' : 'bg-destructive/10 text-destructive'}`}>
             {profile?.isVerified ? <CheckCircle2 className="w-4 h-4" /> : <AlertCircle className="w-4 h-4" />}
-            {profile?.isVerified ? 'Verified Account' : 'Action Required: Verification Pending'}
+            {profile?.isVerified ? 'Government Verified' : 'Verification Required'}
           </div>
         </div>
 
-        <div className="flex flex-col md:flex-row items-center gap-8 bg-white dark:bg-zinc-900 p-8 rounded-3xl shadow-xl border relative h-auto">
+        <div className="flex flex-col md:flex-row items-center gap-8 bg-white dark:bg-zinc-900 p-8 rounded-3xl shadow-xl border relative">
           <Avatar className="h-32 w-32 border-4 border-primary/20 shrink-0">
             <AvatarImage src={user.photoURL || ''} alt={displayName} />
             <AvatarFallback className="text-4xl font-black bg-primary/10 text-primary">
@@ -190,34 +191,34 @@ export default function ProfilePage() {
           <div className="text-center md:text-left space-y-2 flex-grow">
             <h1 className="text-4xl font-black tracking-tight">{displayName}</h1>
             <p className="text-muted-foreground flex items-center justify-center md:justify-start gap-2">
-              <Mail className="w-4 h-4 text-accent" /> {user.email || 'Guest User'}
+              <Mail className="w-4 h-4 text-accent" /> {user.email || 'Guest Account'}
             </p>
           </div>
           
           <Dialog open={isEditDialogOpen} onOpenChange={setIsEditDialogOpen}>
             <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="md:absolute top-8 right-8 rounded-xl h-9 shadow-sm hover:shadow-md transition-shadow">
+              <Button variant="outline" size="sm" className="md:absolute top-8 right-8 rounded-xl h-9">
                 <Edit3 className="w-4 h-4 mr-2" /> Edit Details
               </Button>
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[425px] rounded-3xl overflow-hidden">
-              <DialogHeader><DialogTitle>Update Profile Information</DialogTitle></DialogHeader>
+            <DialogContent className="sm:max-w-[425px] rounded-3xl">
+              <DialogHeader><DialogTitle>Update Profile</DialogTitle></DialogHeader>
               <form onSubmit={form.handleSubmit(onSaveProfile)} className="space-y-4 py-4">
                 <div className="space-y-2">
                   <Label>Full Name</Label>
-                  <Input {...form.register('fullName')} className="rounded-xl h-11" placeholder="Enter your full name" suppressHydrationWarning />
+                  <Input {...form.register('fullName')} className="rounded-xl h-11" suppressHydrationWarning />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2"><Label>Age</Label><Input type="number" {...form.register('age')} className="rounded-xl h-11" suppressHydrationWarning /></div>
-                  <div className="space-y-2"><Label>Mobile Number</Label><Input maxLength={10} {...form.register('mobileNumber')} className="rounded-xl h-11" placeholder="10-digit number" suppressHydrationWarning /></div>
+                  <div className="space-y-2"><Label>Mobile</Label><Input maxLength={10} {...form.register('mobileNumber')} className="rounded-xl h-11" suppressHydrationWarning /></div>
                 </div>
                 <div className="space-y-2">
-                  <Label>Aadhar Number (12 digits)</Label>
-                  <Input maxLength={12} {...form.register('aadharNumber')} className="rounded-xl h-11" placeholder="XXXX XXXX XXXX" suppressHydrationWarning />
+                  <Label>Aadhar Number</Label>
+                  <Input maxLength={12} {...form.register('aadharNumber')} className="rounded-xl h-11" suppressHydrationWarning />
                 </div>
                 <DialogFooter className="pt-4">
-                  <Button type="submit" className="w-full rounded-xl h-12 shadow-lg shadow-primary/20" disabled={isSaving}>
-                    {isSaving ? <Loader2 className="animate-spin" /> : 'Save Profile Changes'}
+                  <Button type="submit" className="w-full rounded-xl h-12" disabled={isSaving}>
+                    {isSaving ? <Loader2 className="animate-spin" /> : 'Save Changes'}
                   </Button>
                 </DialogFooter>
               </form>
@@ -226,12 +227,12 @@ export default function ProfilePage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <Card className="premium-card h-auto">
-            <CardHeader><CardTitle className="text-lg flex items-center gap-2"><User className="w-5 h-5 text-primary" /> Profile Overview</CardTitle></CardHeader>
+          <Card className="premium-card">
+            <CardHeader><CardTitle className="text-lg flex items-center gap-2 font-bold"><User className="w-5 h-5 text-primary" /> Profile Data</CardTitle></CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-1">
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">User Age</p>
-                <p className="font-bold text-lg">{profile?.age || 'Not set'} Years</p>
+                <p className="font-bold text-lg">{profile?.age || 'Not set'}</p>
               </div>
               <div className="space-y-1">
                 <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Mobile Contact</p>
@@ -240,13 +241,13 @@ export default function ProfilePage() {
             </CardContent>
           </Card>
 
-          <Card className={`premium-card h-auto ${profile?.isVerified ? 'bg-accent/5' : 'bg-destructive/5'}`}>
-            <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Fingerprint className={`w-5 h-5 ${profile?.isVerified ? 'text-accent' : 'text-destructive'}`} /> Identity Status</CardTitle></CardHeader>
+          <Card className={`premium-card ${profile?.isVerified ? 'bg-accent/5' : 'bg-destructive/5'}`}>
+            <CardHeader><CardTitle className="text-lg flex items-center gap-2 font-bold"><Fingerprint className={`w-5 h-5 ${profile?.isVerified ? 'text-accent' : 'text-destructive'}`} /> Security Status</CardTitle></CardHeader>
             <CardContent className="space-y-6">
               <div className="space-y-1">
-                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Verified Aadhar ID</p>
+                <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Government Aadhar ID</p>
                 <p className="font-mono text-lg font-bold">
-                  {profile?.aadharNumber ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` : 'Aadhar ID required'}
+                  {profile?.aadharNumber ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` : 'Aadhar required'}
                 </p>
               </div>
 
@@ -258,27 +259,27 @@ export default function ProfilePage() {
                         <motion.div key="send" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
                           <Button onClick={handleSendOtp} disabled={isSendingOtp} className="w-full rounded-xl h-11 shadow-md">
                             {isSendingOtp ? <Loader2 className="animate-spin mr-2" /> : <Smartphone className="w-4 h-4 mr-2" />}
-                            {isSendingOtp ? 'Sending Secure OTP...' : 'Send Verification OTP'}
+                            {isSendingOtp ? 'Sending OTP...' : 'Verify via SMS OTP'}
                           </Button>
                         </motion.div>
                       ) : (
                         <motion.div key="verify" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="space-y-3">
                           <Input 
-                            placeholder="Enter 6-digit Code" 
+                            placeholder="Enter 6-digit OTP" 
                             maxLength={6} 
                             className="text-center font-bold h-12 rounded-xl text-lg tracking-[0.2em]" 
                             value={otpValue} 
                             onChange={e => setOtpValue(e.target.value)} 
                             suppressHydrationWarning
                           />
-                          <Button onClick={handleVerifyOtp} disabled={isVerifying || otpValue.length !== 6} className="w-full bg-accent text-white rounded-xl h-11 shadow-lg shadow-accent/20">
+                          <Button onClick={handleVerifyOtp} disabled={isVerifying || otpValue.length !== 6} className="w-full bg-accent text-white rounded-xl h-11">
                             {isVerifying ? <Loader2 className="animate-spin" /> : 'Confirm Verification'}
                           </Button>
-                          <p className="text-[10px] text-center text-muted-foreground">
-                            Didn't get the code? {resendTimer > 0 ? (
+                          <p className="text-[10px] text-center text-muted-foreground mt-2">
+                            {resendTimer > 0 ? (
                               <span className="font-bold">Resend in {resendTimer}s</span>
                             ) : (
-                              <button onClick={handleSendOtp} className="text-primary font-bold">Resend Now</button>
+                              <button onClick={handleSendOtp} className="text-primary font-bold">Resend OTP</button>
                             )}
                           </p>
                         </motion.div>
@@ -287,7 +288,7 @@ export default function ProfilePage() {
                   </div>
                 ) : (
                   <div className="flex items-center gap-2 text-accent font-bold py-2 bg-accent/10 px-4 rounded-xl border border-accent/20">
-                    <CheckCircle2 className="w-5 h-5" /> Identity verified via Secure OTP
+                    <ShieldCheck className="w-5 h-5" /> Account Verified via OTP
                   </div>
                 )}
               </div>
