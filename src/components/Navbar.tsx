@@ -1,8 +1,9 @@
+
 'use client';
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Compass, Globe, Search, Menu, X, Sun, Moon, LogOut, User as UserIcon, Utensils, ShieldCheck } from 'lucide-react';
+import { Compass, Globe, Search, Menu, X, Sun, Moon, LogOut, User as UserIcon, Utensils, ShieldCheck, LifeBuoy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUser, useAuth } from '@/firebase';
@@ -64,6 +65,7 @@ export default function Navbar() {
     { name: 'Home', href: '/', icon: Compass },
     { name: 'Locations', href: '/locations', icon: Globe },
     { name: 'Restaurants', href: '/restaurants', icon: Utensils },
+    { name: 'Emergency', href: '/emergency', icon: LifeBuoy },
     { name: 'Search', href: '/search', icon: Search },
   ];
 
