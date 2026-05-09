@@ -22,7 +22,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, LogIn, Mail, Lock, UserRound, AlertCircle, Phone, Smartphone, ArrowLeft, Loader2, Copy } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Mail, Lock, UserRound, AlertCircle, Phone, Smartphone, ArrowLeft, Loader2, Copy, Info } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -87,7 +87,7 @@ export default function LoginPage() {
           domain: hostname
         };
       case 'auth/too-many-requests':
-        return { title: 'Too Many Requests', message: 'SMS traffic blocked due to unusual activity. Try again later.' };
+        return { title: 'Security Block', message: 'Too many SMS requests. Use a Test Number from Firebase Console or wait 10 minutes.' };
       case 'auth/invalid-phone-number':
         return { title: 'Invalid Phone', message: 'The phone number provided is incorrect.' };
       default:
@@ -106,11 +106,7 @@ export default function LoginPage() {
       });
       recaptchaVerifierRef.current = verifier;
     } catch (error: any) {
-      if (error.message?.includes('already rendered')) {
-        console.warn("Recaptcha already rendered.");
-      } else {
-        console.error("Recaptcha error:", error);
-      }
+      console.error("Recaptcha error:", error);
     }
   };
 
@@ -124,29 +120,16 @@ export default function LoginPage() {
     setAuthError(null);
     setupRecaptcha();
     
-    const appVerifier = recaptchaVerifierRef.current;
-    if (!appVerifier) {
-      setIsSendingOtp(false);
-      // Try once more to initialize if null
-      setupRecaptcha();
-      if (!recaptchaVerifierRef.current) {
-        toast({ title: "Error", description: "Identity system failed to initialize. Please refresh.", variant: "destructive" });
-        return;
-      }
-    }
-
     try {
       const formattedNumber = `+91${phoneNumber}`;
       const result = await signInWithPhoneNumber(auth, formattedNumber, recaptchaVerifierRef.current!);
       setConfirmationResult(result);
       setIsOtpSent(true);
-      toast({ title: "OTP Sent", description: "Verification code sent to +91 " + phoneNumber });
+      toast({ title: "OTP Sent", description: "Verification code dispatched." });
     } catch (error: any) {
       const err = getFriendlyErrorMessage(error);
       setAuthError(err);
       
-      // If error is related to element already used, we don't necessarily clear it, 
-      // but for other fatal errors, clearing helps reset.
       if (error.code !== 'auth/too-many-requests' && !error.message?.includes('already rendered')) {
         if (recaptchaVerifierRef.current) {
           try { recaptchaVerifierRef.current.clear(); } catch (e) {}
@@ -223,7 +206,7 @@ export default function LoginPage() {
   return (
     <div className="container mx-auto px-4 py-20 flex justify-center items-center min-h-[80vh]">
       <div id="recaptcha-container-login"></div>
-      <Card className="w-full max-w-md border-none shadow-2xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
+      <Card className="w-full max-md border-none shadow-2xl rounded-3xl overflow-hidden bg-white dark:bg-zinc-950">
         <CardHeader className="text-center bg-primary/5 py-10">
           <CardTitle className="text-3xl font-black tracking-tight text-primary">Voyage Compass</CardTitle>
           <CardDescription>Explore the heart of India</CardDescription>
@@ -246,6 +229,12 @@ export default function LoginPage() {
                     >
                       <Copy className="h-3 w-3" />
                     </Button>
+                  </div>
+                )}
+                {authError.title === 'Security Block' && (
+                  <div className="bg-white/10 p-3 rounded-lg border border-destructive/20 space-y-2 mt-2">
+                    <p className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5"><Info className="w-3 h-3" /> Testing Tip:</p>
+                    <p className="text-[10px] opacity-90">Add a <strong>Test Phone Number</strong> in Firebase Console > Authentication > Settings to bypass limits during development.</p>
                   </div>
                 )}
               </AlertDescription>

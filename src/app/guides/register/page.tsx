@@ -11,7 +11,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { ShieldCheck, Loader2, Fingerprint, Smartphone, ShieldAlert, CheckCircle2, Copy, AlertCircle } from 'lucide-react';
+import { ShieldCheck, Loader2, Fingerprint, Smartphone, ShieldAlert, CheckCircle2, Copy, AlertCircle, Info } from 'lucide-react';
 import { useFirestore, useUser, useAuth } from '@/firebase';
 import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { RecaptchaVerifier, signInWithPhoneNumber, type ConfirmationResult } from 'firebase/auth';
@@ -100,11 +100,7 @@ export default function GuideRegistrationPage() {
       });
       recaptchaVerifierRef.current = verifier;
     } catch (error: any) {
-      if (error.code === 'auth/captcha-check-failed' || error.message?.includes('already rendered')) {
-        console.warn("Recaptcha already rendered or initialized.");
-      } else {
-        console.error("Recaptcha setup error:", error);
-      }
+      console.error("Recaptcha setup error:", error);
     }
   };
 
@@ -125,7 +121,7 @@ export default function GuideRegistrationPage() {
           domain: hostname
         };
       case 'auth/too-many-requests':
-        return { title: 'Security Block', message: 'Too many SMS requests. Please wait before trying again.' };
+        return { title: 'Security Block', message: 'Too many SMS requests. Use a Test Number from Firebase Console or wait 10 minutes.' };
       default:
         return { title: 'SMS Failed', message: error?.message || 'Verification could not be initiated.' };
     }
@@ -141,29 +137,18 @@ export default function GuideRegistrationPage() {
     setAuthError(null);
     setupRecaptcha();
 
-    const appVerifier = recaptchaVerifierRef.current;
-    if (!appVerifier) {
-      setIsSendingOtp(false);
-      // Try once more to initialize if null
-      setupRecaptcha();
-      if (!recaptchaVerifierRef.current) {
-        toast({ title: "Verification Error", description: "Identity system failed to initialize. Refresh and try again.", variant: "destructive" });
-        return;
-      }
-    }
-
     try {
       const phoneNumber = `+91${mobileValue}`;
-      const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier!);
+      const result = await signInWithPhoneNumber(auth, phoneNumber, recaptchaVerifierRef.current!);
       setConfirmationResult(result);
       setIsOtpSent(true);
       setResendTimer(60);
-      toast({ title: "OTP Dispatched", description: "A secure verification code has been sent to +91 " + mobileValue });
+      toast({ title: "OTP Dispatched", description: "A secure verification code has been sent." });
     } catch (error: any) {
       const err = getFriendlyErrorMessage(error);
       setAuthError(err);
       
-      // If fatal error, clear verifier so it can be recreated
+      // If fatal error, clear verifier
       if (error.code !== 'auth/too-many-requests' && !error.message?.includes('already rendered')) {
         if (recaptchaVerifierRef.current) {
           try { recaptchaVerifierRef.current.clear(); } catch (e) {}
@@ -261,6 +246,12 @@ export default function GuideRegistrationPage() {
                       <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={() => copyToClipboard(authError.domain!)}>
                         <Copy className="h-3 w-3" />
                       </Button>
+                    </div>
+                  )}
+                  {authError.title === 'Security Block' && (
+                    <div className="bg-white/10 p-3 rounded-lg border border-destructive/20 space-y-2 mt-2">
+                      <p className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5"><Info className="w-3 h-3" /> Testing Tip:</p>
+                      <p className="text-[10px] opacity-90">Add a <strong>Test Phone Number</strong> in Firebase Console > Authentication > Settings to bypass limits during development.</p>
                     </div>
                   )}
                 </AlertDescription>
