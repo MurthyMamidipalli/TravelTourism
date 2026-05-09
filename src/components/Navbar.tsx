@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
-import { Compass, Globe, Search, Menu, X, Sun, Moon, LogOut, User as UserIcon, Utensils } from 'lucide-react';
+import { Compass, Globe, Search, Menu, X, Sun, Moon, LogOut, User as UserIcon, Utensils, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useUser, useAuth } from '@/firebase';
@@ -31,7 +31,6 @@ export default function Navbar() {
   useEffect(() => {
     setMounted(true);
     const handleScroll = () => {
-      // Use requestAnimationFrame for smoother scroll handling
       window.requestAnimationFrame(() => {
         setScrolled(window.scrollY > 20);
       });
@@ -71,7 +70,6 @@ export default function Navbar() {
     { name: 'Search', href: '/search', icon: Search },
   ];
 
-  // Fixed height and stable layout to prevent "shaking"
   const navClass = `glass-nav transition-colors duration-300 h-20 flex items-center border-b ${
     scrolled ? 'bg-white/90 dark:bg-black/90 shadow-sm backdrop-blur-xl' : 'bg-white dark:bg-black'
   }`;
@@ -108,7 +106,6 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Desktop Nav */}
           <div className="hidden md:flex items-center gap-6">
             {navItems.map((item) => (
               <Link
@@ -192,14 +189,12 @@ export default function Navbar() {
             )}
           </div>
 
-          {/* Mobile Toggle */}
           <button className="md:hidden p-2 h-10 w-10 flex items-center justify-center" onClick={() => setIsOpen(!isOpen)}>
             {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Menu */}
       <AnimatePresence>
         {isOpen && (
           <motion.div
