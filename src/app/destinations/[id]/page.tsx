@@ -1,4 +1,6 @@
+'use client';
 
+import { use } from 'react';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -57,8 +59,8 @@ const mockDestinations: Record<string, any> = {
   'ramappa-temple': { name: 'Ramappa Temple', district: 'Warangal', itinerary: '1 Day', category: 'Heritage', lang: 'Telugu', desc: 'UNESCO World Heritage site known for its exquisite Kakatiya architecture.', lat: 18.2583, lng: 79.9431 },
 };
 
-export default async function DestinationDetailPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+export default function DestinationDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = use(params);
   const dest = mockDestinations[id];
 
   if (!dest) return notFound();
