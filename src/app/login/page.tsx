@@ -13,7 +13,8 @@ import {
   signInAnonymously,
   sendPasswordResetEmail 
 } from 'firebase/auth';
-import { useAuth } from '@/firebase';
+import { useAuth, useFirestore } from '@/firebase';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
@@ -31,6 +32,7 @@ const loginSchema = z.object({
 
 export default function LoginPage() {
   const auth = useAuth();
+  const firestore = useFirestore();
   const router = useRouter();
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
@@ -48,6 +50,20 @@ export default function LoginPage() {
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
   });
+
+  const ensureUserProfile = async (user: any) => {
+    if (!firestore) return;
+    const userDocRef = doc(firestore, 'users', user.uid);
+    const userDoc = await getDoc(userDocRef);
+    if (!userDoc.exists()) {
+      await setDoc(userDocRef, {
+        fullName: user.displayName || 'Traveler',
+        email: user.email || '',
+        isVerified: false,
+        createdAt: serverTimestamp(),
+      });
+    }
+  };
 
   const getFriendlyErrorMessage = (error: any) => {
     const code = error?.code || 'unknown';
@@ -100,13 +116,24 @@ export default function LoginPage() {
     setAuthError(null);
     const provider = new GoogleAuthProvider();
     try {
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      await ensureUserProfile(result.user);
       toast({ title: 'Success', description: 'Signed in with Google.' });
       router.push('/dashboard');
     } catch (error: any) {
       setAuthError(getFriendlyErrorMessage(error));
     } finally {
       setIsGoogleLoading(false);
+    }
+  };
+
+  const handleGuestLogin = async () => {
+    try {
+      const result = await signInAnonymously(auth);
+      await ensureUserProfile(result.user);
+      router.push('/dashboard');
+    } catch (error: any) {
+      toast({ variant: 'destructive', title: 'Error', description: error.message });
     }
   };
 
@@ -237,7 +264,7 @@ export default function LoginPage() {
               {isGoogleLoading ? <Loader2 className="animate-spin h-4 w-4 mr-2" /> : <Sparkles className="mr-2 h-4 w-4 text-amber-500" />}
               Google
             </Button>
-            <Button variant="secondary" className="h-12 rounded-xl font-bold" onClick={() => signInAnonymously(auth).then(() => router.push('/dashboard'))}>
+            <Button variant="secondary" className="h-12 rounded-xl font-bold" onClick={handleGuestLogin}>
               <UserRound className="mr-2 h-4 w-4" /> Guest
             </Button>
           </div>

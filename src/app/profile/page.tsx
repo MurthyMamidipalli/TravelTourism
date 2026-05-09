@@ -47,7 +47,7 @@ export default function ProfilePage() {
     resolver: zodResolver(editProfileSchema),
     defaultValues: {
       fullName: '',
-      age: 0,
+      age: 25,
       mobileNumber: '',
       aadharNumber: '',
       panNumber: '',
@@ -55,23 +55,33 @@ export default function ProfilePage() {
     },
   });
 
+  // Sync profile data to form when it loads
   useEffect(() => {
     if (profile) {
       form.reset({
         fullName: profile.fullName || user?.displayName || '',
-        age: profile.age || 0,
+        age: profile.age || 25,
         mobileNumber: profile.mobileNumber || '',
         aadharNumber: profile.aadharNumber || '',
         panNumber: profile.panNumber || '',
         passportNumber: profile.passportNumber || '',
       });
+    } else if (user && !profileLoading) {
+      // If profile doc doesn't exist yet, prepopulate with Auth data
+      form.setValue('fullName', user.displayName || '');
     }
-  }, [profile, user?.displayName, form]);
+  }, [profile, user, profileLoading, form]);
 
   const onSaveProfile = useCallback((values: z.infer<typeof editProfileSchema>) => {
     if (!userDocRef) return;
     setIsSaving(true);
-    const updatedProfile = { ...values, isVerified: true };
+    const updatedProfile = { 
+      ...values, 
+      email: user?.email || '',
+      isVerified: true,
+      updatedAt: new Date().toISOString()
+    };
+    
     setDoc(userDocRef, updatedProfile, { merge: true })
       .then(() => {
         toast({ title: "Profile Updated", description: "Identity documents verified." });
@@ -81,11 +91,10 @@ export default function ProfilePage() {
         errorEmitter.emit('permission-error', new FirestorePermissionError({ path: userDocRef.path, operation: 'update', requestResourceData: updatedProfile }));
       })
       .finally(() => setIsSaving(false));
-  }, [userDocRef, toast]);
+  }, [userDocRef, user?.email, toast]);
 
-  const isActuallyLoading = authLoading || (user && profileLoading && !profile);
-
-  if (isActuallyLoading) {
+  // Priority 1: Auth Loading
+  if (authLoading) {
     return (
       <div className="container mx-auto px-4 py-12 space-y-8 min-h-screen">
         <Skeleton className="h-12 w-64 rounded-xl" />
@@ -94,6 +103,7 @@ export default function ProfilePage() {
     );
   }
 
+  // Priority 2: No User
   if (!user) {
     return (
       <div className="container mx-auto px-4 py-20 flex flex-col items-center justify-center text-center space-y-6 min-h-[60vh]">
@@ -193,29 +203,46 @@ export default function ProfilePage() {
           <Card className="premium-card">
             <CardHeader><CardTitle className="text-lg flex items-center gap-2 font-bold"><User className="w-5 h-5 text-primary" /> Profile Details</CardTitle></CardHeader>
             <CardContent className="space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-primary/5 p-2 rounded-lg"><Phone className="w-4 h-4 text-primary" /></div>
-                <div><p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Mobile Number</p><p className="font-bold">{profile?.mobileNumber || 'Not set'}</p></div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="bg-primary/5 p-2 rounded-lg"><Calendar className="w-4 h-4 text-primary" /></div>
-                <div><p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Current Age</p><p className="font-bold">{profile?.age || 'Not set'} Years</p></div>
-              </div>
+              {profileLoading && !profile ? (
+                <div className="space-y-4">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-primary/5 p-2 rounded-lg"><Phone className="w-4 h-4 text-primary" /></div>
+                    <div><p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Mobile Number</p><p className="font-bold">{profile?.mobileNumber || 'Not set'}</p></div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-primary/5 p-2 rounded-lg"><Calendar className="w-4 h-4 text-primary" /></div>
+                    <div><p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Current Age</p><p className="font-bold">{profile?.age ? `${profile.age} Years` : 'Not set'}</p></div>
+                  </div>
+                </>
+              )}
             </CardContent>
           </Card>
 
           <Card className={`premium-card ${profile?.isVerified ? 'bg-accent/5 border-accent/20' : 'bg-destructive/5 border-destructive/20'}`}>
             <CardHeader><CardTitle className="text-lg flex items-center gap-2 font-bold"><ShieldCheck className={`w-5 h-5 ${profile?.isVerified ? 'text-accent' : 'text-destructive'}`} /> ID Status</CardTitle></CardHeader>
             <CardContent className="space-y-6">
-              <div className="grid gap-4">
-                <div className="flex justify-between border-b pb-2"><span className="text-xs text-muted-foreground">Aadhar UID</span><span className="font-mono text-xs font-bold">{profile?.aadharNumber ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` : 'Pending'}</span></div>
-                <div className="flex justify-between border-b pb-2"><span className="text-xs text-muted-foreground">PAN Tax ID</span><span className="font-mono text-xs font-bold uppercase">{profile?.panNumber || 'Pending'}</span></div>
-                <div className="flex justify-between pb-2"><span className="text-xs text-muted-foreground">Passport ID</span><span className="font-mono text-xs font-bold uppercase">{profile?.passportNumber || 'Pending'}</span></div>
-              </div>
-              {profile?.isVerified && (
-                <div className="flex items-center gap-2 text-accent font-bold py-2 bg-accent/10 px-4 rounded-xl border border-accent/20">
-                  <CheckCircle2 className="w-5 h-5" /> Documents Fully Verified
+              {profileLoading && !profile ? (
+                <div className="space-y-4">
+                  <Skeleton className="h-20 w-full" />
                 </div>
+              ) : (
+                <>
+                  <div className="grid gap-4">
+                    <div className="flex justify-between border-b pb-2"><span className="text-xs text-muted-foreground">Aadhar UID</span><span className="font-mono text-xs font-bold">{profile?.aadharNumber ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` : 'Pending'}</span></div>
+                    <div className="flex justify-between border-b pb-2"><span className="text-xs text-muted-foreground">PAN Tax ID</span><span className="font-mono text-xs font-bold uppercase">{profile?.panNumber || 'Pending'}</span></div>
+                    <div className="flex justify-between pb-2"><span className="text-xs text-muted-foreground">Passport ID</span><span className="font-mono text-xs font-bold uppercase">{profile?.passportNumber || 'Pending'}</span></div>
+                  </div>
+                  {profile?.isVerified && (
+                    <div className="flex items-center gap-2 text-accent font-bold py-2 bg-accent/10 px-4 rounded-xl border border-accent/20">
+                      <CheckCircle2 className="w-5 h-5" /> Documents Fully Verified
+                    </div>
+                  )}
+                </>
               )}
             </CardContent>
           </Card>

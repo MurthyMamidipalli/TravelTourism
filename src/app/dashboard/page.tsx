@@ -8,7 +8,7 @@ import { Compass, Star, History, Calendar, Settings, User, Phone, Fingerprint, S
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { doc } from 'firebase/firestore';
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo } from 'react';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export default function DashboardPage() {
@@ -22,19 +22,7 @@ export default function DashboardPage() {
 
   const { data: profile, loading: profileLoading } = useDoc(userDocRef);
 
-  const [isActuallyLoading, setIsActuallyLoading] = useState(true);
-
-  useEffect(() => {
-    if (!authLoading) {
-      if (!user) {
-        setIsActuallyLoading(false);
-      } else if (!profileLoading || profile) {
-        setIsActuallyLoading(false);
-      }
-    }
-  }, [authLoading, profileLoading, user, profile]);
-
-  if (isActuallyLoading) {
+  if (authLoading) {
     return (
       <div className="container mx-auto px-4 py-12 space-y-8 min-h-screen">
         <div className="flex justify-between items-center">
@@ -116,38 +104,44 @@ export default function DashboardPage() {
             <CardDescription>Your secure travel identity and documentation</CardDescription>
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-white p-2 rounded-lg shadow-sm"><User className="w-4 h-4 text-primary" /></div>
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Legal Name</p>
-                  <p className="font-bold text-sm">{profile?.fullName || user?.displayName || 'Traveler'}</p>
+            {profileLoading && !profile ? (
+              <div className="col-span-full py-4"><Skeleton className="h-20 w-full" /></div>
+            ) : (
+              <>
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white p-2 rounded-lg shadow-sm"><User className="w-4 h-4 text-primary" /></div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Legal Name</p>
+                      <p className="font-bold text-sm">{profile?.fullName || user?.displayName || 'Traveler'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white p-2 rounded-lg shadow-sm"><Fingerprint className="w-4 h-4 text-primary" /></div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Aadhar ID</p>
+                      <p className="font-mono text-sm font-bold">{profile?.aadharNumber ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` : 'Pending Verification'}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="bg-white p-2 rounded-lg shadow-sm"><Fingerprint className="w-4 h-4 text-primary" /></div>
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Aadhar ID</p>
-                  <p className="font-mono text-sm font-bold">{profile?.aadharNumber ? `XXXX-XXXX-${profile.aadharNumber.slice(-4)}` : 'Pending Verification'}</p>
+                <div className="space-y-6">
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white p-2 rounded-lg shadow-sm"><Phone className="w-4 h-4 text-primary" /></div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Mobile Contact</p>
+                      <p className="font-bold text-sm">{profile?.mobileNumber || 'N/A'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white p-2 rounded-lg shadow-sm"><Globe className="w-4 h-4 text-primary" /></div>
+                    <div>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Passport ID</p>
+                      <p className="font-mono text-sm font-bold uppercase">{profile?.passportNumber || 'Pending'}</p>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
-            <div className="space-y-6">
-              <div className="flex items-center gap-3">
-                <div className="bg-white p-2 rounded-lg shadow-sm"><Phone className="w-4 h-4 text-primary" /></div>
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Mobile Contact</p>
-                  <p className="font-bold text-sm">{profile?.mobileNumber || 'N/A'}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <div className="bg-white p-2 rounded-lg shadow-sm"><Globe className="w-4 h-4 text-primary" /></div>
-                <div>
-                  <p className="text-[10px] font-black uppercase tracking-widest text-muted-foreground">Passport ID</p>
-                  <p className="font-mono text-sm font-bold uppercase">{profile?.passportNumber || 'Pending'}</p>
-                </div>
-              </div>
-            </div>
+              </>
+            )}
           </CardContent>
           <div className="p-6 pt-0 border-t flex justify-end">
             <Link href="/profile">
