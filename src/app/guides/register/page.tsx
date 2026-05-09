@@ -75,17 +75,13 @@ export default function GuideRegistrationPage() {
     }
   }, [resendTimer]);
 
-  const aadharValue = form.watch('aadharNumber') || '';
   const mobileValue = form.watch('mobileNumber') || '';
 
   const setupRecaptcha = () => {
     if (recaptchaVerifierRef.current) return;
     try {
       recaptchaVerifierRef.current = new RecaptchaVerifier(auth, 'recaptcha-container', {
-        size: 'invisible',
-        callback: () => {
-          // reCAPTCHA solved, allow signInWithPhoneNumber.
-        }
+        size: 'invisible'
       });
     } catch (error) {
       console.error("Recaptcha setup error:", error);
@@ -113,7 +109,6 @@ export default function GuideRegistrationPage() {
     }
 
     try {
-      // Format for India
       const phoneNumber = `+91${mobileValue}`;
       const result = await signInWithPhoneNumber(auth, phoneNumber, appVerifier);
       setConfirmationResult(result);
@@ -126,8 +121,12 @@ export default function GuideRegistrationPage() {
     } catch (error: any) {
       console.error("SMS Error:", error);
       let message = "Could not send OTP. Please check your number or try again later.";
-      if (error.code === 'auth/too-many-requests') message = "Too many requests. Please try again in a few minutes.";
-      toast({ title: "SMS Failed", description: message, variant: "destructive" });
+      if (error.code === 'auth/unauthorized-domain') {
+        message = "This domain is not authorized in Firebase Console. Add it to Authentication > Settings > Authorized domains.";
+      } else if (error.code === 'auth/too-many-requests') {
+        message = "Too many requests. Please try again in a few minutes.";
+      }
+      toast({ title: "SMS Failed", description: `${message} (${error.code})`, variant: "destructive" });
     } finally {
       setIsSendingOtp(false);
     }

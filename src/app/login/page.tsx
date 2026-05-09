@@ -18,10 +18,11 @@ import {
 import { useAuth } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff, LogIn, Mail, Lock, UserRound, AlertCircle, Phone, Smartphone, ArrowLeft } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Mail, Lock, UserRound, AlertCircle, Phone, Smartphone, ArrowLeft, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -83,6 +84,11 @@ export default function LoginPage() {
         };
       case 'auth/invalid-phone-number':
         return { title: 'Invalid Phone', message: 'The phone number provided is incorrect.' };
+      case 'auth/unauthorized-domain':
+        return { 
+          title: 'Domain Not Authorized', 
+          message: 'This domain is not whitelisted in Firebase Console. Go to Auth > Settings > Authorized domains.' 
+        };
       default:
         return {
           title: 'Authentication Error',
@@ -114,6 +120,7 @@ export default function LoginPage() {
     const appVerifier = recaptchaVerifierRef.current;
     if (!appVerifier) {
       setIsSendingOtp(false);
+      toast({ title: "Error", description: "Recaptcha failed to initialize.", variant: "destructive" });
       return;
     }
 
@@ -125,7 +132,7 @@ export default function LoginPage() {
       toast({ title: "OTP Sent", description: "Code sent to +91 " + phoneNumber });
     } catch (error: any) {
       const err = getFriendlyErrorMessage(error);
-      toast({ variant: "destructive", title: err.title, description: err.message });
+      toast({ variant: "destructive", title: err.title, description: `${err.message} (${error.code})` });
     } finally {
       setIsSendingOtp(false);
     }
