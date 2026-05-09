@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -84,7 +85,7 @@ export default function RestaurantsPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
+                transition={{ duration: 0.15, delay: Math.min(idx * 0.02, 0.1) }}
               >
                 <Card className="premium-card overflow-hidden h-full group flex flex-col border-none bg-white dark:bg-zinc-900 shadow-sm">
                   <div className="relative h-56 bg-secondary aspect-video overflow-hidden">

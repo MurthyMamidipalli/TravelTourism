@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -79,7 +80,7 @@ export default function DestinationsPage() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.15, delay: Math.min(idx * 0.02, 0.1) }}
             >
               <Link href={`/destinations/${dest.id}`}>
                 <Card className="h-full group hover:shadow-md transition-shadow border-none overflow-hidden bg-white dark:bg-zinc-900 flex flex-col">
