@@ -148,7 +148,6 @@ export default function GuideRegistrationPage() {
       const err = getFriendlyErrorMessage(error);
       setAuthError(err);
       
-      // If fatal error, clear verifier
       if (error.code !== 'auth/too-many-requests' && !error.message?.includes('already rendered')) {
         if (recaptchaVerifierRef.current) {
           try { recaptchaVerifierRef.current.clear(); } catch (e) {}
@@ -251,7 +250,7 @@ export default function GuideRegistrationPage() {
                   {authError.title === 'Security Block' && (
                     <div className="bg-white/10 p-3 rounded-lg border border-destructive/20 space-y-2 mt-2">
                       <p className="text-[10px] font-bold uppercase tracking-wider flex items-center gap-1.5"><Info className="w-3 h-3" /> Testing Tip:</p>
-                      <p className="text-[10px] opacity-90">Add a <strong>Test Phone Number</strong> in Firebase Console > Authentication > Settings to bypass limits during development.</p>
+                      <p className="text-[10px] opacity-90">Add a <strong>Test Phone Number</strong> in Firebase Console &gt; Authentication &gt; Settings to bypass limits during development.</p>
                     </div>
                   )}
                 </AlertDescription>
